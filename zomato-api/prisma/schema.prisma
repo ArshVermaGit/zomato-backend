@@ -1,0 +1,475 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User Models
+model User {
+  id String @id @default(uuid())
+  phone String @unique
+  email String? @unique
+  name String
+  role UserRole
+  password String?
+  avatar String?
+  razorpayCustomerId String? // New Field
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  customer Customer?
+  deliveryPartner DeliveryPartner?
+  restaurantPartner RestaurantPartner?
+  addresses Address[]
+  orders Order[]
+  reviews Review[]
+  
+  fcmTokens String[]
+  notificationPreferences Json? // { email: boolean, sms: boolean, push: boolean }
+  notifications Notification[]
+}
+
+enum UserRole {
+  CUSTOMER
+  DELIVERY_PARTNER
+  RESTAURANT_PARTNER
+  ADMIN
+}
+
+model Customer {
+  id String @id @default(uuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  favouriteRestaurants String[] // Restaurant IDs
+  totalOrders Int @default(0)
+  totalSpent Decimal @default(0)
+}
+
+model DeliveryPartner {
+  id String @id @default(uuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  vehicleType VehicleType
+  vehicleNumber String
+  licenseNumber String
+  
+  // Onboarding Details
+  bankDetails Json? // { accountName, accountNumber, ifscCode, bankName }
+  emergencyContact Json? // { name, phone, relation }
+  documents Json? // { [docType]: { url, status, verifiedAt } }
+  onboardingStatus OnboardingStatus @default(DRAFT)
+  
+  isAvailable Boolean @default(false)
+  currentLocation Json?
+  documentsVerified Boolean @default(false) // Can be derived from onboardingStatus = VERIFIED
+  rating Decimal @default(0)
+  totalDeliveries Int @default(0)
+  earnings Decimal @default(0)
+  currentBalance Decimal @default(0) // Available for withdrawal
+  
+  orders Order[]
+  walletTransactions WalletTransaction[]
+  payoutRequests PayoutRequest[]
+}
+
+model Payment {
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+  razorpayOrderId String
+  razorpayPaymentId String?
+  amount Decimal
+  status PaymentStatus @default(PENDING) // PENDING, COMPLETED, FAILED, REFUNDED, PARTIALLY_REFUNDED
+  method String? // CARD, UPI
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  refunds Refund[]
+}
+
+model Refund {
+  id String @id @default(uuid())
+  paymentId String
+  payment Payment @relation(fields: [paymentId], references: [id])
+  amount Decimal
+  status RefundStatus @default(PENDING) // PENDING, SUCCESS, FAILED
+  reason String?
+  type String @default("GATEWAY") // GATEWAY, WALLET
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Notification Model moved to end of file
+
+// Removed duplicates.
+enum RefundStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+// TransactionCategory was also duplicated. Removing local definition if it exists at top.
+// Wait, I see "TransactionCategory" at line 120 in previous view.
+// And I see "TransactionCategory" at the end in recent edit.
+// I should remove the ONES I ADDED at the bottom if they clash, OR merge them.
+// The new TransactionCategory has REFUND. The old did not.
+// I should find the FIRST definition and update it, and remove the SECOND.
+
+// But "view_file" showed lines 80-140.
+// TransactionCategory was at 120.
+// I appended NEW definitions at end.
+// So I should DELETE the ones at the end (PaymentStatus, TransactionCategory) and UPDATE the ones at the top.
+// Actually, I'll just delete the duplicates at the bottom and update the ones at the top in a separate call or same if I can reach. I can't reach top and bottom in one go easily with replace unless multi_replace.
+// I'll use multi_replace.
+
+model WalletTransaction {
+  id String @id @default(uuid())
+  partnerId String
+  partner DeliveryPartner @relation(fields: [partnerId], references: [id])
+  amount Decimal
+  type TransactionType // CREDIT, DEBIT
+  category TransactionCategory // ORDER_PAY, TIP, BONUS, PAYOUT, PENALTY
+  description String?
+  referenceId String? // Order ID or Payout ID
+  createdAt DateTime @default(now())
+}
+
+model PayoutRequest {
+  id String @id @default(uuid())
+  partnerId String
+  partner DeliveryPartner @relation(fields: [partnerId], references: [id])
+  amount Decimal
+  status PayoutStatus @default(PENDING)
+  method String? // BANK, UPI
+  transactionId String? // External bank ref
+  createdAt DateTime @default(now())
+  processedAt DateTime?
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum TransactionCategory {
+  ORDER_PAY
+  TIP
+  BONUS
+  PAYOUT
+  PENALTY
+  REFUND
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  REJECTED
+}
+
+enum OnboardingStatus {
+  DRAFT
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum VehicleType {
+  BIKE
+  SCOOTER
+  BICYCLE
+  CAR
+}
+
+model RestaurantPartner {
+  id String @id @default(uuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  restaurants Restaurant[]
+}
+
+// Restaurant Models
+model Restaurant {
+  id String @id @default(uuid())
+  name String
+  description String?
+  cuisineTypes String[]
+  phone String
+  email String
+  location Json // {lat, lng, address}
+  isActive Boolean @default(true)
+  isOpen Boolean @default(false)
+  rating Decimal @default(0)
+  totalRatings Int @default(0)
+  preparationTime Int // in minutes
+  minimumOrder Decimal @default(0)
+  deliveryFee Decimal
+  images String[]
+  partnerId String
+  partner RestaurantPartner @relation(fields: [partnerId], references: [id])
+  menuCategories MenuCategory[]
+  orders Order[]
+  reviews Review[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MenuCategory {
+  id String @id @default(uuid())
+  name String
+  description String?
+  displayOrder Int
+  restaurantId String
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  items MenuItem[]
+}
+
+model MenuItem {
+  id String @id @default(uuid())
+  name String
+  description String
+  price Decimal
+  images String[]
+  isVeg Boolean
+  isAvailable Boolean @default(true)
+  categoryId String
+  category MenuCategory @relation(fields: [categoryId], references: [id])
+  modifiers MenuModifier[]
+  orderItems OrderItem[]
+}
+
+model MenuModifier {
+  id String @id @default(uuid())
+  name String
+  options Json[] // [{name, price, isDefault}]
+  isRequired Boolean @default(false)
+  menuItemId String
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+// Order Models
+model Order {
+  id String @id @default(uuid())
+  orderNumber String @unique
+  status OrderStatus @default(PENDING)
+  customerId String
+  customer User @relation(fields: [customerId], references: [id])
+  restaurantId String
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  deliveryPartnerId String?
+  deliveryPartner DeliveryPartner? @relation(fields: [deliveryPartnerId], references: [id])
+  
+  items OrderItem[]
+  
+  deliveryAddress Json
+  customerInstructions String?
+  
+  // Pricing
+  itemsTotal Decimal
+  deliveryFee     Decimal? @db.Decimal(10, 2)
+  platformFee     Decimal? @db.Decimal(10, 2)
+  taxes           Decimal? @db.Decimal(10, 2)
+  discount Decimal @default(0)
+  tip             Decimal? @db.Decimal(10, 2) @default(0)
+  totalAmount     Decimal  @db.Decimal(10, 2)
+  
+  // status was already at top
+  
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+  
+  payments Payment[] // Relation to Payment logs
+
+  placedAt DateTime @default(now())
+  acceptedAt DateTime?
+  preparingAt DateTime?
+  readyAt DateTime?
+  pickedUpAt DateTime?
+  deliveredAt DateTime?
+  cancelledAt DateTime?
+  
+  // Delivery Details
+  pickupOtp String?
+  deliveryOtp String?
+  proofOfDelivery String?
+  cancellationReason String?
+  assignmentAttempts Int @default(0)
+  
+  rating Int?
+  review Review?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  PREPARING
+  READY
+  PICKED_UP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CARD
+  UPI
+  WALLET
+  CASH_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+  menuItemId String
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity Int
+  price Decimal
+  selectedModifiers Json? // {modifierId, optionName, price}
+  specialInstructions String?
+}
+
+// Review Model
+model Review {
+  id String @id @default(uuid())
+  orderId String @unique
+  order Order @relation(fields: [orderId], references: [id])
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  restaurantId String
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  rating Int
+  deliveryRating Int? // New: Rating for Delivery Partner
+  tags String[] // New: "Great Food", "Fast Delivery"
+  comment String?
+  images String[]
+  
+  helpfulCount Int @default(0)
+  isReported Boolean @default(false)
+  response String? // Restaurant Response
+  respondedAt DateTime?
+  
+  createdAt DateTime @default(now())
+}
+
+// Address Model
+model Address {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  label String // Home, Work, Other
+  fullAddress String
+  location Json // {lat, lng}
+  landmark String?
+  isDefault Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+// Promo/Coupon Model
+model Promo {
+  id String @id @default(uuid())
+  code String @unique
+  description String
+  discountType DiscountType
+  discountValue Decimal
+  minOrderValue Decimal
+  maxDiscount Decimal?
+  
+  // Validation Rules
+  applicableRestaurantIds String[]
+  isNewUserOnly Boolean @default(false)
+  maxUsagePerUser Int?
+  details Json? // Extra rules
+  
+  validFrom DateTime
+  validUntil DateTime
+  usageLimit Int?
+  usedCount Int @default(0)
+  isActive Boolean @default(true)
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+  FREE_DELIVERY
+}
+
+model Notification {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  title String
+  body String
+  type NotificationType // ORDER, PROMO, SYSTEM
+  channel NotificationChannel // PUSH, SMS, EMAIL, IN_APP
+  isRead Boolean @default(false)
+  metadata Json?
+  createdAt DateTime @default(now())
+}
+
+enum NotificationType {
+  ORDER
+  PROMO
+  SYSTEM
+}
+
+enum NotificationChannel {
+  PUSH
+  SMS
+  EMAIL
+  IN_APP
+}
+
+// Payment Transaction Model
+model PaymentTransaction {
+  id String @id @default(uuid())
+  orderId String
+  amount Decimal
+  method PaymentMethod
+  status PaymentStatus
+  gatewayTransactionId String?
+  gatewayResponse Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Report {
+  id String @id @default(uuid())
+  type ReportType
+  status ReportStatus @default(PENDING)
+  url String?
+  generatedBy String
+  criteria Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ReportType {
+  SALES
+  USERS
+  PERFORMANCE
+  CUSTOM
+}
+
+enum ReportStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
