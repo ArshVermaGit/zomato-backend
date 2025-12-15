@@ -73,7 +73,7 @@ http://localhost:3000/api
 Connect with me:
 
 - 🐙 **GitHub**: [ArshVermaGit](https://github.com/ArshVermaGit)
-- 💼 **LinkedIn**: [arshvermadev](https://www.linkedin.com/in/arshvermadev/)
+- 💼 **LinkedIn**: [ArshVermaDev](https://www.linkedin.com/in/arshvermadev/)
 - ✖️ **X (Twitter)**: [@TheArshVerma](https://x.com/TheArshVerma)
 - 📧 **Email**: [Arshverma.dev@gmail.com](mailto:Arshverma.dev@gmail.com)
 
