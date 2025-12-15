@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Build artifacts
+dist
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+test
+coverage
+*.test.ts
+*.spec.ts
+jest.config.*
+
+# Docs
+README.md
+*.md
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Environment
+.env*
+!.env.example
+
+# Prisma migrations (keep them in the image for prod)
+# prisma/migrations
