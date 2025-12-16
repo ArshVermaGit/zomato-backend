@@ -324,6 +324,52 @@ export class OrdersService {
         });
     }
 
+    async findAvailableForDelivery(lat: number, lng: number) {
+        // Find orders status READY and no partner assigned
+        // with location within radius
+        const radius = 10; // 10km
+
+        // Orders table stores deliveryAddress as JSON.
+        // We can limit by straight SQL distance on delivery address location or Restaurant location?
+        // Usually delivery partner claims order near Restaurant.
+        // So check Restaurant Location.
+
+        // This query joins Restaurant to check location distance
+
+        const rawQuery = Prisma.sql`
+            SELECT o.id, o."status", o."totalAmount", r.name as "restaurantName", r.address as "restaurantAddress", r.location as "restaurantLocation"
+            FROM "Order" o
+            JOIN "Restaurant" r ON o."restaurantId" = r.id
+            WHERE o."status" IN ('ACCEPTED', 'PREPARING', 'READY')
+            AND o."deliveryPartnerId" IS NULL
+            AND (
+                6371 * acos(
+                    cos(radians(${lat})) * cos(radians(CAST(r.location->>'lat' AS FLOAT))) *
+                    cos(radians(CAST(r.location->>'lng' AS FLOAT)) - radians(${lng})) +
+                    sin(radians(${lat})) * sin(radians(CAST(r.location->>'lat' AS FLOAT)))
+                )
+            ) < ${radius}
+            LIMIT 20;
+        `;
+
+        const results = await this.prisma.$queryRaw(rawQuery);
+        // We need to hydrate these with more info if needed, but raw result is fast.
+        // Let's manually fetch full objects for type safety if needed, or just return these DTOs.
+        // The frontend expects full Order objects mostly? 
+        // Delivery Partner app expects: { id, restaurantName, ... }
+        // The raw query returns flat structure.
+        // Let's simpler: Fetch IDs then findMany with include.
+        const ids = (results as any[]).map(r => r.id);
+
+        return this.prisma.order.findMany({
+            where: { id: { in: ids } },
+            include: {
+                restaurant: true,
+                items: { include: { menuItem: true } }
+            }
+        });
+    }
+
     private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
         const R = 6371; // Radius of the earth in km
         const dLat = this.deg2rad(lat2 - lat1);
