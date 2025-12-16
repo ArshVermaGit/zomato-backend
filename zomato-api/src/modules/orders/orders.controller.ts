@@ -102,6 +102,15 @@ export class OrdersController {
 
     // DELIVERY PARTNER ACTIONS
 
+    @Put(':id/claim')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.DELIVERY_PARTNER)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Claim (Accept) order for delivery' })
+    async claimOrder(@Request() req, @Param('id', ParseUUIDPipe) id: string) {
+        return this.orderStateService.assignPartner(id, req.user.userId);
+    }
+
     @Put(':id/pickup')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.DELIVERY_PARTNER)
@@ -118,6 +127,16 @@ export class OrdersController {
     @ApiOperation({ summary: 'Deliver order' })
     async deliverOrder(@Request() req, @Param('id', ParseUUIDPipe) id: string) {
         return this.orderStateService.transition(id, OrderStatus.DELIVERED, req.user.userId, req.user.role);
+    }
+
+    @Get('delivery/available')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.DELIVERY_PARTNER)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Find available orders for delivery' })
+    async findAvailableForDelivery(@Request() req, @Query('lat') lat: string, @Query('lng') lng: string) {
+        if (!lat || !lng) return []; // Require location
+        return this.ordersService.findAvailableForDelivery(parseFloat(lat), parseFloat(lng));
     }
 
     // GENERAL ACTIONS
