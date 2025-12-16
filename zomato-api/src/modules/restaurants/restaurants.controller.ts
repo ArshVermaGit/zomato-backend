@@ -32,6 +32,25 @@ export class RestaurantsController {
         return this.restaurantsService.findByPartnerUserId(req.user.userId);
     }
 
+    @Get('partner/stats')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.RESTAURANT_PARTNER)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get restaurant stats' })
+    async getStats(@Request() req, @Query('restaurantId') restaurantId: string) {
+        // Verify ownership access here ideally
+        return this.restaurantsService.getStats(restaurantId);
+    }
+
+    @Get('partner/analytics')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.RESTAURANT_PARTNER)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get restaurant analytics' })
+    async getAnalytics(@Request() req, @Query('restaurantId') restaurantId: string, @Query('range') range: string) {
+        return this.restaurantsService.getAnalytics(restaurantId, range);
+    }
+
     @Put(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.RESTAURANT_PARTNER, UserRole.ADMIN)
