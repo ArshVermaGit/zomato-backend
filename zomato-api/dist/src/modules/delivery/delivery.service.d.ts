@@ -18,17 +18,14 @@ export declare class DeliveryService {
         vehicleType: import("@prisma/client").$Enums.VehicleType;
         vehicleNumber: string;
         licenseNumber: string;
-        bankDetails: import("@prisma/client/runtime/client").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/client").JsonValue | null;
-        documents: import("@prisma/client/runtime/client").JsonValue | null;
-        onboardingStatus: import("@prisma/client").$Enums.OnboardingStatus;
         isAvailable: boolean;
+        isOnline: boolean;
         currentLocation: import("@prisma/client/runtime/client").JsonValue | null;
         documentsVerified: boolean;
         rating: import("@prisma/client-runtime-utils").Decimal;
         totalDeliveries: number;
-        earnings: import("@prisma/client-runtime-utils").Decimal;
-        currentBalance: import("@prisma/client-runtime-utils").Decimal;
+        totalEarnings: import("@prisma/client-runtime-utils").Decimal;
+        availableBalance: import("@prisma/client-runtime-utils").Decimal;
     }>;
     getUploadUrl(userId: string, docType: string): Promise<{
         uploadUrl: string;
@@ -41,17 +38,14 @@ export declare class DeliveryService {
         vehicleType: import("@prisma/client").$Enums.VehicleType;
         vehicleNumber: string;
         licenseNumber: string;
-        bankDetails: import("@prisma/client/runtime/client").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/client").JsonValue | null;
-        documents: import("@prisma/client/runtime/client").JsonValue | null;
-        onboardingStatus: import("@prisma/client").$Enums.OnboardingStatus;
         isAvailable: boolean;
+        isOnline: boolean;
         currentLocation: import("@prisma/client/runtime/client").JsonValue | null;
         documentsVerified: boolean;
         rating: import("@prisma/client-runtime-utils").Decimal;
         totalDeliveries: number;
-        earnings: import("@prisma/client-runtime-utils").Decimal;
-        currentBalance: import("@prisma/client-runtime-utils").Decimal;
+        totalEarnings: import("@prisma/client-runtime-utils").Decimal;
+        availableBalance: import("@prisma/client-runtime-utils").Decimal;
     }>;
     getStatus(userId: string): Promise<{
         id: string;
@@ -59,17 +53,14 @@ export declare class DeliveryService {
         vehicleType: import("@prisma/client").$Enums.VehicleType;
         vehicleNumber: string;
         licenseNumber: string;
-        bankDetails: import("@prisma/client/runtime/client").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/client").JsonValue | null;
-        documents: import("@prisma/client/runtime/client").JsonValue | null;
-        onboardingStatus: import("@prisma/client").$Enums.OnboardingStatus;
         isAvailable: boolean;
+        isOnline: boolean;
         currentLocation: import("@prisma/client/runtime/client").JsonValue | null;
         documentsVerified: boolean;
         rating: import("@prisma/client-runtime-utils").Decimal;
         totalDeliveries: number;
-        earnings: import("@prisma/client-runtime-utils").Decimal;
-        currentBalance: import("@prisma/client-runtime-utils").Decimal;
+        totalEarnings: import("@prisma/client-runtime-utils").Decimal;
+        availableBalance: import("@prisma/client-runtime-utils").Decimal;
     } | {
         status: string;
     }>;
@@ -79,17 +70,14 @@ export declare class DeliveryService {
         vehicleType: import("@prisma/client").$Enums.VehicleType;
         vehicleNumber: string;
         licenseNumber: string;
-        bankDetails: import("@prisma/client/runtime/client").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/client").JsonValue | null;
-        documents: import("@prisma/client/runtime/client").JsonValue | null;
-        onboardingStatus: import("@prisma/client").$Enums.OnboardingStatus;
         isAvailable: boolean;
+        isOnline: boolean;
         currentLocation: import("@prisma/client/runtime/client").JsonValue | null;
         documentsVerified: boolean;
         rating: import("@prisma/client-runtime-utils").Decimal;
         totalDeliveries: number;
-        earnings: import("@prisma/client-runtime-utils").Decimal;
-        currentBalance: import("@prisma/client-runtime-utils").Decimal;
+        totalEarnings: import("@prisma/client-runtime-utils").Decimal;
+        availableBalance: import("@prisma/client-runtime-utils").Decimal;
     }>;
     verifyPartner(partnerId: string, status: OnboardingStatus): Promise<{
         id: string;
@@ -97,16 +85,13 @@ export declare class DeliveryService {
         vehicleType: import("@prisma/client").$Enums.VehicleType;
         vehicleNumber: string;
         licenseNumber: string;
-        bankDetails: import("@prisma/client/runtime/client").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/client").JsonValue | null;
-        documents: import("@prisma/client/runtime/client").JsonValue | null;
-        onboardingStatus: import("@prisma/client").$Enums.OnboardingStatus;
         isAvailable: boolean;
+        isOnline: boolean;
         currentLocation: import("@prisma/client/runtime/client").JsonValue | null;
         documentsVerified: boolean;
         rating: import("@prisma/client-runtime-utils").Decimal;
         totalDeliveries: number;
-        earnings: import("@prisma/client-runtime-utils").Decimal;
-        currentBalance: import("@prisma/client-runtime-utils").Decimal;
+        totalEarnings: import("@prisma/client-runtime-utils").Decimal;
+        availableBalance: import("@prisma/client-runtime-utils").Decimal;
     }>;
 }
