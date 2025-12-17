@@ -1,7 +1,5 @@
 import { Module, Global } from '@nestjs/common';
-import { OrdersGateway } from './orders.gateway';
-import { DeliveryGateway } from './delivery.gateway';
-import { ChatGateway } from './chat.gateway';
+import { RealtimeGateway } from '../../websockets/websocket.gateway';
 import { AuthModule } from '../auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -20,7 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             }),
         }),
     ],
-    providers: [OrdersGateway, DeliveryGateway, ChatGateway],
-    exports: [OrdersGateway, DeliveryGateway, ChatGateway],
+    providers: [RealtimeGateway],
+    exports: [RealtimeGateway],
 })
 export class WebsocketsModule { }

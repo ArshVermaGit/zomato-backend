@@ -144,3 +144,36 @@ export class NearbyRestaurantDto {
     @Type(() => Number)
     radius?: number = 5;
 }
+
+export class UpdateMenuItemDto {
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    name?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    description?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsNumber()
+    @Type(() => Number)
+    price?: number;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsBoolean()
+    isAvailable?: boolean;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsBoolean()
+    isVeg?: boolean;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsBoolean()
+    isBestseller?: boolean;
+}
