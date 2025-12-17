@@ -13,11 +13,13 @@ export declare class MenuController {
             price: import("@prisma/client-runtime-utils").Decimal;
             isVeg: boolean;
             categoryId: string;
+            isBestseller: boolean;
         }[];
     } & {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     })[]>;
@@ -30,6 +32,7 @@ export declare class MenuController {
         price: import("@prisma/client-runtime-utils").Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }[]>;
     getModifiers(itemId: string): Promise<{
         name: string;
@@ -37,11 +40,14 @@ export declare class MenuController {
         options: import("@prisma/client/runtime/client").JsonValue[];
         isRequired: boolean;
         menuItemId: string;
+        minSelect: number;
+        maxSelect: number;
     }[]>;
     createCategory(req: any, dto: CreateCategoryDto): Promise<{
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     }>;
@@ -49,6 +55,7 @@ export declare class MenuController {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     }>;
@@ -56,6 +63,7 @@ export declare class MenuController {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     }>;
@@ -63,6 +71,7 @@ export declare class MenuController {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     }>;
@@ -75,6 +84,7 @@ export declare class MenuController {
         price: import("@prisma/client-runtime-utils").Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     updateItem(req: any, id: string, dto: UpdateMenuItemDto): Promise<{
         name: string;
@@ -85,6 +95,7 @@ export declare class MenuController {
         price: import("@prisma/client-runtime-utils").Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     toggleAvailability(req: any, id: string): Promise<{
         name: string;
@@ -95,6 +106,7 @@ export declare class MenuController {
         price: import("@prisma/client-runtime-utils").Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     deleteItem(req: any, id: string): Promise<{
         name: string;
@@ -105,6 +117,7 @@ export declare class MenuController {
         price: import("@prisma/client-runtime-utils").Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     getUploadUrl(req: any, id: string): Promise<{
         uploadUrl: string;
@@ -120,6 +133,7 @@ export declare class MenuController {
         price: import("@prisma/client-runtime-utils").Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     createModifier(req: any, dto: CreateModifierDto): Promise<{
         name: string;
@@ -127,6 +141,8 @@ export declare class MenuController {
         options: import("@prisma/client/runtime/client").JsonValue[];
         isRequired: boolean;
         menuItemId: string;
+        minSelect: number;
+        maxSelect: number;
     }>;
     updateModifier(req: any, id: string, dto: UpdateModifierDto): Promise<{
         name: string;
@@ -134,6 +150,8 @@ export declare class MenuController {
         options: import("@prisma/client/runtime/client").JsonValue[];
         isRequired: boolean;
         menuItemId: string;
+        minSelect: number;
+        maxSelect: number;
     }>;
     deleteModifier(req: any, id: string): Promise<{
         name: string;
@@ -141,5 +159,7 @@ export declare class MenuController {
         options: import("@prisma/client/runtime/client").JsonValue[];
         isRequired: boolean;
         menuItemId: string;
+        minSelect: number;
+        maxSelect: number;
     }>;
 }

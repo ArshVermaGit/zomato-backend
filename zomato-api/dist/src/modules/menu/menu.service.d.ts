@@ -17,11 +17,13 @@ export declare class MenuService {
             price: Prisma.Decimal;
             isVeg: boolean;
             categoryId: string;
+            isBestseller: boolean;
         }[];
     } & {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     })[]>;
@@ -29,6 +31,7 @@ export declare class MenuService {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     }>;
@@ -36,6 +39,7 @@ export declare class MenuService {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     }>;
@@ -43,6 +47,7 @@ export declare class MenuService {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     }>;
@@ -50,6 +55,7 @@ export declare class MenuService {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     }>;
@@ -62,6 +68,7 @@ export declare class MenuService {
         price: Prisma.Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }[]>;
     createItem(userId: string, dto: CreateMenuItemDto): Promise<{
         name: string;
@@ -72,6 +79,7 @@ export declare class MenuService {
         price: Prisma.Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     updateItem(userId: string, id: string, dto: UpdateMenuItemDto): Promise<{
         name: string;
@@ -82,6 +90,7 @@ export declare class MenuService {
         price: Prisma.Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     deleteItem(userId: string, id: string): Promise<{
         name: string;
@@ -92,6 +101,7 @@ export declare class MenuService {
         price: Prisma.Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     toggleAvailability(userId: string, id: string): Promise<{
         name: string;
@@ -102,6 +112,7 @@ export declare class MenuService {
         price: Prisma.Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     getUploadUrl(userId: string, itemId: string): Promise<{
         uploadUrl: string;
@@ -117,6 +128,7 @@ export declare class MenuService {
         price: Prisma.Decimal;
         isVeg: boolean;
         categoryId: string;
+        isBestseller: boolean;
     }>;
     getModifiers(itemId: string): Promise<{
         name: string;
@@ -124,6 +136,8 @@ export declare class MenuService {
         options: Prisma.JsonValue[];
         isRequired: boolean;
         menuItemId: string;
+        minSelect: number;
+        maxSelect: number;
     }[]>;
     createModifier(userId: string, dto: CreateModifierDto): Promise<{
         name: string;
@@ -131,6 +145,8 @@ export declare class MenuService {
         options: Prisma.JsonValue[];
         isRequired: boolean;
         menuItemId: string;
+        minSelect: number;
+        maxSelect: number;
     }>;
     updateModifier(userId: string, id: string, dto: UpdateModifierDto): Promise<{
         name: string;
@@ -138,6 +154,8 @@ export declare class MenuService {
         options: Prisma.JsonValue[];
         isRequired: boolean;
         menuItemId: string;
+        minSelect: number;
+        maxSelect: number;
     }>;
     deleteModifier(userId: string, id: string): Promise<{
         name: string;
@@ -145,5 +163,7 @@ export declare class MenuService {
         options: Prisma.JsonValue[];
         isRequired: boolean;
         menuItemId: string;
+        minSelect: number;
+        maxSelect: number;
     }>;
 }

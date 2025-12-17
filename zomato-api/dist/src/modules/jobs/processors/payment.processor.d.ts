@@ -1,4 +1,4 @@
-import { Job } from 'bull';
+import type { Job } from 'bull';
 import { PaymentsService } from '../../payments/payments.service';
 export declare class PaymentJobsProcessor {
     private paymentsService;

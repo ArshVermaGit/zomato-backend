@@ -9,25 +9,23 @@ export declare class NotificationsService {
         success: boolean;
     }>;
     getUserNotifications(userId: string): Promise<{
-        metadata: import("@prisma/client/runtime/client").JsonValue | null;
+        data: import("@prisma/client/runtime/client").JsonValue | null;
         type: import("@prisma/client").$Enums.NotificationType;
         title: string;
         id: string;
         createdAt: Date;
         userId: string;
-        body: string;
-        channel: import("@prisma/client").$Enums.NotificationChannel;
+        message: string;
         isRead: boolean;
     }[]>;
     markAsRead(id: string): Promise<{
-        metadata: import("@prisma/client/runtime/client").JsonValue | null;
+        data: import("@prisma/client/runtime/client").JsonValue | null;
         type: import("@prisma/client").$Enums.NotificationType;
         title: string;
         id: string;
         createdAt: Date;
         userId: string;
-        body: string;
-        channel: import("@prisma/client").$Enums.NotificationChannel;
+        message: string;
         isRead: boolean;
     }>;
     registerDevice(userId: string, token: string): Promise<void>;
