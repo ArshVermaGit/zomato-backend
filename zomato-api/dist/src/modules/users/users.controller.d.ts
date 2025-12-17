@@ -10,12 +10,11 @@ export declare class UsersController {
         phone: string;
         role: import("@prisma/client").$Enums.UserRole;
         avatar: string | null;
-        razorpayCustomerId: string | null;
         isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fcmTokens: string[];
-        notificationPreferences: import("@prisma/client/runtime/client").JsonValue | null;
     }>;
     updateProfile(req: any, dto: UpdateProfileDto): Promise<{
         name: string;
@@ -24,12 +23,11 @@ export declare class UsersController {
         phone: string;
         role: import("@prisma/client").$Enums.UserRole;
         avatar: string | null;
-        razorpayCustomerId: string | null;
         isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fcmTokens: string[];
-        notificationPreferences: import("@prisma/client/runtime/client").JsonValue | null;
     }>;
     getAvatarUploadUrl(req: any): Promise<{
         uploadUrl: string;
@@ -42,14 +40,12 @@ export declare class UsersController {
         id: string;
         phone: string;
         role: import("@prisma/client").$Enums.UserRole;
-        password: string | null;
         avatar: string | null;
-        razorpayCustomerId: string | null;
         isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fcmTokens: string[];
-        notificationPreferences: import("@prisma/client/runtime/client").JsonValue | null;
     }>;
     getAddresses(req: any): Promise<{
         label: string;
@@ -100,13 +96,11 @@ export declare class UsersController {
         id: string;
         phone: string;
         role: import("@prisma/client").$Enums.UserRole;
-        password: string | null;
         avatar: string | null;
-        razorpayCustomerId: string | null;
         isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fcmTokens: string[];
-        notificationPreferences: import("@prisma/client/runtime/client").JsonValue | null;
     }>;
 }

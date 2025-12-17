@@ -19,12 +19,11 @@ export declare class UsersService {
         phone: string;
         role: import("@prisma/client").$Enums.UserRole;
         avatar: string | null;
-        razorpayCustomerId: string | null;
         isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fcmTokens: string[];
-        notificationPreferences: Prisma.JsonValue | null;
     }>;
     updateProfile(userId: string, dto: UpdateProfileDto): Promise<{
         name: string;
@@ -33,12 +32,11 @@ export declare class UsersService {
         phone: string;
         role: import("@prisma/client").$Enums.UserRole;
         avatar: string | null;
-        razorpayCustomerId: string | null;
         isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fcmTokens: string[];
-        notificationPreferences: Prisma.JsonValue | null;
     }>;
     getAvatarUploadUrl(userId: string): Promise<{
         uploadUrl: string;
@@ -51,14 +49,12 @@ export declare class UsersService {
         id: string;
         phone: string;
         role: import("@prisma/client").$Enums.UserRole;
-        password: string | null;
         avatar: string | null;
-        razorpayCustomerId: string | null;
         isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
         createdAt: Date;
         updatedAt: Date;
-        fcmTokens: string[];
-        notificationPreferences: Prisma.JsonValue | null;
     }>;
     createAddress(userId: string, dto: CreateAddressDto): Promise<Address>;
     getAddresses(userId: string): Promise<Address[]>;

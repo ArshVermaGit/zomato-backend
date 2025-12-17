@@ -8,9 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebsocketsModule = void 0;
 const common_1 = require("@nestjs/common");
-const orders_gateway_1 = require("./orders.gateway");
-const delivery_gateway_1 = require("./delivery.gateway");
-const chat_gateway_1 = require("./chat.gateway");
+const websocket_gateway_1 = require("../../websockets/websocket.gateway");
 const auth_module_1 = require("../auth/auth.module");
 const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
@@ -32,8 +30,8 @@ exports.WebsocketsModule = WebsocketsModule = __decorate([
                 }),
             }),
         ],
-        providers: [orders_gateway_1.OrdersGateway, delivery_gateway_1.DeliveryGateway, chat_gateway_1.ChatGateway],
-        exports: [orders_gateway_1.OrdersGateway, delivery_gateway_1.DeliveryGateway, chat_gateway_1.ChatGateway],
+        providers: [websocket_gateway_1.RealtimeGateway],
+        exports: [websocket_gateway_1.RealtimeGateway],
     })
 ], WebsocketsModule);
 //# sourceMappingURL=websockets.module.js.map
