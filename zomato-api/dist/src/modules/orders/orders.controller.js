@@ -58,11 +58,19 @@ let OrdersController = class OrdersController {
     async assignOrder(id, dto) {
         return this.orderStateService.assignPartner(id, dto.deliveryPartnerId);
     }
+    async claimOrder(req, id) {
+        return this.orderStateService.assignPartner(id, req.user.userId);
+    }
     async pickupOrder(req, id) {
         return this.orderStateService.transition(id, client_1.OrderStatus.PICKED_UP, req.user.userId, req.user.role);
     }
     async deliverOrder(req, id) {
         return this.orderStateService.transition(id, client_1.OrderStatus.DELIVERED, req.user.userId, req.user.role);
+    }
+    async findAvailableForDelivery(req, lat, lng) {
+        if (!lat || !lng)
+            return [];
+        return this.ordersService.findAvailableForDelivery(parseFloat(lat), parseFloat(lng));
     }
     async cancelOrder(req, id, dto) {
         return this.orderStateService.transition(id, client_1.OrderStatus.CANCELLED, req.user.userId, req.user.role, dto.reason);
@@ -173,6 +181,18 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "assignOrder", null);
 __decorate([
+    (0, common_1.Put)(':id/claim'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.DELIVERY_PARTNER),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Claim (Accept) order for delivery' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "claimOrder", null);
+__decorate([
     (0, common_1.Put)(':id/pickup'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.UserRole.DELIVERY_PARTNER),
@@ -196,6 +216,19 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "deliverOrder", null);
+__decorate([
+    (0, common_1.Get)('delivery/available'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.DELIVERY_PARTNER),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Find available orders for delivery' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('lat')),
+    __param(2, (0, common_1.Query)('lng')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "findAvailableForDelivery", null);
 __decorate([
     (0, common_1.Put)(':id/cancel'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
