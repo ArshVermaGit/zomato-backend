@@ -27,12 +27,11 @@ export declare class AuthService {
             phone: string;
             role: import("@prisma/client").$Enums.UserRole;
             avatar: string | null;
-            razorpayCustomerId: string | null;
             isActive: boolean;
+            isVerified: boolean;
+            passwordHash: string | null;
             createdAt: Date;
             updatedAt: Date;
-            fcmTokens: string[];
-            notificationPreferences: import("@prisma/client/runtime/client").JsonValue | null;
         };
     }>;
     login(user: User): Promise<{
@@ -44,14 +43,12 @@ export declare class AuthService {
             id: string;
             phone: string;
             role: import("@prisma/client").$Enums.UserRole;
-            password: string | null;
             avatar: string | null;
-            razorpayCustomerId: string | null;
             isActive: boolean;
+            isVerified: boolean;
+            passwordHash: string | null;
             createdAt: Date;
             updatedAt: Date;
-            fcmTokens: string[];
-            notificationPreferences: import("@prisma/client/runtime/client").JsonValue | null;
         };
     }>;
     generateTokens(user: Partial<User>): Promise<{

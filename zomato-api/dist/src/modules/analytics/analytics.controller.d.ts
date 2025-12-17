@@ -36,7 +36,7 @@ export declare class AnalyticsController {
         totalRevenue: number | import("@prisma/client-runtime-utils").Decimal;
         breakdown: {
             deliveryFees: number | import("@prisma/client-runtime-utils").Decimal;
-            platformFees: number | import("@prisma/client-runtime-utils").Decimal;
+            platformFees: any;
             taxes: number | import("@prisma/client-runtime-utils").Decimal;
             tips: number | import("@prisma/client-runtime-utils").Decimal;
             netRevenue: number;
@@ -49,24 +49,6 @@ export declare class AnalyticsController {
     generateReport(req: any, body: {
         type: ReportType;
         criteria?: any;
-    }): Promise<{
-        url: string | null;
-        type: import("@prisma/client").$Enums.ReportType;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import("@prisma/client").$Enums.ReportStatus;
-        generatedBy: string;
-        criteria: import("@prisma/client/runtime/client").JsonValue | null;
-    }>;
-    getReport(id: string): Promise<{
-        url: string | null;
-        type: import("@prisma/client").$Enums.ReportType;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import("@prisma/client").$Enums.ReportStatus;
-        generatedBy: string;
-        criteria: import("@prisma/client/runtime/client").JsonValue | null;
-    } | null>;
+    }): Promise<any>;
+    getReport(id: string): Promise<any>;
 }

@@ -20,12 +20,11 @@ export declare class AuthController {
             phone: string;
             role: import("@prisma/client").$Enums.UserRole;
             avatar: string | null;
-            razorpayCustomerId: string | null;
             isActive: boolean;
+            isVerified: boolean;
+            passwordHash: string | null;
             createdAt: Date;
             updatedAt: Date;
-            fcmTokens: string[];
-            notificationPreferences: import("@prisma/client/runtime/client").JsonValue | null;
         };
     }>;
     login(req: any, loginDto: LoginDto): Promise<{
@@ -37,14 +36,12 @@ export declare class AuthController {
             id: string;
             phone: string;
             role: import("@prisma/client").$Enums.UserRole;
-            password: string | null;
             avatar: string | null;
-            razorpayCustomerId: string | null;
             isActive: boolean;
+            isVerified: boolean;
+            passwordHash: string | null;
             createdAt: Date;
             updatedAt: Date;
-            fcmTokens: string[];
-            notificationPreferences: import("@prisma/client/runtime/client").JsonValue | null;
         };
     }>;
     refresh(dto: RefreshTokenDto): Promise<{

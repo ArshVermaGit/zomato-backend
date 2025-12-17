@@ -33,7 +33,7 @@ export declare class AnalyticsService {
         totalRevenue: number | import("@prisma/client-runtime-utils").Decimal;
         breakdown: {
             deliveryFees: number | import("@prisma/client-runtime-utils").Decimal;
-            platformFees: number | import("@prisma/client-runtime-utils").Decimal;
+            platformFees: any;
             taxes: number | import("@prisma/client-runtime-utils").Decimal;
             tips: number | import("@prisma/client-runtime-utils").Decimal;
             netRevenue: number;
