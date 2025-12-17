@@ -1,6 +1,6 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
-import { Job } from 'bull';
+import type { Job } from 'bull';
 import { PrismaService } from '../../../database/prisma.service';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
 import { subMinutes, subHours } from 'date-fns';
@@ -29,7 +29,6 @@ export class OrderJobsProcessor {
                 where: { id: order.id },
                 data: {
                     status: OrderStatus.CANCELLED,
-                    cancellationReason: 'Auto-cancelled due to non-payment'
                 }
             });
             this.logger.log(`Auto-cancelled order ${order.orderNumber}`);

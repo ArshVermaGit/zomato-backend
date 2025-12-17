@@ -16,24 +16,7 @@ export class DeliveryController {
         private earningsService: EarningsService
     ) { }
 
-    // --- EARNINGS & PAYOUTS ---
-    @Get('earnings')
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get earnings summary' })
-    @ApiResponse({ status: 200, description: 'Earnings summary' })
-    async getEarnings(@Request() req) {
-        return this.earningsService.getBalance(req.user.userId);
-    }
 
-    @Get('earnings/transactions')
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get transaction history' })
-    @ApiResponse({ status: 200, description: 'Transaction history' })
-    async getTransactions(@Request() req) {
-        return this.earningsService.getTransactions(req.user.userId);
-    }
 
     @Post('payout/request')
     @UseGuards(JwtAuthGuard)
@@ -45,22 +28,25 @@ export class DeliveryController {
         return this.earningsService.requestPayout(req.user.userId, amount);
     }
 
-    @Get('payout/history')
+    @Get('transactions')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get payout history' })
-    @ApiResponse({ status: 200, description: 'Payout history' })
+    async getTransactions(@Request() req) {
+        return this.earningsService.getHistory(req.user.userId);
+    }
+
+    @Get('payouts')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
     async getPayoutHistory(@Request() req) {
-        return this.earningsService.getPayoutHistory(req.user.userId);
+        return this.earningsService.getPayoutRequests(req.user.userId);
     }
 
     @Get('performance')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get performance metrics' })
-    @ApiResponse({ status: 200, description: 'Performance metrics' })
-    async getPerformance(@Request() req) {
-        return this.earningsService.getPerformanceMetrics(req.user.userId);
+    async getPerformanceMetrics(@Request() req) {
+        return this.earningsService.getStats(req.user.userId);
     }
 
     @Post('onboard')

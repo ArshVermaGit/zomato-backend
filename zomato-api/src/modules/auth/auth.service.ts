@@ -51,9 +51,9 @@ export class AuthService {
         if (!user) return null;
 
         // Check if user has a password and if it matches
-        if (user.password && await bcrypt.compare(pass, user.password)) {
+        if (user.passwordHash && await bcrypt.compare(pass, user.passwordHash)) {
             // Exclude password from result
-            const { password, ...result } = user;
+            const { passwordHash, ...result } = user;
             return result;
         }
         return null;
@@ -75,12 +75,12 @@ export class AuthService {
             name: dto.name,
             email: dto.email,
             role: dto.role,
-            password: hashedPassword,
+            passwordHash: hashedPassword,
             isActive: true,
         });
 
         const tokens = await this.generateTokens(user);
-        const { password, ...result } = user;
+        const { passwordHash, ...result } = user;
         return { user: result, ...tokens };
     }
 

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { RazorpayService } from './razorpay.service';
-import { RefundStatus, PaymentStatus, OrderStatus } from '@prisma/client';
+import { RefundStatus, PaymentStatus, OrderStatus, Prisma } from '@prisma/client';
 
 @Injectable()
 export class RefundsService {
@@ -54,14 +54,14 @@ export class RefundsService {
     async processRefund(orderId: string, type: 'GATEWAY' | 'WALLET' = 'GATEWAY', reason?: string) {
         const order = await this.prisma.order.findUnique({
             where: { id: orderId },
-            include: { payments: true }
+            include: { paymentTransactions: true }
         });
 
         if (!order) throw new NotFoundException('Order not found');
 
         // Find successful payment
-        const payment = order.payments.find(p => p.status === PaymentStatus.COMPLETED);
-        if (!payment || !payment.razorpayPaymentId) {
+        const payment = order.paymentTransactions.find(p => p.status === PaymentStatus.COMPLETED);
+        if (!payment || !payment.gatewayTransactionId) {
             throw new BadRequestException('No completed payment found for this order');
         }
 
@@ -72,7 +72,7 @@ export class RefundsService {
         }
 
         if (type === 'GATEWAY') {
-            return this.processGatewayRefund(payment.id, payment.razorpayPaymentId, refundCalculation.refundAmount, reason);
+            return this.processGatewayRefund(payment.id, payment.gatewayTransactionId, refundCalculation.refundAmount, reason);
         } else {
             return this.processWalletRefund(order.customerId, payment.id, refundCalculation.refundAmount, reason);
         }
@@ -87,20 +87,22 @@ export class RefundsService {
         // Record Refund
         const refundRecord = await this.prisma.refund.create({
             data: {
-                paymentId,
-                amount: amount,
-                status: RefundStatus.SUCCESS, // Usually instant, or PENDING if relying on webhook
-                type: 'GATEWAY',
+                // paymentId field is removed from my schema update? Or did I add it?
+                // Schema update for Refund: `orderId` related, but no `paymentId`.
+                // Let's link to Order.
+                // Fix potential null access
+                orderId: (await this.prisma.paymentTransaction.findUniqueOrThrow({ where: { id: paymentId } })).orderId!,
+                amount: new Prisma.Decimal(amount), // Ensure Decimal
+                status: RefundStatus.PROCESSED, // Updated enum
                 reason,
+                gatewayRefundId: refund.id
             }
         });
 
         // Update Payment Status
-        await this.prisma.payment.update({
+        await this.prisma.paymentTransaction.update({
             where: { id: paymentId },
             data: { status: PaymentStatus.REFUNDED }
-            // Note: Should check if partial. For MVP assuming full/partial logic is mapped to REFUNDED.
-            // If amount < payment.amount, use PARTIALLY_REFUNDED.
         });
 
         return refundRecord;

@@ -1,0 +1,9 @@
+import type { Job } from 'bull';
+import { PaymentsService } from '../../payments/payments.service';
+export declare class PaymentJobsProcessor {
+    private paymentsService;
+    private readonly logger;
+    constructor(paymentsService: PaymentsService);
+    processPayouts(job: Job): any;
+    retryFailedRefunds(job: Job): any;
+}

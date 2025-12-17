@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
@@ -29,6 +30,8 @@ model User {
   reviews           Review[]
   notifications     Notification[]
   sessions          Session[]
+  fcmTokens         String[]
+
 
   @@index([phone])
   @@index([email])
@@ -78,18 +81,60 @@ model DeliveryPartner {
   isOnline           Boolean         @default(false)
   currentLocation    Json?           // { lat, lng, heading }
   documentsVerified  Boolean         @default(false)
+  onboardingStatus   OnboardingStatus @default(PENDING)
+  bankDetails        Json?           // { accountNumber, ifsc, bankName }
+  emergencyContact   Json?           // { name, phone, relation }
   rating             Decimal         @default(0) @db.Decimal(3, 2)
   totalDeliveries    Int             @default(0)
   totalEarnings      Decimal         @default(0) @db.Decimal(10, 2)
-  availableBalance   Decimal         @default(0) @db.Decimal(10, 2)
   
+  // ... existing fields ...
+  availableBalance   Decimal         @default(0) @db.Decimal(10, 2)
+
   orders             Order[]
   documents          Document[]
   earnings           Earning[]
   payouts            Payout[]
+  payoutRequests     PayoutRequest[]
+  walletTransactions WalletTransaction[]
   
   @@index([userId])
   @@index([isAvailable, isOnline])
+}
+
+// ... existing enums ...
+
+model Report {
+  id        String   @id @default(uuid())
+  type      ReportType
+  period    String   // "daily", "weekly", "monthly"
+  data      Json
+  status    ReportStatus @default(PENDING)
+  generatedBy String?
+  url       String?
+  createdAt DateTime @default(now())
+}
+
+enum ReportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ReportType {
+    SALES
+    PERFORMANCE
+    USER_GROWTH
+    USERS // Added for compatibility if needed, or remove Code usage
+}
+
+
+enum OnboardingStatus {
+  PENDING
+  DOCUMENTS_UPLOADED
+  VERIFIED
+  REJECTED
 }
 
 enum VehicleType {
@@ -225,6 +270,7 @@ model Order {
   itemsTotal           Decimal       @db.Decimal(10, 2)
   deliveryFee          Decimal       @db.Decimal(10, 2)
   taxes                Decimal       @db.Decimal(10, 2)
+  platformFee          Decimal       @default(0) @db.Decimal(10, 2)
   discount             Decimal       @default(0) @db.Decimal(10, 2)
   tip                  Decimal       @default(0) @db.Decimal(10, 2)
   totalAmount          Decimal       @db.Decimal(10, 2)
@@ -232,6 +278,9 @@ model Order {
   paymentMethod        PaymentMethod
   paymentStatus        PaymentStatus @default(PENDING)
   paymentTransactionId String?
+  paymentTransactions  PaymentTransaction[] // Relation
+  refunds              Refund[]
+
   
   // Timestamps
   placedAt             DateTime      @default(now())
@@ -316,10 +365,14 @@ model Review {
   restaurantId String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   rating       Int        // 1-5
+  deliveryRating Int?     // 1-5 for delivery partner
   comment      String?
   images       String[]
+  tags         String[]
   response     String?    // Restaurant response
   respondedAt  DateTime?
+  helpfulCount Int        @default(0)
+  isReported   Boolean    @default(false)
   createdAt    DateTime   @default(now())
 
   @@index([orderId])
@@ -355,8 +408,11 @@ model Promo {
   validUntil     DateTime
   usageLimit     Int?
   usedCount      Int          @default(0)
+  maxUsagePerUser Int?
+  isNewUserOnly  Boolean      @default(false)
   isActive       Boolean      @default(true)
   applicableFor  String[]     // ["all", "new_users", "specific_restaurants"]
+  applicableRestaurantIds String[] // IDs for specific restaurants
   
   @@index([code])
   @@index([isActive])
@@ -365,6 +421,7 @@ model Promo {
 enum DiscountType {
   PERCENTAGE
   FIXED
+  FREE_DELIVERY
 }
 
 // ============= PAYMENT TRANSACTIONS =============
@@ -378,9 +435,31 @@ model PaymentTransaction {
   gatewayResponse     Json?
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
+  
+  order               Order?        @relation(fields: [orderId], references: [id])
 
   @@index([orderId])
   @@index([status])
+}
+
+model Refund {
+  id                String       @id @default(uuid())
+  orderId           String
+  order             Order        @relation(fields: [orderId], references: [id])
+  amount            Decimal      @db.Decimal(10, 2)
+  reason            String?
+  status            RefundStatus @default(PENDING)
+  gatewayRefundId   String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([orderId])
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSED
+  FAILED
 }
 
 // ============= DELIVERY PARTNER DOCUMENTS =============
@@ -461,6 +540,8 @@ enum PayoutStatus {
   PROCESSING
   COMPLETED
   FAILED
+  REJECTED
+  PROCESSED
 }
 
 enum PayoutMethod {
@@ -499,4 +580,37 @@ enum NotificationType {
   DELIVERY_PARTNER_NEARBY
   REVIEW_RECEIVED
   PAYOUT_COMPLETED
+}
+
+model PayoutRequest {
+  id                String    @id @default(uuid())
+  deliveryPartnerId String
+  deliveryPartner   DeliveryPartner @relation(fields: [deliveryPartnerId], references: [id])
+  amount            Decimal   @db.Decimal(10, 2)
+  status            PayoutStatus @default(PENDING)
+  processedAt       DateTime?
+  referenceId       String?   // Bank reference
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([deliveryPartnerId])
+}
+
+
+
+model WalletTransaction {
+  id                String    @id @default(uuid())
+  deliveryPartnerId String
+  deliveryPartner   DeliveryPartner @relation(fields: [deliveryPartnerId], references: [id])
+  amount            Decimal   @db.Decimal(10, 2)
+  type              WalletTransactionType
+  description       String?
+  createdAt         DateTime  @default(now())
+
+  @@index([deliveryPartnerId])
+}
+
+enum WalletTransactionType {
+  CREDIT
+  DEBIT
 }

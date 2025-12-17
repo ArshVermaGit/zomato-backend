@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsInt, Min, Max, IsEnum, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsInt, Min, Max, IsEnum, IsNumber, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OrderStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -25,14 +25,27 @@ export class OrderFilterDto {
 }
 
 export class CreateRatingDto {
-    @ApiProperty({ example: 5, description: 'Rating from 1-5' })
-    @IsInt()
+    @ApiProperty({ minimum: 1, maximum: 5 })
+    @IsNumber()
     @Min(1)
     @Max(5)
     rating: number;
 
-    @ApiProperty({ example: 'Great food!', required: false })
+    @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
     comment?: string;
+
+    @ApiProperty({ required: false, minimum: 1, maximum: 5 })
+    @IsOptional()
+    @IsNumber()
+    @Min(1)
+    @Max(5)
+    deliveryRating?: number;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    tags?: string[];
 }

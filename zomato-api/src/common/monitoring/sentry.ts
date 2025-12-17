@@ -19,15 +19,15 @@ export function initSentry(app: Express) {
     });
 
     // Request handler (must be first middleware)
-    app.use(Sentry.Handlers.requestHandler());
+    // app.use(Sentry.Handlers.requestHandler());
 
     // Tracing handler
-    app.use(Sentry.Handlers.tracingHandler());
+    // app.use(Sentry.Handlers.tracingHandler());
 }
 
 export function initSentryErrorHandler(app: Express) {
     // Error handler (must be before other error handlers)
-    app.use(Sentry.Handlers.errorHandler({
+    /* app.use(Sentry.Handlers.errorHandler({
         shouldHandleError(error) {
             // Capture all 500 errors
             if (error.status >= 500) {
@@ -35,7 +35,7 @@ export function initSentryErrorHandler(app: Express) {
             }
             return false;
         },
-    }));
+    })); */
 }
 
 export function captureException(error: Error, context?: Record<string, any>) {

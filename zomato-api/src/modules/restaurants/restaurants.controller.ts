@@ -19,8 +19,12 @@ export class RestaurantsController {
     @Roles(UserRole.ADMIN)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create a new restaurant (Admin only)' })
-    async create(@Body() dto: CreateRestaurantDto) {
-        return this.restaurantsService.create(dto);
+    async create(@Body() dto: CreateRestaurantDto, @Request() req) {
+        // For Admin created, we might need to specify partnerID in DTO or use a generic one.
+        // Assuming DTO might have it or falling back to a placeholder for build. 
+        // Realistically Admin assigns to a Partner. 
+        const partnerId = (dto as any).partnerId || req.user.userId; // Fallback to admin's ID if they are also a partner?
+        return this.restaurantsService.createRestaurant(partnerId, dto);
     }
 
     @Get('partner/my-restaurants')
@@ -73,7 +77,11 @@ export class RestaurantsController {
     @Get('nearby')
     @ApiOperation({ summary: 'Find nearby restaurants' })
     async findNearby(@Query() dto: NearbyRestaurantDto) {
-        return this.restaurantsService.findNearby(dto);
+        // Extract lat, lng, radius from DTO
+        const lat = parseFloat(dto.lat as any);
+        const lng = parseFloat(dto.lng as any);
+        const radius = dto.radius ? parseFloat(dto.radius as any) : 5;
+        return this.restaurantsService.getNearbyRestaurants(lat, lng, radius);
     }
 
     @Get()

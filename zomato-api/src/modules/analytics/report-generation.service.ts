@@ -18,9 +18,10 @@ export class ReportGenerationService {
         const report = await this.prisma.report.create({
             data: {
                 type,
+                period: criteria.period || 'custom', // Default to custom if missing
                 status: ReportStatus.PENDING,
                 generatedBy: userId,
-                criteria
+                data: criteria // Move criteria into the 'data' JSON field
             }
         });
 

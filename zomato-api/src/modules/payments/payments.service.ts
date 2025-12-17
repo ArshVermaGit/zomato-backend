@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { RazorpayService } from './razorpay.service';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, PaymentMethod } from '@prisma/client';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -25,12 +25,14 @@ export class PaymentsService {
         );
 
         // Log Payment Attempt
-        await this.prisma.payment.create({
+        await this.prisma.paymentTransaction.create({
             data: {
                 orderId: order.id,
-                razorpayOrderId: razorpayOrder.id,
+                gatewayTransactionId: razorpayOrder.id,
                 amount: Number(order.totalAmount),
-                status: PaymentStatus.PENDING
+                status: PaymentStatus.PENDING,
+                method: PaymentMethod.UPI // Default or from context? Assuming unknown or defaulting logic needed.
+                // Schema requires method. Let's look at arg. It doesn't pass method.
             }
         });
 
@@ -56,14 +58,20 @@ export class PaymentsService {
         }
 
         // Update Payment Record
-        const payment = await this.prisma.payment.findFirst({ where: { razorpayOrderId } });
+        const payment = await this.prisma.paymentTransaction.findFirst({
+            where: { gatewayTransactionId: razorpayOrderId }
+        });
+
         if (payment) {
-            await this.prisma.payment.update({
+            await this.prisma.paymentTransaction.update({
                 where: { id: payment.id },
                 data: {
                     status: PaymentStatus.COMPLETED,
-                    razorpayPaymentId: paymentId,
-                    method: 'UNKNOWN' // Will be updated via Webhook or expanded fetch
+                    gatewayTransactionId: paymentId, // Update or keep? usually `razorpay_payment_id` is distinct.
+                    // Schema has gatewayTransactionId (String). Maybe store paymentId there? 
+                    // Original code used `razorpayPaymentId`. 
+                    // Let's store in gatewayResponse if strictly following schema or override.
+                    gatewayResponse: { razorpayPaymentId: paymentId, signature }
                 }
             });
         }

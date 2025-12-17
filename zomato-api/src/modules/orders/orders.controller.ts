@@ -23,7 +23,7 @@ export class OrdersController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create a new order' })
     async create(@Request() req, @Body() dto: CreateOrderDto) {
-        return this.ordersService.create(req.user.userId, dto);
+        return this.ordersService.createOrder(req.user.userId, dto);
     }
 
     // CUSTOMER ENDPOINTS

@@ -5,7 +5,7 @@ import { S3Service } from '../../common/services/s3.service';
 import { LocationService } from './location.service';
 import { OrderStateService } from '../orders/order-state.service';
 import { EarningsService } from './earnings.service';
-import { OnboardingStatus, OrderStatus, UserRole, TransactionType, TransactionCategory } from '@prisma/client';
+import { OnboardingStatus, OrderStatus, UserRole, DocumentType, DocumentStatus } from '@prisma/client';
 
 @Injectable()
 export class DeliveryService {
@@ -13,18 +13,22 @@ export class DeliveryService {
         private prisma: PrismaService,
         private s3Service: S3Service,
         private locationService: LocationService,
-        // Use forwardRef if circular dependency exists, or ensure module structure is clean. 
-        // OrdersModule exports OrderStateService, so we can inject if imported in DeliveryModule.
-        // But we will need to import OrdersModule in DeliveryModule.
         @Inject(forwardRef(() => OrderStateService))
         private orderStateService: OrderStateService,
         @Inject(forwardRef(() => EarningsService))
         private earningsService: EarningsService
     ) { }
 
+    private docTypeMap: Record<string, DocumentType> = {
+        'license_front': DocumentType.DRIVERS_LICENSE_FRONT,
+        'license_back': DocumentType.DRIVERS_LICENSE_BACK,
+        'aadhaar_front': DocumentType.AADHAAR_FRONT,
+        'aadhaar_back': DocumentType.AADHAAR_BACK,
+        'rc': DocumentType.VEHICLE_RC,
+        'profile_photo': DocumentType.PROFILE_PHOTO
+    };
+
     async onboard(userId: string, dto: OnboardDeliveryPartnerDto) {
-        // Upsert: Create if not exists, Update if exists (but only if not Verified?)
-        // Check existing status
         const existing = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
         if (existing && existing.onboardingStatus === OnboardingStatus.VERIFIED) {
             throw new BadRequestException('Already onboarded and verified');
@@ -37,10 +41,10 @@ export class DeliveryService {
                 vehicleType: dto.vehicleType,
                 vehicleNumber: dto.vehicleNumber,
                 licenseNumber: dto.licenseNumber,
-                bankDetails: dto.bankDetails as any, // Typed JSON in DTO, stored as Json in Prisma
+                bankDetails: dto.bankDetails as any,
                 emergencyContact: dto.emergencyContact as any,
-                onboardingStatus: OnboardingStatus.PENDING, // Move to Pending once details submitted
-                documents: {} // Initialize empty doc map
+                onboardingStatus: OnboardingStatus.PENDING,
+                // documents relation initialized empty by default
             },
             update: {
                 vehicleType: dto.vehicleType,
@@ -54,48 +58,71 @@ export class DeliveryService {
     }
 
     async getUploadUrl(userId: string, docType: string) {
-        // Doc types: license_front, license_back, aadhaar_front, aadhaar_back, rc, profile_photo
-        const validTypes = ['license_front', 'license_back', 'aadhaar_front', 'aadhaar_back', 'rc', 'profile_photo'];
-        if (!validTypes.includes(docType)) {
-            throw new BadRequestException(`Invalid document type. Valid types: ${validTypes.join(', ')}`);
+        if (!this.docTypeMap[docType]) {
+            throw new BadRequestException(`Invalid document type.`);
         }
 
         const key = `delivery-docs/${userId}/${docType}-${Date.now()}.jpeg`;
         const uploadUrl = await this.s3Service.getSignedUploadUrl(key);
         const publicUrl = this.s3Service.getPublicUrl(key);
 
-        // We don't save DB URL yet, client must call an endpoint to confirm upload OR we trust the key structure.
-        // Better pattern: Client uploads, then calls "updateDocument" with the key/url. 
-        // But for simplicity request says "POST /delivery/documents/upload (upload documents)".
-        // Let's assume this endpoint returns URL, client uploads, then client calls "POST /delivery/documents/confirm" or similar
-        // OR we just return the key/publicUrl and assume client sets it in a separate call? 
-        // Plan said: "POST /delivery/documents/upload". 
-        // Let's stick to returning signed URL, and maybe have a method to update the doc status in DB.
-
         return { uploadUrl, publicUrl, key };
     }
 
-    async updateDocumentStatus(userId: string, docType: string, url: string) {
+    async updateDocumentStatus(userId: string, docTypeKey: string, url: string) {
         const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
         if (!partner) throw new NotFoundException('Partner record not found. Please onboard first.');
 
-        const currentDocs = (partner.documents as any) || {};
-        currentDocs[docType] = {
-            url,
-            status: 'UPLOADED',
-            uploadedAt: new Date()
-        };
+        const docType = this.docTypeMap[docTypeKey];
+        if (!docType) throw new BadRequestException('Invalid document type key');
 
-        return this.prisma.deliveryPartner.update({
-            where: { userId },
-            data: { documents: currentDocs }
+        // Upsert Document record using logic since we don't have compound unique index exposed in simple create
+        // Or if we do: @@unique([deliveryPartnerId, type]) - let's check schema. 
+        // Schema doesn't show compound unique. Doing findFirst -> Update/Create.
+
+        const existingDoc = await this.prisma.document.findFirst({
+            where: { deliveryPartnerId: partner.id, type: docType }
         });
+
+        if (existingDoc) {
+            return this.prisma.document.update({
+                where: { id: existingDoc.id },
+                data: { fileUrl: url, status: DocumentStatus.PENDING, uploadedAt: new Date() }
+            });
+        } else {
+            return this.prisma.document.create({
+                data: {
+                    deliveryPartnerId: partner.id,
+                    type: docType,
+                    fileUrl: url,
+                    status: DocumentStatus.PENDING,
+                    uploadedAt: new Date()
+                }
+            });
+        }
     }
 
     async getStatus(userId: string) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId },
+            include: { documents: true }
+        });
         if (!partner) return { status: 'NOT_STARTED' };
-        return partner;
+
+        // Map documents status
+        const docsStatus = {};
+        // Reverse map enum to keys? Or just return list
+        partner.documents.forEach(doc => {
+            // Find key for doc.type (naive reverse lookup)
+            const key = Object.keys(this.docTypeMap).find(k => this.docTypeMap[k] === doc.type);
+            if (key) docsStatus[key] = doc.status;
+        });
+
+        return {
+            status: partner.onboardingStatus,
+            documents: docsStatus,
+            documentsVerified: partner.documentsVerified
+        };
     }
 
     async updateVehicle(userId: string, dto: UpdateVehicleDto) {
@@ -115,7 +142,7 @@ export class DeliveryService {
     // --- ADMIN METHODS ---
 
     async verifyPartner(partnerId: string, status: OnboardingStatus) {
-        if (![OnboardingStatus.VERIFIED, OnboardingStatus.REJECTED].includes(status as any)) {
+        if (!([OnboardingStatus.VERIFIED, OnboardingStatus.REJECTED] as OnboardingStatus[]).includes(status)) {
             throw new BadRequestException('Invalid status for verification');
         }
 

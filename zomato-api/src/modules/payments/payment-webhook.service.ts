@@ -47,22 +47,22 @@ export class PaymentWebhookService {
         const razorpayOrderId = razorpayPayment.order_id;
         const amount = razorpayPayment.amount; // In paise
 
-        const payment = await this.prisma.payment.findFirst({ where: { razorpayOrderId } });
+        const payment = await this.prisma.paymentTransaction.findFirst({ where: { gatewayTransactionId: razorpayOrderId } });
 
         if (payment && payment.status !== PaymentStatus.COMPLETED) {
             // Update Payment
-            await this.prisma.payment.update({
+            await this.prisma.paymentTransaction.update({
                 where: { id: payment.id },
                 data: {
                     status: PaymentStatus.COMPLETED,
-                    razorpayPaymentId: razorpayPayment.id,
-                    method: razorpayPayment.method
+                    gatewayTransactionId: razorpayPayment.id,
+                    gatewayResponse: razorpayPayment
                 }
             });
 
             // Update Order
             await this.prisma.order.update({
-                where: { id: payment.orderId },
+                where: { id: payment.orderId! },
                 data: { paymentStatus: 'COMPLETED' }
             });
             console.log(`Payment captured for Order ${payment.orderId}`);
@@ -71,18 +71,19 @@ export class PaymentWebhookService {
 
     private async processPaymentFailure(razorpayPayment: any) {
         const razorpayOrderId = razorpayPayment.order_id;
-        const payment = await this.prisma.payment.findFirst({ where: { razorpayOrderId } });
+        const payment = await this.prisma.paymentTransaction.findFirst({ where: { gatewayTransactionId: razorpayOrderId } });
 
         if (payment) {
-            await this.prisma.payment.update({
+            await this.prisma.paymentTransaction.update({
                 where: { id: payment.id },
                 data: {
                     status: PaymentStatus.FAILED,
-                    razorpayPaymentId: razorpayPayment.id
+                    gatewayTransactionId: razorpayPayment.id,
+                    gatewayResponse: razorpayPayment
                 }
             });
             await this.prisma.order.update({
-                where: { id: payment.orderId },
+                where: { id: payment.orderId! },
                 data: { paymentStatus: 'FAILED' }
             });
         }

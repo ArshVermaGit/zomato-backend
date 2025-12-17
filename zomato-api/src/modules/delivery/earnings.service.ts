@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { TransactionType, TransactionCategory, PayoutStatus } from '@prisma/client';
+import { WalletTransactionType, PayoutStatus, Prisma, PayoutMethod } from '@prisma/client';
 
 @Injectable()
 export class EarningsService {
@@ -8,29 +8,25 @@ export class EarningsService {
 
     // --- LEDGER LOGIC ---
 
-    async addTransaction(partnerId: string, amount: number, type: TransactionType, category: TransactionCategory, description: string, referenceId?: string) {
+    async addTransaction(partnerId: string, amount: number, type: WalletTransactionType, description: string) {
         return this.prisma.$transaction(async (tx) => {
             // 1. Create Transaction Record
             const transaction = await tx.walletTransaction.create({
                 data: {
-                    partnerId,
-                    amount,
+                    deliveryPartnerId: partnerId,
+                    amount: new Prisma.Decimal(amount),
                     type,
-                    category,
-                    description,
-                    referenceId
+                    description
                 }
             });
 
             // 2. Update Balance atomically
-            const increment = type === TransactionType.CREDIT ? amount : -amount;
+            const increment = type === WalletTransactionType.CREDIT ? amount : -amount;
             await tx.deliveryPartner.update({
-                where: { id: partnerId }, // Relation is via ID not UserID usually, let's verify usage.
-                // Note: method signature should probably take partnerId (UUID) not userId.
-                // We'll enforce partnerId usage.
+                where: { id: partnerId },
                 data: {
-                    currentBalance: { increment },
-                    earnings: type === TransactionType.CREDIT ? { increment: amount } : undefined // Track total lifetime earnings
+                    availableBalance: { increment }, // Schema uses availableBalance
+                    totalEarnings: type === WalletTransactionType.CREDIT ? { increment: amount } : undefined
                 }
             });
 
@@ -58,8 +54,8 @@ export class EarningsService {
         const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
         if (!partner) throw new NotFoundException('Partner not found');
         return {
-            currentBalance: partner.currentBalance,
-            totalEarnings: partner.earnings
+            currentBalance: partner.availableBalance,
+            totalEarnings: partner.totalEarnings
         };
     }
 
@@ -67,7 +63,7 @@ export class EarningsService {
         const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
         if (!partner) throw new NotFoundException('Partner not found');
 
-        const balance = Number(partner.currentBalance);
+        const balance = Number(partner.availableBalance);
         if (balance < amount) {
             throw new BadRequestException(`Insufficient balance. Current: ${balance}, Requested: ${amount}`);
         }
@@ -76,28 +72,26 @@ export class EarningsService {
             // 1. Deduct Balance immediately (Reserve funds)
             await tx.deliveryPartner.update({
                 where: { id: partner.id },
-                data: { currentBalance: { decrement: amount } }
+                data: { availableBalance: { decrement: amount } }
             });
 
             // 2. Create Payout Request
             const payout = await tx.payoutRequest.create({
                 data: {
-                    partnerId: partner.id,
-                    amount,
+                    deliveryPartnerId: partner.id,
+                    amount: new Prisma.Decimal(amount),
                     status: PayoutStatus.PENDING,
-                    method: 'UPI' // Default for MVP
+                    // method: 'UPI' // removed as per schema
                 }
             });
 
-            // 3. Log into Ledger as Debit (Category: PAYOUT)
+            // 3. Log into Ledger as Debit
             await tx.walletTransaction.create({
                 data: {
-                    partnerId: partner.id,
-                    amount,
-                    type: TransactionType.DEBIT,
-                    category: TransactionCategory.PAYOUT,
-                    description: `Payout Request ${payout.id}`,
-                    referenceId: payout.id
+                    deliveryPartnerId: partner.id,
+                    amount: new Prisma.Decimal(amount),
+                    type: WalletTransactionType.DEBIT,
+                    description: `Payout Request ${payout.id}`
                 }
             });
 
@@ -105,33 +99,55 @@ export class EarningsService {
         });
     }
 
-    async getTransactions(userId: string) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
-        if (!partner) throw new NotFoundException('Partner not found');
+    async createWalletTransaction(deliveryPartnerId: string, amount: number, type: 'CREDIT' | 'DEBIT', description?: string) {
+        const partner = await this.prisma.deliveryPartner.findUnique({ where: { id: deliveryPartnerId } });
+        if (!partner) throw new NotFoundException('Delivery partner not found');
+
+        // Map string type to Enum
+        const txnType = type === 'CREDIT' ? WalletTransactionType.CREDIT : WalletTransactionType.DEBIT;
+
+        return this.prisma.walletTransaction.create({
+            data: {
+                deliveryPartnerId: partner.id,
+                amount: new Prisma.Decimal(amount),
+                type: txnType,
+                description,
+            }
+        });
+    }
+
+    async getHistory(userId: string) {
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId },
+        });
+
+        if (!partner) throw new NotFoundException('Delivery partner not found');
 
         return this.prisma.walletTransaction.findMany({
-            where: { partnerId: partner.id },
+            where: { deliveryPartnerId: partner.id },
             orderBy: { createdAt: 'desc' }
         });
     }
 
-    async getPayoutHistory(userId: string) {
+    async getPayoutRequests(userId: string) {
         const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
-        if (!partner) throw new NotFoundException('Partner not found');
+        if (!partner) throw new NotFoundException('Delivery partner not found');
 
         return this.prisma.payoutRequest.findMany({
-            where: { partnerId: partner.id },
+            where: { deliveryPartnerId: partner.id },
             orderBy: { createdAt: 'desc' }
         });
     }
 
-    async getPerformanceMetrics(userId: string) {
+    // ...
+
+    async getStats(userId: string) {
         const partner = await this.prisma.deliveryPartner.findUnique({
             where: { userId },
             include: {
                 orders: {
                     where: { status: 'DELIVERED' },
-                    select: { createdAt: true, deliveredAt: true }
+                    select: { deliveredAt: true } // removed createdAt as usage mock logic only needed one
                 }
             }
         });
@@ -141,15 +157,12 @@ export class EarningsService {
         const totalDeliveries = partner.totalDeliveries;
         const rating = Number(partner.rating);
 
-        // Calculate average delivery time (mock logic using dates)
-        // For real impl, we'd diff deliveredAt and pickedUpAt
-
         return {
             totalDeliveries,
             averageRating: rating,
-            acceptanceRate: 95, // Mock for MVP: we don't track rejections per partner yet
+            acceptanceRate: 95, // Mock for MVP
             onTimeRate: 98,    // Mock for MVP
-            lifetimeEarnings: partner.earnings
+            lifetimeEarnings: partner.totalEarnings
         };
     }
 }
