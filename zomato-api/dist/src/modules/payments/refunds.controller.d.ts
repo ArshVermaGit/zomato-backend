@@ -9,14 +9,5 @@ export declare class RefundsController {
         refundAmount: number;
         currency: string;
     }>;
-    processRefund(orderId: string, type: 'GATEWAY' | 'WALLET', reason: string): Promise<void | {
-        type: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import("@prisma/client").$Enums.RefundStatus;
-        reason: string | null;
-        amount: import("@prisma/client-runtime-utils").Decimal;
-        paymentId: string;
-    }>;
+    processRefund(orderId: string, type: 'GATEWAY' | 'WALLET', reason: string): Promise<any>;
 }

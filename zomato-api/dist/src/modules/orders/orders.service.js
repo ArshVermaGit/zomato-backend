@@ -247,6 +247,33 @@ let OrdersService = class OrdersService {
             return review;
         });
     }
+    async findAvailableForDelivery(lat, lng) {
+        const radius = 10;
+        const rawQuery = client_1.Prisma.sql `
+            SELECT o.id, o."status", o."totalAmount", r.name as "restaurantName", r.address as "restaurantAddress", r.location as "restaurantLocation"
+            FROM "Order" o
+            JOIN "Restaurant" r ON o."restaurantId" = r.id
+            WHERE o."status" IN ('ACCEPTED', 'PREPARING', 'READY')
+            AND o."deliveryPartnerId" IS NULL
+            AND (
+                6371 * acos(
+                    cos(radians(${lat})) * cos(radians(CAST(r.location->>'lat' AS FLOAT))) *
+                    cos(radians(CAST(r.location->>'lng' AS FLOAT)) - radians(${lng})) +
+                    sin(radians(${lat})) * sin(radians(CAST(r.location->>'lat' AS FLOAT)))
+                )
+            ) < ${radius}
+            LIMIT 20;
+        `;
+        const results = await this.prisma.$queryRaw(rawQuery);
+        const ids = results.map(r => r.id);
+        return this.prisma.order.findMany({
+            where: { id: { in: ids } },
+            include: {
+                restaurant: true,
+                items: { include: { menuItem: true } }
+            }
+        });
+    }
     calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371;
         const dLat = this.deg2rad(lat2 - lat1);
