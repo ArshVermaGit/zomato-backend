@@ -22,6 +22,8 @@ export declare class RestaurantsService {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: Prisma.Decimal;
+        deliveryRadius: Prisma.Decimal;
+        coverImage: string | null;
         partnerId: string;
     }>;
     findAll(filter: RestaurantFilterDto): Promise<{
@@ -30,6 +32,7 @@ export declare class RestaurantsService {
                 name: string;
                 description: string | null;
                 id: string;
+                isActive: boolean;
                 restaurantId: string;
                 displayOrder: number;
             }[];
@@ -51,6 +54,8 @@ export declare class RestaurantsService {
             totalRatings: number;
             preparationTime: number;
             minimumOrder: Prisma.Decimal;
+            deliveryRadius: Prisma.Decimal;
+            coverImage: string | null;
             partnerId: string;
         })[];
         meta: {
@@ -62,17 +67,13 @@ export declare class RestaurantsService {
     }>;
     findOne(id: string): Promise<{
         reviews: {
-            tags: string[];
             id: string;
             createdAt: Date;
             userId: string;
             rating: number;
             restaurantId: string;
-            deliveryRating: number | null;
             comment: string | null;
             images: string[];
-            helpfulCount: number;
-            isReported: boolean;
             response: string | null;
             respondedAt: Date | null;
             orderId: string;
@@ -87,11 +88,13 @@ export declare class RestaurantsService {
                 price: Prisma.Decimal;
                 isVeg: boolean;
                 categoryId: string;
+                isBestseller: boolean;
             }[];
         } & {
             name: string;
             description: string | null;
             id: string;
+            isActive: boolean;
             restaurantId: string;
             displayOrder: number;
         })[];
@@ -113,6 +116,8 @@ export declare class RestaurantsService {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: Prisma.Decimal;
+        deliveryRadius: Prisma.Decimal;
+        coverImage: string | null;
         partnerId: string;
     }>;
     search(query: string): Promise<{
@@ -133,6 +138,8 @@ export declare class RestaurantsService {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: Prisma.Decimal;
+        deliveryRadius: Prisma.Decimal;
+        coverImage: string | null;
         partnerId: string;
     }[]>;
     findNearby(dto: NearbyRestaurantDto): Promise<unknown>;
@@ -154,6 +161,8 @@ export declare class RestaurantsService {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: Prisma.Decimal;
+        deliveryRadius: Prisma.Decimal;
+        coverImage: string | null;
         partnerId: string;
     }>;
     findByPartnerUserId(userId: string): Promise<{
@@ -174,6 +183,8 @@ export declare class RestaurantsService {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: Prisma.Decimal;
+        deliveryRadius: Prisma.Decimal;
+        coverImage: string | null;
         partnerId: string;
     }[]>;
 }

@@ -32,6 +32,12 @@ let RestaurantsController = class RestaurantsController {
     async getMyRestaurants(req) {
         return this.restaurantsService.findByPartnerUserId(req.user.userId);
     }
+    async getStats(req, restaurantId) {
+        return this.restaurantsService.getStats(restaurantId);
+    }
+    async getAnalytics(req, restaurantId, range) {
+        return this.restaurantsService.getAnalytics(restaurantId, range);
+    }
     async update(id, dto) {
         return this.restaurantsService.update(id, dto);
     }
@@ -75,6 +81,31 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], RestaurantsController.prototype, "getMyRestaurants", null);
+__decorate([
+    (0, common_1.Get)('partner/stats'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.RESTAURANT_PARTNER),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get restaurant stats' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('restaurantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], RestaurantsController.prototype, "getStats", null);
+__decorate([
+    (0, common_1.Get)('partner/analytics'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.RESTAURANT_PARTNER),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get restaurant analytics' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('restaurantId')),
+    __param(2, (0, common_1.Query)('range')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], RestaurantsController.prototype, "getAnalytics", null);
 __decorate([
     (0, common_1.Put)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

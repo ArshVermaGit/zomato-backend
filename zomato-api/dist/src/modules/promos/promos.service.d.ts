@@ -13,14 +13,11 @@ export declare class PromosService {
         discountValue: import("@prisma/client-runtime-utils").Decimal;
         minOrderValue: import("@prisma/client-runtime-utils").Decimal;
         maxDiscount: import("@prisma/client-runtime-utils").Decimal | null;
-        applicableRestaurantIds: string[];
-        isNewUserOnly: boolean;
-        maxUsagePerUser: number | null;
-        details: import("@prisma/client/runtime/client").JsonValue | null;
         validFrom: Date;
         validUntil: Date;
         usageLimit: number | null;
         usedCount: number;
+        applicableFor: string[];
     }>;
     getAvailablePromos(userId: string, restaurantId: string): Promise<{
         description: string;
@@ -31,14 +28,11 @@ export declare class PromosService {
         discountValue: import("@prisma/client-runtime-utils").Decimal;
         minOrderValue: import("@prisma/client-runtime-utils").Decimal;
         maxDiscount: import("@prisma/client-runtime-utils").Decimal | null;
-        applicableRestaurantIds: string[];
-        isNewUserOnly: boolean;
-        maxUsagePerUser: number | null;
-        details: import("@prisma/client/runtime/client").JsonValue | null;
         validFrom: Date;
         validUntil: Date;
         usageLimit: number | null;
         usedCount: number;
+        applicableFor: string[];
     }[]>;
     applyPromo(code: string, userId: string, cartValue: number, restaurantId: string): Promise<{
         valid: boolean;

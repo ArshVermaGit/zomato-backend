@@ -21,6 +21,8 @@ export declare class RestaurantsController {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: import("@prisma/client-runtime-utils").Decimal;
+        deliveryRadius: import("@prisma/client-runtime-utils").Decimal;
+        coverImage: string | null;
         partnerId: string;
     }>;
     getMyRestaurants(req: any): Promise<{
@@ -41,8 +43,12 @@ export declare class RestaurantsController {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: import("@prisma/client-runtime-utils").Decimal;
+        deliveryRadius: import("@prisma/client-runtime-utils").Decimal;
+        coverImage: string | null;
         partnerId: string;
     }[]>;
+    getStats(req: any, restaurantId: string): Promise<any>;
+    getAnalytics(req: any, restaurantId: string, range: string): Promise<any>;
     update(id: string, dto: UpdateRestaurantDto): Promise<{
         name: string;
         description: string | null;
@@ -61,6 +67,8 @@ export declare class RestaurantsController {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: import("@prisma/client-runtime-utils").Decimal;
+        deliveryRadius: import("@prisma/client-runtime-utils").Decimal;
+        coverImage: string | null;
         partnerId: string;
     }>;
     search(dto: SearchRestaurantDto): Promise<{
@@ -81,6 +89,8 @@ export declare class RestaurantsController {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: import("@prisma/client-runtime-utils").Decimal;
+        deliveryRadius: import("@prisma/client-runtime-utils").Decimal;
+        coverImage: string | null;
         partnerId: string;
     }[]>;
     findNearby(dto: NearbyRestaurantDto): Promise<unknown>;
@@ -90,6 +100,7 @@ export declare class RestaurantsController {
                 name: string;
                 description: string | null;
                 id: string;
+                isActive: boolean;
                 restaurantId: string;
                 displayOrder: number;
             }[];
@@ -111,6 +122,8 @@ export declare class RestaurantsController {
             totalRatings: number;
             preparationTime: number;
             minimumOrder: import("@prisma/client-runtime-utils").Decimal;
+            deliveryRadius: import("@prisma/client-runtime-utils").Decimal;
+            coverImage: string | null;
             partnerId: string;
         })[];
         meta: {
@@ -122,17 +135,13 @@ export declare class RestaurantsController {
     }>;
     findOne(id: string): Promise<{
         reviews: {
-            tags: string[];
             id: string;
             createdAt: Date;
             userId: string;
             rating: number;
             restaurantId: string;
-            deliveryRating: number | null;
             comment: string | null;
             images: string[];
-            helpfulCount: number;
-            isReported: boolean;
             response: string | null;
             respondedAt: Date | null;
             orderId: string;
@@ -147,11 +156,13 @@ export declare class RestaurantsController {
                 price: import("@prisma/client-runtime-utils").Decimal;
                 isVeg: boolean;
                 categoryId: string;
+                isBestseller: boolean;
             }[];
         } & {
             name: string;
             description: string | null;
             id: string;
+            isActive: boolean;
             restaurantId: string;
             displayOrder: number;
         })[];
@@ -173,6 +184,8 @@ export declare class RestaurantsController {
         totalRatings: number;
         preparationTime: number;
         minimumOrder: import("@prisma/client-runtime-utils").Decimal;
+        deliveryRadius: import("@prisma/client-runtime-utils").Decimal;
+        coverImage: string | null;
         partnerId: string;
     }>;
     getMenu(id: string): Promise<({
@@ -185,11 +198,13 @@ export declare class RestaurantsController {
             price: import("@prisma/client-runtime-utils").Decimal;
             isVeg: boolean;
             categoryId: string;
+            isBestseller: boolean;
         }[];
     } & {
         name: string;
         description: string | null;
         id: string;
+        isActive: boolean;
         restaurantId: string;
         displayOrder: number;
     })[]>;
