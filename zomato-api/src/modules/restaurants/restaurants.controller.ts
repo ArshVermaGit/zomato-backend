@@ -27,6 +27,15 @@ export class RestaurantsController {
         return this.restaurantsService.createRestaurant(partnerId, dto);
     }
 
+    @Put(':id/approve')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.ADMIN)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Approve a restaurant (Admin only)' })
+    async approve(@Param('id', ParseUUIDPipe) id: string, @Request() req) {
+        return this.restaurantsService.approveRestaurant(id, req.user.userId);
+    }
+
     @Get('partner/my-restaurants')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.RESTAURANT_PARTNER)

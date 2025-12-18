@@ -13,6 +13,8 @@ import {
 } from './dto/restaurant.dto';
 import { Prisma } from '@prisma/client';
 
+import { SearchService } from '../search/search.service';
+
 @Injectable()
 export class RestaurantsService {
     constructor(
@@ -20,6 +22,7 @@ export class RestaurantsService {
         private realtimeGateway: RealtimeGateway,
         private s3Service: S3Service,
         private geocodingService: GeocodingService,
+        private searchService: SearchService,
     ) { }
 
     // ============= CREATE RESTAURANT =============
@@ -63,9 +66,9 @@ export class RestaurantsService {
                 const contentType = image.mimetype || 'image/jpeg';
                 const key = `restaurants/${partnerId}/${Date.now()}-${filename}`;
 
-                const imageUrl = await this.s3Service.uploadFile(
+                const imageUrl = await this.s3Service.uploadBuffer(
                     key,
-                    content,
+                    content as Buffer,
                     contentType
                 );
                 uploadedImages.push(imageUrl);
@@ -136,6 +139,9 @@ export class RestaurantsService {
             });
         }
 
+        // 7. Sync with Algolia
+        await this.searchService.indexRestaurant(restaurant);
+
         return restaurant;
     }
 
@@ -191,6 +197,9 @@ export class RestaurantsService {
             name: restaurant.name,
             approvedBy: adminId,
         });
+
+        // 6. Sync with Algolia
+        await this.searchService.indexRestaurant(restaurant);
 
         return restaurant;
     }

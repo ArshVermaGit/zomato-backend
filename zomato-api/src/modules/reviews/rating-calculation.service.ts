@@ -1,9 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { SearchService } from '../search/search.service';
+import { RealtimeGateway } from '../../websockets/websocket.gateway';
 
 @Injectable()
 export class RatingCalculationService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private searchService: SearchService,
+        private realtimeGateway: RealtimeGateway,
+    ) { }
 
     async updateRestaurantRating(restaurantId: string) {
         // Fetch all reviews for this restaurant
@@ -27,14 +33,24 @@ export class RatingCalculationService {
             totalWeight += weight;
         }
 
-        const newRating = totalWeight > 0 ? totalWeightedRating / totalWeight : 0;
+        const newRating = totalWeight > 0 ? Number((totalWeightedRating / totalWeight).toFixed(1)) : 0;
 
         await this.prisma.restaurant.update({
             where: { id: restaurantId },
             data: {
-                rating: Number(newRating.toFixed(1)),
+                rating: newRating,
                 totalRatings: reviews.length
             }
+        });
+
+        // Sync with Algolia
+        await this.searchService.indexRestaurant({ id: restaurantId, rating: newRating });
+
+        // Broadcast new rating
+        this.realtimeGateway.server.to('role:CUSTOMER').emit('restaurant:rating_updated', {
+            restaurantId,
+            rating: newRating,
+            totalRatings: reviews.length
         });
     }
 
