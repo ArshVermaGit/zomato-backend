@@ -4,4 +4,4 @@ export declare class HelmetMiddleware implements NestMiddleware {
     private helmet;
     use(req: Request, res: Response, next: NextFunction): void;
 }
-export declare const helmetConfig: any;
+export declare const helmetConfig: (req: import("http").IncomingMessage, res: import("http").ServerResponse, next: (err?: unknown) => void) => void;

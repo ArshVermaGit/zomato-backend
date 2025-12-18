@@ -1,5 +1,5 @@
-export declare const apiRateLimiter: any;
-export declare const authRateLimiter: any;
-export declare const otpRateLimiter: any;
-export declare const paymentRateLimiter: any;
-export declare function createRedisRateLimiter(redisClient: any, options?: any): any;
+export declare const apiRateLimiter: import("express-rate-limit").RateLimitRequestHandler;
+export declare const authRateLimiter: import("express-rate-limit").RateLimitRequestHandler;
+export declare const otpRateLimiter: import("express-rate-limit").RateLimitRequestHandler;
+export declare const paymentRateLimiter: import("express-rate-limit").RateLimitRequestHandler;
+export declare function createRedisRateLimiter(redisClient: any, options?: any): import("express-rate-limit").RateLimitRequestHandler;
