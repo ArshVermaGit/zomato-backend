@@ -17,19 +17,27 @@ export class PaymentsController {
         return this.paymentsService.createPaymentOrder(req.user.userId, body.orderId);
     }
 
+    @Post('create-adhoc')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Create an ad-hoc payment order (e.g. for wallet load or ads)' })
+    async createAdHoc(@Request() req, @Body() body: { amount: number; purpose: string }) {
+        return this.paymentsService.createAdHocPayment(req.user.userId, body.amount, body.purpose);
+    }
+
     @Post('verify')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Verify payment signature' })
     @ApiResponse({ status: 200, description: 'Payment verified' })
-    async verifyPayment(@Body() body: { orderId: string; paymentId: string; razorpayOrderId: string; signature: string }) {
-        return this.paymentsService.verifyPayment(body.orderId, body.paymentId, body.razorpayOrderId, body.signature);
+    async verifyPayment(@Body() body: { orderId?: string; paymentId: string; razorpayOrderId: string; signature: string }) {
+        return this.paymentsService.verifyPayment(body.orderId || null, body.paymentId, body.razorpayOrderId, body.signature);
     }
 
     @Post('webhook')
     @ApiOperation({ summary: 'Handle Razorpay Webhooks' })
     @ApiResponse({ status: 200, description: 'Webhook acknowledged' })
     async handleWebhook(@Body() body: any, @Headers('x-razorpay-signature') signature: string) {
-        return { status: 'ok' };
+        return this.paymentsService.handleWebhook(body, signature);
     }
 }

@@ -39,62 +39,6 @@ export class ReorderCategoryDto {
     newDisplayOrder: number;
 }
 
-// Menu Item DTOs
-export class CreateMenuItemDto {
-    @ApiProperty({ example: 'Classic Cheese Burger' })
-    @IsNotEmpty()
-    @IsString()
-    name: string;
-
-    @ApiProperty({ example: 'With cheddar and pickles' })
-    @IsNotEmpty()
-    @IsString()
-    description: string;
-
-    @ApiProperty({ example: 199 })
-    @IsNotEmpty()
-    @IsNumber()
-    @Min(0)
-    price: number;
-
-    @ApiProperty({ example: false })
-    @IsNotEmpty()
-    @IsBoolean()
-    isVeg: boolean;
-
-    @ApiProperty({ example: 'category-uuid' })
-    @IsNotEmpty()
-    @IsUUID()
-    categoryId: string;
-}
-
-export class UpdateMenuItemDto {
-    @ApiProperty({ required: false })
-    @IsOptional()
-    @IsString()
-    name?: string;
-
-    @ApiProperty({ required: false })
-    @IsOptional()
-    @IsString()
-    description?: string;
-
-    @ApiProperty({ required: false })
-    @IsOptional()
-    @IsNumber()
-    price?: number;
-
-    @ApiProperty({ required: false })
-    @IsOptional()
-    @IsBoolean()
-    isVeg?: boolean;
-
-    @ApiProperty({ required: false })
-    @IsOptional()
-    @IsBoolean()
-    isAvailable?: boolean;
-}
-
 // Modifier DTOs
 class ModifierOptionDto {
     @ApiProperty({ example: 'Extra Cheese' })
@@ -154,3 +98,74 @@ export class UpdateModifierDto {
     @IsBoolean()
     isRequired?: boolean;
 }
+
+// Menu Item DTOs
+export class CreateMenuItemDto {
+    @ApiProperty({ example: 'Classic Cheese Burger' })
+    @IsNotEmpty()
+    @IsString()
+    name: string;
+
+    @ApiProperty({ example: 'With cheddar and pickles' })
+    @IsNotEmpty()
+    @IsString()
+    description: string;
+
+    @ApiProperty({ example: 199 })
+    @IsNotEmpty()
+    @IsNumber()
+    @Min(0)
+    price: number;
+
+    @ApiProperty({ example: false })
+    @IsNotEmpty()
+    @IsBoolean()
+    isVeg: boolean;
+
+    @ApiProperty({ example: 'category-uuid' })
+    @IsNotEmpty()
+    @IsUUID()
+    categoryId: string;
+
+    @ApiProperty({ example: ['base64string_or_url'], required: false })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    images?: string[];
+
+    @ApiProperty({ type: [CreateModifierDto], required: false })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateModifierDto)
+    modifiers?: CreateModifierDto[];
+}
+
+export class UpdateMenuItemDto {
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    name?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsString()
+    description?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsNumber()
+    price?: number;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsBoolean()
+    isVeg?: boolean;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsBoolean()
+    isAvailable?: boolean;
+}
+
+

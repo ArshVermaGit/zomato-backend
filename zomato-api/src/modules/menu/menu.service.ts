@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { S3Service } from '../../common/services/s3.service';
+import { RealtimeGateway } from '../../websockets/websocket.gateway';
 import { CreateCategoryDto, UpdateCategoryDto, ReorderCategoryDto, CreateMenuItemDto, UpdateMenuItemDto, CreateModifierDto, UpdateModifierDto } from './dto/menu.dto';
 import { Prisma } from '@prisma/client';
 
@@ -8,7 +9,8 @@ import { Prisma } from '@prisma/client';
 export class MenuService {
     constructor(
         private prisma: PrismaService,
-        private s3Service: S3Service
+        private s3Service: S3Service,
+        private realtimeGateway: RealtimeGateway,
     ) { }
 
     // Authorization Helper
@@ -99,11 +101,110 @@ export class MenuService {
     async createItem(userId: string, dto: CreateMenuItemDto) {
         const category = await this.prisma.menuCategory.findUnique({ where: { id: dto.categoryId } });
         if (!category) throw new NotFoundException('Category not found');
-        await this.checkOwnership(userId, category.restaurantId);
 
-        return this.prisma.menuItem.create({
-            data: { ...dto, images: [] }
+        const partner = await this.prisma.restaurantPartner.findUnique({ where: { userId } });
+        if (!partner) throw new ForbiddenException('User is not a restaurant partner');
+
+        return this.addMenuItem(category.restaurantId, partner.id, dto);
+    }
+
+    // ============= ADD MENU ITEM =============
+    async addMenuItem(restaurantId: string, partnerId: string, dto: CreateMenuItemDto) {
+        // 1. Verify restaurant ownership
+        const restaurant = await this.prisma.restaurant.findFirst({
+            where: { id: restaurantId, partnerId },
         });
+
+        if (!restaurant) {
+            throw new ForbiddenException('You do not own this restaurant');
+        }
+
+        // 2. Upload images
+        const uploadedImages: string[] = [];
+        if (dto.images && dto.images.length > 0) {
+            for (const imageBody of dto.images) {
+                // Handle Base64 images
+                let body: Buffer | string = imageBody;
+                let contentType = 'image/jpeg';
+
+                if (imageBody.startsWith('data:image')) {
+                    const matches = imageBody.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+                    if (matches && matches.length === 3) {
+                        contentType = matches[1];
+                        body = Buffer.from(matches[2], 'base64');
+                    }
+                } else {
+                    // Assume raw base64 or url? If url, we shouldn't upload it again usually, or maybe fetch and upload?
+                    // Assuming raw base64 if not data url
+                    try {
+                        body = Buffer.from(imageBody, 'base64');
+                    } catch (e) {
+                        // Fallback to string if failed
+                        body = imageBody;
+                    }
+                }
+
+                const key = `menu-items/${restaurantId}/${Date.now()}-${Math.random().toString(36).substring(7)}.jpeg`;
+                const url = await this.s3Service.uploadBuffer(
+                    key,
+                    body as Buffer,
+                    contentType
+                );
+                uploadedImages.push(url);
+            }
+        }
+
+        // 3. Create menu item
+        const item = await this.prisma.menuItem.create({
+            data: {
+                name: dto.name,
+                description: dto.description,
+                price: dto.price,
+                images: uploadedImages,
+                isVeg: dto.isVeg,
+                // Default values
+                isAvailable: true,
+                isBestseller: false,
+                categoryId: dto.categoryId,
+            },
+            include: {
+                category: {
+                    include: {
+                        restaurant: true,
+                    },
+                },
+            },
+        });
+
+        // 4. Create modifiers if provided
+        if (dto.modifiers && dto.modifiers.length > 0) {
+            // Need to map DTO options to JSON if Prisma expects Json
+            // or if Prisma schema defines options as Json.
+            // Based on createModifier below, it does JSON.parse(JSON.stringify(options)).
+
+            await this.prisma.menuModifier.createMany({
+                data: dto.modifiers.map(mod => ({
+                    name: mod.name,
+                    isRequired: mod.isRequired,
+                    options: JSON.parse(JSON.stringify(mod.options)),
+                    menuItemId: item.id,
+                })),
+            });
+        }
+
+        // 5. ⭐ BROADCAST TO ALL CUSTOMER APPS - New menu item available!
+        this.realtimeGateway.server.to('role:CUSTOMER').emit('menu:item_added', {
+            restaurantId,
+            item: {
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                images: item.images,
+                isVeg: item.isVeg,
+            },
+        });
+
+        return item;
     }
 
     async updateItem(userId: string, id: string, dto: UpdateMenuItemDto) {
@@ -126,33 +227,93 @@ export class MenuService {
     }
 
     async toggleAvailability(userId: string, id: string) {
-        const item = await this.prisma.menuItem.findUnique({ where: { id }, include: { category: true } });
-        if (!item) throw new NotFoundException('Item not found');
-        await this.checkOwnership(userId, item.category.restaurantId);
-
-        return this.prisma.menuItem.update({
+        // Resolve params for new method
+        const item = await this.prisma.menuItem.findUnique({
             where: { id },
-            data: { isAvailable: !item.isAvailable }
+            include: { category: { include: { restaurant: true } } }
         });
-    }
-
-    async getUploadUrl(userId: string, itemId: string) {
-        const item = await this.prisma.menuItem.findUnique({ where: { id: itemId }, include: { category: true } });
         if (!item) throw new NotFoundException('Item not found');
-        await this.checkOwnership(userId, item.category.restaurantId);
 
-        const key = `menu-items/${itemId}-${Date.now()}.jpeg`;
-        const uploadUrl = await this.s3Service.getSignedUploadUrl(key);
-        const publicUrl = this.s3Service.getPublicUrl(key);
+        // Check ownership
+        const partner = await this.prisma.restaurantPartner.findUnique({ where: { userId } });
+        if (!partner) throw new ForbiddenException('User is not a restaurant partner');
 
-        // We can append to images list here or wait for explicit update? 
-        // Let's optimize flow: return URL, client uploads, then client calls PUT to add image URL?
-        // Or we assume successful upload and add it now? No, insecure.
-        // Better: Return URL, let client upload. Client then calls `updateItem` with new image list.
-        // Or implemented specific `addImage` endpoint?
+        if (item.category.restaurant.partnerId !== partner.id) {
+            throw new ForbiddenException('You do not own this restaurant');
+        }
 
-        return { uploadUrl, publicUrl, key };
+        return this.toggleItemAvailability(id, item.category.restaurantId, partner.id);
     }
+
+    // ============= UPDATE MENU ITEM AVAILABILITY =============
+    async toggleItemAvailability(itemId: string, restaurantId: string, partnerId: string) {
+        // 1. Get current item
+        const item = await this.prisma.menuItem.findFirst({
+            where: {
+                id: itemId,
+                category: {
+                    restaurantId,
+                    restaurant: {
+                        partnerId,
+                    },
+                },
+            },
+        });
+
+        if (!item) {
+            throw new NotFoundException('Menu item not found');
+        }
+
+        // 2. Toggle availability
+        const updated = await this.prisma.menuItem.update({
+            where: { id: itemId },
+            data: { isAvailable: !item.isAvailable },
+        });
+
+        // 3. ⭐ INSTANT UPDATE TO ALL CUSTOMER APPS
+        this.realtimeGateway.server.to('role:CUSTOMER').emit('menu:item_availability_changed', {
+            restaurantId,
+            itemId: updated.id,
+            isAvailable: updated.isAvailable,
+        });
+
+        return updated;
+    }
+
+    // ============= BULK UPDATE AVAILABILITY =============
+    async bulkToggleAvailability(restaurantId: string, partnerId: string, itemIds: string[], isAvailable: boolean) {
+        // 1. Verify ownership
+        const restaurant = await this.prisma.restaurant.findFirst({
+            where: { id: restaurantId, partnerId },
+        });
+
+        if (!restaurant) {
+            throw new ForbiddenException('Unauthorized');
+        }
+
+        // 2. Update all items
+        await this.prisma.menuItem.updateMany({
+            where: {
+                id: { in: itemIds },
+                category: { restaurantId },
+            },
+            data: { isAvailable },
+        });
+
+        // 3. ⭐ NOTIFY ALL CUSTOMERS
+        this.realtimeGateway.server.to('role:CUSTOMER').emit('menu:bulk_update', {
+            restaurantId,
+            itemIds,
+            isAvailable,
+        });
+
+        return { success: true, updatedCount: itemIds.length };
+    }
+
+    // async getUploadUrl(userId: string, itemId: string) {
+    //     // Legacy method - removed in favor of direct upload via addMenuItem
+    //     throw new BadRequestException('Use addMenuItem to upload images');
+    // }
 
     async addImage(userId: string, itemId: string, imageUrl: string) {
         const item = await this.prisma.menuItem.findUnique({ where: { id: itemId }, include: { category: true } });

@@ -1,33 +1,22 @@
-import { Controller, Post, Body, Get, Put, Param, Delete, Request, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import type { Request } from 'express';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
-@ApiTags('Notifications')
+@ApiTags('notifications')
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class NotificationsController {
-    constructor(private notificationsService: NotificationsService) { }
+    constructor(private readonly notificationsService: NotificationsService) { }
 
-    @Post('register-device')
-    @ApiOperation({ summary: 'Register FCM Token' })
-    @ApiResponse({ status: 201, description: 'Device registered successfully' })
-    async registerDevice(@Request() req, @Body('token') token: string) {
-        return this.notificationsService.registerDevice(req.user.userId, token);
-    }
-
-    @Get()
-    @ApiOperation({ summary: 'Get User Notifications' })
-    @ApiResponse({ status: 200, description: 'List of notifications' })
-    async getUserNotifications(@Request() req) {
-        return this.notificationsService.getUserNotifications(req.user.userId);
-    }
-
-    @Put(':id/read')
-    @ApiOperation({ summary: 'Mark Notification as Read' })
-    @ApiResponse({ status: 200, description: 'Notification marked as read' })
-    async markAsRead(@Param('id') id: string) {
-        return this.notificationsService.markAsRead(id);
+    @Post('register-token')
+    @ApiOperation({ summary: 'Register FCM token for push notifications' })
+    async registerToken(@Req() req: Request, @Body() body: { token: string }) {
+        // @ts-ignore
+        const userId = req.user.userId;
+        await this.notificationsService.registerFCMToken(userId, body.token);
+        return { success: true };
     }
 }

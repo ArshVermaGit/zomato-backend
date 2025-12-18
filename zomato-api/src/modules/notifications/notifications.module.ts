@@ -3,12 +3,13 @@ import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 import { BullModule } from '@nestjs/bull';
 import { NotificationProcessor } from './notification.processor';
+import { DatabaseModule } from '../../database/database.module';
 import { FirebaseService } from './firebase.service';
 import { TwilioService } from './twilio.service';
 import { SendGridService } from './sendgrid.service';
-
 @Module({
     imports: [
+        DatabaseModule,
         BullModule.registerQueue({
             name: 'notifications',
         }),
@@ -19,7 +20,7 @@ import { SendGridService } from './sendgrid.service';
         NotificationProcessor,
         FirebaseService,
         TwilioService,
-        SendGridService,
+        SendGridService
     ],
     exports: [NotificationsService],
 })

@@ -114,15 +114,6 @@ export class MenuController {
         return this.menuService.deleteItem(req.user.userId, id);
     }
 
-    @Post('items/:id/images')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(UserRole.RESTAURANT_PARTNER)
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get upload URL for item image' })
-    async getUploadUrl(@Request() req, @Param('id', ParseUUIDPipe) id: string) {
-        return this.menuService.getUploadUrl(req.user.userId, id);
-    }
-
     @Put('items/:id/images')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.RESTAURANT_PARTNER)

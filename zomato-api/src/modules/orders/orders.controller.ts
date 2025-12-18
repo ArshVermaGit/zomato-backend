@@ -67,8 +67,8 @@ export class OrdersController {
     @Roles(UserRole.RESTAURANT_PARTNER)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Accept order' })
-    async acceptOrder(@Request() req, @Param('id', ParseUUIDPipe) id: string) {
-        return this.orderStateService.transition(id, OrderStatus.ACCEPTED, req.user.userId, req.user.role);
+    async acceptOrder(@Param('id', ParseUUIDPipe) id: string, @Request() req, @Body() dto: { estimatedPrepTime: number }) {
+        return this.ordersService.acceptOrder(id, req.user.userId, dto.estimatedPrepTime);
     }
 
     @Put(':id/preparing')
@@ -86,7 +86,7 @@ export class OrdersController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Mark order as ready for pickup' })
     async readyOrder(@Request() req, @Param('id', ParseUUIDPipe) id: string) {
-        return this.orderStateService.transition(id, OrderStatus.READY, req.user.userId, req.user.role);
+        return this.ordersService.markOrderReady(id, req.user.userId);
     }
 
     // SYSTEM / ADMIN ACTIONS
@@ -108,7 +108,7 @@ export class OrdersController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Claim (Accept) order for delivery' })
     async claimOrder(@Request() req, @Param('id', ParseUUIDPipe) id: string) {
-        return this.orderStateService.assignPartner(id, req.user.userId);
+        return this.ordersService.assignDeliveryPartner(id, req.user.userId);
     }
 
     @Put(':id/pickup')
@@ -125,8 +125,8 @@ export class OrdersController {
     @Roles(UserRole.DELIVERY_PARTNER)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Deliver order' })
-    async deliverOrder(@Request() req, @Param('id', ParseUUIDPipe) id: string) {
-        return this.orderStateService.transition(id, OrderStatus.DELIVERED, req.user.userId, req.user.role);
+    async deliverOrder(@Request() req, @Param('id', ParseUUIDPipe) id: string, @Body() dto: { deliveryOTP: string }) {
+        return this.ordersService.markOrderDelivered(id, req.user.userId, dto.deliveryOTP);
     }
 
     @Get('delivery/available')

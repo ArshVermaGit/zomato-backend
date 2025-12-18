@@ -7,6 +7,9 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderFilterDto, CreateRatingDto } from './dto/customer-order.dto';
 import { Prisma, OrderStatus, PaymentStatus, PaymentMethod } from '@prisma/client';
 
+import { PromosService } from '../promos/promos.service';
+import { EarningsService } from '../delivery/earnings.service';
+
 @Injectable()
 export class OrdersService {
     constructor(
@@ -14,6 +17,8 @@ export class OrdersService {
         private realtimeGateway: RealtimeGateway,
         private notificationsService: NotificationsService,
         private paymentsService: PaymentsService,
+        private promosService: PromosService,
+        private earningsService: EarningsService,
     ) { }
 
     // ============= STEP 1: CUSTOMER PLACES ORDER =============
@@ -95,17 +100,23 @@ export class OrdersService {
         let discount = 0;
 
         // Apply promo code if provided
+        let promoId: string | null = null;
         if (dto.promoCode) {
-            const promo = await this.validatePromo(dto.promoCode, itemsTotal);
-            if (promo) {
-                discount = promo.discountType === 'PERCENTAGE'
-                    ? (itemsTotal * Number(promo.discountValue)) / 100
-                    : Number(promo.discountValue);
+            const validation = await this.promosService.validatePromoCode(
+                dto.promoCode,
+                customerId,
+                itemsTotal,
+                dto.restaurantId
+            ) as any; // Cast to any to avoid union access issues
 
-                if (promo.maxDiscount) {
-                    discount = Math.min(discount, Number(promo.maxDiscount));
-                }
+            if (!validation.valid) {
+                // Return invalid payload or throw error? 
+                // Typically if user sends invalid promo, we might want to throw error specifically
+                throw new BadRequestException(`Invalid promo code: ${validation.reason}`);
             }
+
+            discount = validation.discountAmount || 0;
+            promoId = validation.promoId || null;
         }
 
         const totalAmount = itemsTotal + deliveryFee + taxes - discount + (dto.tip || 0);
@@ -188,11 +199,8 @@ export class OrdersService {
         const order = orderRaw as any;
 
         // 8. Update promo usage
-        if (dto.promoCode) {
-            await this.prisma.promo.update({
-                where: { code: dto.promoCode },
-                data: { usedCount: { increment: 1 } },
-            });
+        if (promoId) {
+            await this.promosService.recordPromoUsage(promoId, customerId, order.id);
         }
 
         // 9. ⭐ SEND TO RESTAURANT APP - Real-time notification
@@ -234,13 +242,19 @@ export class OrdersService {
     }
 
     // ============= STEP 2: RESTAURANT ACCEPTS ORDER =============
-    async acceptOrder(orderId: string, restaurantPartnerId: string, estimatedPrepTime: number) {
-        // 1. Verify restaurant owns this order
+    async acceptOrder(orderId: string, restaurantUserId: string, estimatedPrepTime: number) {
+        // 1. Resolve restaurant partner from userId
+        const partner = await this.prisma.restaurantPartner.findUnique({
+            where: { userId: restaurantUserId },
+        });
+        if (!partner) throw new BadRequestException('Not a restaurant partner');
+
+        // 2. Verify restaurant owns this order
         const order = await this.prisma.order.findFirst({
             where: {
                 id: orderId,
                 restaurant: {
-                    partnerId: restaurantPartnerId,
+                    partnerId: partner.id,
                 },
             },
             include: {
@@ -289,15 +303,27 @@ export class OrdersService {
     }
 
     // ============= STEP 3: RESTAURANT MARKS ORDER AS READY =============
-    async markOrderReady(orderId: string, restaurantPartnerId: string) {
-        // 1. Update order status
-        const order = await this.prisma.order.update({
+    async markOrderReady(orderId: string, restaurantUserId: string) {
+        // 1. Resolve restaurant partner from userId
+        const partner = await this.prisma.restaurantPartner.findUnique({
+            where: { userId: restaurantUserId },
+        });
+        if (!partner) throw new BadRequestException('Not a restaurant partner');
+
+        // 2. Verify restaurant owns this order
+        const check = await this.prisma.order.findFirst({
             where: {
                 id: orderId,
                 restaurant: {
-                    partnerId: restaurantPartnerId,
+                    partnerId: partner.id,
                 },
             },
+        });
+        if (!check) throw new BadRequestException('Order not found or already processed');
+
+        // 3. Update order status
+        const order = await this.prisma.order.update({
+            where: { id: orderId },
             data: {
                 status: OrderStatus.READY,
                 readyAt: new Date(),
@@ -347,8 +373,14 @@ export class OrdersService {
     }
 
     // ============= STEP 4: DELIVERY PARTNER ACCEPTS ORDER =============
-    async assignDeliveryPartner(orderId: string, deliveryPartnerId: string) {
-        // 1. Check if order is available
+    async assignDeliveryPartner(orderId: string, deliveryUserId: string) {
+        // 1. Resolve delivery partner from userId
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId: deliveryUserId },
+        });
+        if (!partner) throw new BadRequestException('Not a delivery partner');
+
+        // 2. Check if order is available
         const order = await this.prisma.order.findFirst({
             where: {
                 id: orderId,
@@ -361,16 +393,8 @@ export class OrdersService {
             throw new BadRequestException('Order not available');
         }
 
-        // 2. Check if delivery partner is available
-        const partner = await this.prisma.deliveryPartner.findFirst({
-            where: {
-                id: deliveryPartnerId,
-                isAvailable: true,
-                isOnline: true,
-            },
-        });
-
-        if (!partner) {
+        // 3. Check if delivery partner is available
+        if (!partner.isAvailable || !partner.isOnline) {
             throw new BadRequestException('Delivery partner not available');
         }
 
@@ -378,7 +402,7 @@ export class OrdersService {
         const updatedOrderRaw = await this.prisma.order.update({
             where: { id: orderId },
             data: {
-                deliveryPartnerId,
+                deliveryPartnerId: partner.id,
                 status: OrderStatus.PICKED_UP,
             },
             include: {
@@ -396,7 +420,7 @@ export class OrdersService {
 
         // 4. Update delivery partner availability
         await this.prisma.deliveryPartner.update({
-            where: { id: deliveryPartnerId },
+            where: { id: partner.id },
             data: { isAvailable: false },
         });
 
@@ -444,17 +468,19 @@ export class OrdersService {
     }
 
     // ============= STEP 6: ORDER DELIVERED =============
-    async markOrderDelivered(orderId: string, deliveryPartnerId: string, deliveryOTP: string) {
-        // 1. Verify OTP
+    async markOrderDelivered(orderId: string, deliveryUserId: string, deliveryOTP: string) {
+        // 1. Resolve delivery partner from userId
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId: deliveryUserId },
+        });
+        if (!partner) throw new BadRequestException('Not a delivery partner');
+
+        // 2. Verify OTP
         const order = await this.prisma.order.findFirst({
             where: {
                 id: orderId,
-                deliveryPartnerId,
-                deliveryOTP: deliveryOTP, // Schema uses deliveryOTP (camelCase in service but caps in schema? Check schema. Schema: deliveryOTP)
-                // Wait, schema check earlier showed `deliveryOtp` in camelCase in some place?
-                // Service used `deliveryOTP` (all caps) in findFirst.
-                // Let's verify Schema. Schema line 247: `deliveryOTP String?`.
-                // So `deliveryOTP` is correct.
+                deliveryPartnerId: partner.id,
+                deliveryOTP: deliveryOTP,
             },
             include: {
                 customer: true,
@@ -499,7 +525,7 @@ export class OrdersService {
 
         // 4. Update delivery partner availability
         await this.prisma.deliveryPartner.update({
-            where: { id: deliveryPartnerId },
+            where: { id: partner.id },
             data: {
                 isAvailable: true,
                 totalDeliveries: { increment: 1 },
@@ -507,38 +533,14 @@ export class OrdersService {
         });
 
         // 5. Calculate and record earnings
-        const earningAmount = Number(order.deliveryFee) * 0.8; // 80% to delivery partner
-        await this.prisma.earning.create({
-            data: {
-                deliveryPartnerId,
-                orderId: order.id,
-                type: 'DELIVERY_FEE', // Enum check needed? 'DELIVERY_FEE'
-                amount: earningAmount,
-                description: `Delivery for order #${order.orderNumber}`,
-            },
-        });
-
-        // Add tip to earnings if any
-        if (order.tip && Number(order.tip) > 0) {
-            await this.prisma.earning.create({
-                data: {
-                    deliveryPartnerId,
-                    orderId: order.id,
-                    type: 'TIP', // Enum check
-                    amount: Number(order.tip),
-                    description: `Tip from customer for order #${order.orderNumber}`,
-                },
-            });
-        }
-
-        // 6. Update delivery partner balance
-        await this.prisma.deliveryPartner.update({
-            where: { id: deliveryPartnerId },
-            data: {
-                totalEarnings: { increment: earningAmount + Number(order.tip || 0) },
-                availableBalance: { increment: earningAmount + Number(order.tip || 0) },
-            },
-        });
+        await this.earningsService.processOrderEarnings(
+            partner.id,
+            order.id,
+            order.orderNumber,
+            Number(order.deliveryFee),
+            Number(order.tip || 0),
+            5 // Mock distance, or calculate using location
+        );
 
         // 7. ⭐ NOTIFY EVERYONE - Order delivered
         this.realtimeGateway.notifyOrderDelivered(updatedOrder);
@@ -691,24 +693,5 @@ export class OrdersService {
     `;
     }
 
-    // Helper: Validate promo code
-    async validatePromo(code: string, orderAmount: number) {
-        const promo = await this.prisma.promo.findFirst({
-            where: {
-                code,
-                isActive: true,
-                validFrom: { lte: new Date() },
-                validUntil: { gte: new Date() },
-                minOrderValue: { lte: orderAmount },
-            },
-        });
-        if (!promo) return null;
 
-        // Check usage limit
-        if (promo.usageLimit && promo.usedCount >= promo.usageLimit) {
-            return null;
-        }
-
-        return promo;
-    }
 }
