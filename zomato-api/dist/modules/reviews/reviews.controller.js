@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReviewsController = void 0;
 const common_1 = require("@nestjs/common");
 const reviews_service_1 = require("./reviews.service");
+const create_review_dto_1 = require("./dto/create-review.dto");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
 const swagger_1 = require("@nestjs/swagger");
 let ReviewsController = class ReviewsController {
@@ -48,7 +49,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, create_review_dto_1.CreateReviewDto]),
     __metadata("design:returntype", Promise)
 ], ReviewsController.prototype, "createReview", null);
 __decorate([

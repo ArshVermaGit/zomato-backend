@@ -12,10 +12,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RatingCalculationService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const search_service_1 = require("../search/search.service");
+const websocket_gateway_1 = require("../../websockets/websocket.gateway");
 let RatingCalculationService = class RatingCalculationService {
     prisma;
-    constructor(prisma) {
+    searchService;
+    realtimeGateway;
+    constructor(prisma, searchService, realtimeGateway) {
         this.prisma = prisma;
+        this.searchService = searchService;
+        this.realtimeGateway = realtimeGateway;
     }
     async updateRestaurantRating(restaurantId) {
         const reviews = await this.prisma.review.findMany({
@@ -33,13 +39,19 @@ let RatingCalculationService = class RatingCalculationService {
             totalWeightedRating += review.rating * weight;
             totalWeight += weight;
         }
-        const newRating = totalWeight > 0 ? totalWeightedRating / totalWeight : 0;
+        const newRating = totalWeight > 0 ? Number((totalWeightedRating / totalWeight).toFixed(1)) : 0;
         await this.prisma.restaurant.update({
             where: { id: restaurantId },
             data: {
-                rating: Number(newRating.toFixed(1)),
+                rating: newRating,
                 totalRatings: reviews.length
             }
+        });
+        await this.searchService.indexRestaurant({ id: restaurantId, rating: newRating });
+        this.realtimeGateway.server.to('role:CUSTOMER').emit('restaurant:rating_updated', {
+            restaurantId,
+            rating: newRating,
+            totalRatings: reviews.length
         });
     }
     async updateDeliveryPartnerRating(partnerId) {
@@ -69,6 +81,8 @@ let RatingCalculationService = class RatingCalculationService {
 exports.RatingCalculationService = RatingCalculationService;
 exports.RatingCalculationService = RatingCalculationService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        search_service_1.SearchService,
+        websocket_gateway_1.RealtimeGateway])
 ], RatingCalculationService);
 //# sourceMappingURL=rating-calculation.service.js.map
