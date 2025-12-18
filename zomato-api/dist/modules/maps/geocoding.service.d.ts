@@ -4,6 +4,10 @@ export declare class GeocodingService {
     private client;
     private apiKey;
     constructor(configService: ConfigService);
-    geocode(address: string): unknown;
-    reverseGeocode(lat: number, lng: number): unknown;
+    geocode(address: string): Promise<{
+        lat: number;
+        lng: number;
+        formattedAddress: string;
+    }>;
+    reverseGeocode(lat: number, lng: number): Promise<string>;
 }

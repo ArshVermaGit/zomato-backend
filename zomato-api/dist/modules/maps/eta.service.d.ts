@@ -8,5 +8,9 @@ export declare class ETAService {
     }, destination: {
         lat: number;
         lng: number;
-    }): unknown;
+    }): Promise<{
+        etaSeconds: number;
+        etaMinutes: number;
+        distanceMeters: number;
+    }>;
 }
