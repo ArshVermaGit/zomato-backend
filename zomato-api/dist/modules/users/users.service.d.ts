@@ -12,13 +12,63 @@ export declare class UsersService {
     findOneById(id: string): Promise<User | null>;
     create(data: Prisma.UserCreateInput): Promise<User>;
     update(id: string, data: Prisma.UserUpdateInput): Promise<User>;
-    getProfile(userId: string): unknown;
-    updateProfile(userId: string, dto: UpdateProfileDto): unknown;
-    getAvatarUploadUrl(userId: string): unknown;
-    updateAvatar(userId: string, avatarUrl: string): unknown;
+    getProfile(userId: string): Promise<{
+        name: string;
+        email: string | null;
+        id: string;
+        phone: string;
+        role: import(".prisma/client").$Enums.UserRole;
+        avatar: string | null;
+        isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        fcmTokens: string[];
+    }>;
+    updateProfile(userId: string, dto: UpdateProfileDto): Promise<{
+        name: string;
+        email: string | null;
+        id: string;
+        phone: string;
+        role: import(".prisma/client").$Enums.UserRole;
+        avatar: string | null;
+        isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        fcmTokens: string[];
+    }>;
+    getAvatarUploadUrl(userId: string): Promise<void>;
+    updateAvatar(userId: string, avatarUrl: string): Promise<{
+        name: string;
+        email: string | null;
+        id: string;
+        phone: string;
+        role: import(".prisma/client").$Enums.UserRole;
+        avatar: string | null;
+        isActive: boolean;
+        isVerified: boolean;
+        passwordHash: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        fcmTokens: string[];
+    }>;
     createAddress(userId: string, dto: CreateAddressDto): Promise<Address>;
     getAddresses(userId: string): Promise<Address[]>;
     updateAddress(userId: string, addressId: string, dto: UpdateAddressDto): Promise<Address>;
-    deleteAddress(userId: string, addressId: string): unknown;
-    setDefaultAddress(userId: string, addressId: string): unknown;
+    deleteAddress(userId: string, addressId: string): Promise<{
+        label: string;
+        fullAddress: string;
+        landmark: string | null;
+        location: Prisma.JsonValue;
+        id: string;
+        createdAt: Date;
+        userId: string;
+        isDefault: boolean;
+    }>;
+    setDefaultAddress(userId: string, addressId: string): Promise<{
+        message: string;
+    }>;
 }

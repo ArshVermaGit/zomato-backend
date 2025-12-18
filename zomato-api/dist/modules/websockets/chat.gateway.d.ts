@@ -7,7 +7,7 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
     private configService;
     server: Server;
     constructor(jwtService: JwtService, configService: ConfigService);
-    handleConnection(client: Socket): any;
+    handleConnection(client: Socket): Socket<import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, any> | undefined;
     handleDisconnect(client: Socket): void;
     handleJoinRoom(roomId: string, client: Socket): void;
     handleMessage(data: {

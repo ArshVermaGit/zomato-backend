@@ -61,9 +61,7 @@ let UsersService = class UsersService {
     }
     async getAvatarUploadUrl(userId) {
         const key = `avatars/${userId}-${Date.now()}.jpeg`;
-        const url = await this.s3Service.getSignedUploadUrl(key, 'image/jpeg');
-        const publicUrl = this.s3Service.getPublicUrl(key);
-        return { uploadUrl: url, publicUrl, key };
+        throw new Error('Please implement direct file upload for user profile');
     }
     async updateAvatar(userId, avatarUrl) {
         return this.update(userId, { avatar: avatarUrl });
