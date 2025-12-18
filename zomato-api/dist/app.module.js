@@ -28,7 +28,9 @@ const reviews_module_1 = require("./modules/reviews/reviews.module");
 const promos_module_1 = require("./modules/promos/promos.module");
 const analytics_module_1 = require("./modules/analytics/analytics.module");
 const jobs_module_1 = require("./modules/jobs/jobs.module");
-const bull_1 = require("@nestjs/bull");
+const redis_module_1 = require("./modules/redis/redis.module");
+const location_module_1 = require("./modules/location/location.module");
+const search_module_1 = require("./modules/search/search.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,16 +38,12 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
-            bull_1.BullModule.forRoot({
-                redis: {
-                    host: 'localhost',
-                    port: 6379,
-                },
-            }),
             throttler_1.ThrottlerModule.forRoot([{
                     ttl: 60000,
                     limit: 10,
                 }]),
+            redis_module_1.RedisModule,
+            location_module_1.LocationModule,
             common_module_1.CommonModule,
             database_module_1.DatabaseModule,
             auth_module_1.AuthModule,
@@ -56,6 +54,8 @@ exports.AppModule = AppModule = __decorate([
             delivery_module_1.DeliveryModule,
             payments_module_1.PaymentsModule,
             notifications_module_1.NotificationsModule,
+            location_module_1.LocationModule,
+            search_module_1.SearchModule,
             websockets_module_1.WebsocketsModule,
             maps_module_1.MapsModule,
             reviews_module_1.ReviewsModule,
