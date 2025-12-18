@@ -55,26 +55,56 @@ let PaymentsService = class PaymentsService {
         this.prisma = prisma;
         this.razorpayService = razorpayService;
     }
+    async processPayment(dto) {
+        const razorpayOrder = await this.razorpayService.createOrder(dto.amount, 'INR', dto.orderId);
+        const transaction = await this.prisma.paymentTransaction.create({
+            data: {
+                orderId: dto.orderId,
+                amount: dto.amount,
+                method: dto.method,
+                status: client_1.PaymentStatus.PENDING,
+                gatewayTransactionId: razorpayOrder.id,
+                gatewayResponse: razorpayOrder,
+            },
+        });
+        return {
+            transactionId: transaction.id,
+            razorpayOrderId: razorpayOrder.id,
+            amount: razorpayOrder.amount,
+            currency: razorpayOrder.currency,
+            status: 'PENDING',
+            key: process.env.RAZORPAY_KEY_ID
+        };
+    }
     async createPaymentOrder(userId, orderId) {
         const order = await this.prisma.order.findUnique({ where: { id: orderId } });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
         if (order.customerId !== userId)
             throw new common_1.BadRequestException('Unauthorized access to order');
-        const razorpayOrder = await this.razorpayService.createOrder(Number(order.totalAmount), 'INR', order.orderNumber);
+        return this.processPayment({
+            amount: Number(order.totalAmount),
+            method: 'ONLINE',
+            orderId: order.id,
+            customerId: userId
+        });
+    }
+    async createAdHocPayment(userId, amount, purpose) {
+        const razorpayOrder = await this.razorpayService.createOrder(amount, 'INR', `ADHOC_${Date.now()}`);
         await this.prisma.paymentTransaction.create({
             data: {
-                orderId: order.id,
-                gatewayTransactionId: razorpayOrder.id,
-                amount: Number(order.totalAmount),
+                amount: amount,
+                method: client_1.PaymentMethod.UPI,
                 status: client_1.PaymentStatus.PENDING,
-                method: client_1.PaymentMethod.UPI
+                gatewayTransactionId: razorpayOrder.id,
+                gatewayResponse: { ...razorpayOrder, purpose, userId }
             }
         });
         return {
             id: razorpayOrder.id,
             amount: razorpayOrder.amount,
-            currency: razorpayOrder.currency
+            currency: razorpayOrder.currency,
+            key: process.env.RAZORPAY_KEY_ID
         };
     }
     async verifyPayment(orderId, paymentId, razorpayOrderId, signature) {
@@ -88,26 +118,84 @@ let PaymentsService = class PaymentsService {
         if (generatedSignature !== signature) {
             throw new common_1.BadRequestException('Invalid Payment Signature');
         }
-        const payment = await this.prisma.paymentTransaction.findFirst({
+        const transaction = await this.prisma.paymentTransaction.findFirst({
             where: { gatewayTransactionId: razorpayOrderId }
         });
-        if (payment) {
+        if (transaction) {
             await this.prisma.paymentTransaction.update({
-                where: { id: payment.id },
+                where: { id: transaction.id },
                 data: {
                     status: client_1.PaymentStatus.COMPLETED,
-                    gatewayTransactionId: paymentId,
                     gatewayResponse: { razorpayPaymentId: paymentId, signature }
                 }
             });
-        }
-        await this.prisma.order.update({
-            where: { id: orderId },
-            data: {
-                paymentStatus: 'COMPLETED',
+            if (transaction.orderId) {
+                await this.prisma.order.update({
+                    where: { id: transaction.orderId },
+                    data: { paymentStatus: 'COMPLETED' }
+                });
             }
-        });
+        }
         return { success: true };
+    }
+    async handleWebhook(payload, signature) {
+        const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+        if (!secret)
+            throw new Error('Razorpay webhook secret not configured');
+        const expectedSignature = crypto
+            .createHmac('sha256', secret)
+            .update(JSON.stringify(payload))
+            .digest('hex');
+        if (expectedSignature !== signature) {
+            console.warn('Invalid webhook signature');
+        }
+        switch (payload.event) {
+            case 'payment.captured':
+                await this.handlePaymentCaptured(payload.payload.payment.entity);
+                break;
+            case 'payment.failed':
+                await this.handlePaymentFailed(payload.payload.payment.entity);
+                break;
+        }
+        return { status: 'ok' };
+    }
+    async handlePaymentCaptured(payment) {
+        const gatewayOrderId = payment.order_id;
+        await this.prisma.paymentTransaction.updateMany({
+            where: { gatewayTransactionId: gatewayOrderId },
+            data: {
+                status: client_1.PaymentStatus.COMPLETED,
+                gatewayResponse: payment,
+            },
+        });
+        const transaction = await this.prisma.paymentTransaction.findFirst({
+            where: { gatewayTransactionId: gatewayOrderId }
+        });
+        if (transaction && transaction.orderId) {
+            await this.prisma.order.update({
+                where: { id: transaction.orderId },
+                data: { paymentStatus: 'COMPLETED' },
+            });
+        }
+    }
+    async handlePaymentFailed(payment) {
+        const gatewayOrderId = payment.order_id;
+        await this.prisma.paymentTransaction.updateMany({
+            where: { gatewayTransactionId: gatewayOrderId },
+            data: {
+                status: client_1.PaymentStatus.FAILED,
+                gatewayResponse: payment,
+            },
+        });
+        const transaction = await this.prisma.paymentTransaction.findFirst({
+            where: { gatewayTransactionId: gatewayOrderId }
+        });
+        if (transaction && transaction.orderId) {
+            await this.prisma.order.update({
+                where: { id: transaction.orderId },
+                data: { paymentStatus: 'FAILED' },
+            });
+        }
     }
 };
 exports.PaymentsService = PaymentsService;

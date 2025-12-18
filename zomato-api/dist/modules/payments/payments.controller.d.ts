@@ -4,12 +4,32 @@ export declare class PaymentsController {
     constructor(paymentsService: PaymentsService);
     createOrder(req: any, body: {
         orderId: string;
-    }): unknown;
+    }): Promise<{
+        transactionId: string;
+        razorpayOrderId: string;
+        amount: string | number;
+        currency: string;
+        status: string;
+        key: string | undefined;
+    }>;
+    createAdHoc(req: any, body: {
+        amount: number;
+        purpose: string;
+    }): Promise<{
+        id: string;
+        amount: string | number;
+        currency: string;
+        key: string | undefined;
+    }>;
     verifyPayment(body: {
-        orderId: string;
+        orderId?: string;
         paymentId: string;
         razorpayOrderId: string;
         signature: string;
-    }): unknown;
-    handleWebhook(body: any, signature: string): unknown;
+    }): Promise<{
+        success: boolean;
+    }>;
+    handleWebhook(body: any, signature: string): Promise<{
+        status: string;
+    }>;
 }

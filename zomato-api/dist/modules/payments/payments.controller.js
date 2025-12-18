@@ -25,11 +25,14 @@ let PaymentsController = class PaymentsController {
     async createOrder(req, body) {
         return this.paymentsService.createPaymentOrder(req.user.userId, body.orderId);
     }
+    async createAdHoc(req, body) {
+        return this.paymentsService.createAdHocPayment(req.user.userId, body.amount, body.purpose);
+    }
     async verifyPayment(body) {
-        return this.paymentsService.verifyPayment(body.orderId, body.paymentId, body.razorpayOrderId, body.signature);
+        return this.paymentsService.verifyPayment(body.orderId || null, body.paymentId, body.razorpayOrderId, body.signature);
     }
     async handleWebhook(body, signature) {
-        return { status: 'ok' };
+        return this.paymentsService.handleWebhook(body, signature);
     }
 };
 exports.PaymentsController = PaymentsController;
@@ -45,6 +48,17 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "createOrder", null);
+__decorate([
+    (0, common_1.Post)('create-adhoc'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Create an ad-hoc payment order (e.g. for wallet load or ads)' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "createAdHoc", null);
 __decorate([
     (0, common_1.Post)('verify'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
