@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { DatabaseModule } from './database/database.module';
 import { CommonModule } from './common/common.module';
@@ -21,21 +21,22 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { PromosModule } from './modules/promos/promos.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { JobsModule } from './modules/jobs/jobs.module';
-import { BullModule } from '@nestjs/bull';
+import { RedisModule } from './modules/redis/redis.module';
+import { ScheduleModule } from '@nestjs/schedule';
+
+import { LocationModule } from './modules/location/location.module';
+import { SearchModule } from './modules/search/search.module';
+// import { RealtimeModule } from './modules/realtime/realtime.module'; // Removed non-existent module
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    BullModule.forRoot({
-      redis: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
     ThrottlerModule.forRoot([{
       ttl: 60000,
       limit: 10,
     }]),
+    RedisModule,
+    LocationModule,
     CommonModule,
     DatabaseModule,
     AuthModule,
@@ -46,6 +47,8 @@ import { BullModule } from '@nestjs/bull';
     DeliveryModule,
     PaymentsModule,
     NotificationsModule,
+    LocationModule,
+    SearchModule,
     WebsocketsModule,
     MapsModule,
     ReviewsModule,

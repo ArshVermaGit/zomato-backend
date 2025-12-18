@@ -1,10 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  engineType = "binary"
+  engineType = "library"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============= USER MANAGEMENT =============
@@ -416,6 +417,20 @@ model Promo {
   
   @@index([code])
   @@index([isActive])
+  usages PromoUsage[]
+}
+
+model PromoUsage {
+  id        String   @id @default(uuid())
+  promoId   String
+  promo     Promo    @relation(fields: [promoId], references: [id], onDelete: Cascade)
+  userId    String
+  orderId   String?
+  usedAt    DateTime @default(now())
+
+  @@unique([promoId, userId, orderId])
+  @@index([promoId])
+  @@index([userId])
 }
 
 enum DiscountType {

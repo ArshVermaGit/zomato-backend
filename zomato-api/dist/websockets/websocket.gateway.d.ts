@@ -6,7 +6,7 @@ export declare class RealtimeGateway implements OnGatewayConnection, OnGatewayDi
     server: Server;
     private connectedUsers;
     constructor(jwtService: JwtService);
-    handleConnection(client: Socket): any;
+    handleConnection(client: Socket): Promise<void>;
     handleDisconnect(client: Socket): void;
     emitToCustomer(userId: string, event: string, data: any): void;
     emitToRestaurant(restaurantId: string, event: string, data: any): void;
@@ -24,6 +24,14 @@ export declare class RealtimeGateway implements OnGatewayConnection, OnGatewayDi
     notifyOrderDelivered(order: any): void;
     notifyRestaurantStatusChanged(restaurantId: string, isOpen: boolean): void;
     notifyMenuUpdated(restaurantId: string): void;
+    handleJoinRestaurant(client: Socket, restaurantId: string): {
+        event: string;
+        room: string;
+    };
+    handleLeaveRestaurant(client: Socket, restaurantId: string): {
+        event: string;
+        room: string;
+    };
     handleMessage(client: Socket, data: {
         orderId: string;
         message: string;

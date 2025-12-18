@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RealtimeGateway = void 0;
 const websockets_1 = require("@nestjs/websockets");
@@ -167,6 +166,14 @@ let RealtimeGateway = class RealtimeGateway {
             timestamp: new Date(),
         });
     }
+    handleJoinRestaurant(client, restaurantId) {
+        client.join(`restaurant:${restaurantId}`);
+        return { event: 'joined', room: `restaurant:${restaurantId}` };
+    }
+    handleLeaveRestaurant(client, restaurantId) {
+        client.leave(`restaurant:${restaurantId}`);
+        return { event: 'left', room: `restaurant:${restaurantId}` };
+    }
     handleMessage(client, data) {
         this.emitToCustomer(data.recipientId, 'message:received', {
             orderId: data.orderId,
@@ -179,14 +186,30 @@ let RealtimeGateway = class RealtimeGateway {
 exports.RealtimeGateway = RealtimeGateway;
 __decorate([
     (0, websockets_1.WebSocketServer)(),
-    __metadata("design:type", typeof (_b = typeof socket_io_1.Server !== "undefined" && socket_io_1.Server) === "function" ? _b : Object)
+    __metadata("design:type", socket_io_1.Server)
 ], RealtimeGateway.prototype, "server", void 0);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('join_restaurant'),
+    __param(0, (0, websockets_1.ConnectedSocket)()),
+    __param(1, (0, websockets_1.MessageBody)('restaurantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, String]),
+    __metadata("design:returntype", void 0)
+], RealtimeGateway.prototype, "handleJoinRestaurant", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('leave_restaurant'),
+    __param(0, (0, websockets_1.ConnectedSocket)()),
+    __param(1, (0, websockets_1.MessageBody)('restaurantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, String]),
+    __metadata("design:returntype", void 0)
+], RealtimeGateway.prototype, "handleLeaveRestaurant", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('message:send'),
     __param(0, (0, websockets_1.ConnectedSocket)()),
     __param(1, (0, websockets_1.MessageBody)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_c = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _c : Object, Object]),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", void 0)
 ], RealtimeGateway.prototype, "handleMessage", null);
 exports.RealtimeGateway = RealtimeGateway = __decorate([
@@ -197,6 +220,6 @@ exports.RealtimeGateway = RealtimeGateway = __decorate([
         },
         namespace: '/realtime',
     }),
-    __metadata("design:paramtypes", [typeof (_a = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [jwt_1.JwtService])
 ], RealtimeGateway);
 //# sourceMappingURL=websocket.gateway.js.map
