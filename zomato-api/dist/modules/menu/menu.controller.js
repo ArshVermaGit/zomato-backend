@@ -61,9 +61,6 @@ let MenuController = class MenuController {
     async deleteItem(req, id) {
         return this.menuService.deleteItem(req.user.userId, id);
     }
-    async getUploadUrl(req, id) {
-        return this.menuService.getUploadUrl(req.user.userId, id);
-    }
     async addImage(req, id, imageUrl) {
         return this.menuService.addImage(req.user.userId, id, imageUrl);
     }
@@ -201,18 +198,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], MenuController.prototype, "deleteItem", null);
-__decorate([
-    (0, common_1.Post)('items/:id/images'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(client_1.UserRole.RESTAURANT_PARTNER),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get upload URL for item image' }),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", Promise)
-], MenuController.prototype, "getUploadUrl", null);
 __decorate([
     (0, common_1.Put)('items/:id/images'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

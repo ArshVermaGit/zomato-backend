@@ -22,47 +22,24 @@ let NotificationsController = class NotificationsController {
     constructor(notificationsService) {
         this.notificationsService = notificationsService;
     }
-    async registerDevice(req, token) {
-        return this.notificationsService.registerDevice(req.user.userId, token);
-    }
-    async getUserNotifications(req) {
-        return this.notificationsService.getUserNotifications(req.user.userId);
-    }
-    async markAsRead(id) {
-        return this.notificationsService.markAsRead(id);
+    async registerToken(req, body) {
+        const userId = req.user.userId;
+        await this.notificationsService.registerFCMToken(userId, body.token);
+        return { success: true };
     }
 };
 exports.NotificationsController = NotificationsController;
 __decorate([
-    (0, common_1.Post)('register-device'),
-    (0, swagger_1.ApiOperation)({ summary: 'Register FCM Token' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Device registered successfully' }),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Body)('token')),
+    (0, common_1.Post)('register-token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register FCM token for push notifications' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
-], NotificationsController.prototype, "registerDevice", null);
-__decorate([
-    (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get User Notifications' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of notifications' }),
-    __param(0, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], NotificationsController.prototype, "getUserNotifications", null);
-__decorate([
-    (0, common_1.Put)(':id/read'),
-    (0, swagger_1.ApiOperation)({ summary: 'Mark Notification as Read' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Notification marked as read' }),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], NotificationsController.prototype, "markAsRead", null);
+], NotificationsController.prototype, "registerToken", null);
 exports.NotificationsController = NotificationsController = __decorate([
-    (0, swagger_1.ApiTags)('Notifications'),
+    (0, swagger_1.ApiTags)('notifications'),
     (0, common_1.Controller)('notifications'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),

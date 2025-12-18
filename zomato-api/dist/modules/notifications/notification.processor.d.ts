@@ -9,5 +9,5 @@ export declare class NotificationProcessor {
     private twilio;
     private sendGrid;
     constructor(prisma: PrismaService, firebase: FirebaseService, twilio: TwilioService, sendGrid: SendGridService);
-    handleNotification(job: Job): any;
+    handleNotification(job: Job): Promise<void>;
 }

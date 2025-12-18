@@ -1,8 +1,11 @@
 import { NotificationsService } from './notifications.service';
+import type { Request } from 'express';
 export declare class NotificationsController {
-    private notificationsService;
+    private readonly notificationsService;
     constructor(notificationsService: NotificationsService);
-    registerDevice(req: any, token: string): unknown;
-    getUserNotifications(req: any): unknown;
-    markAsRead(id: string): unknown;
+    registerToken(req: Request, body: {
+        token: string;
+    }): Promise<{
+        success: boolean;
+    }>;
 }
