@@ -14,6 +14,8 @@ const order_state_service_1 = require("./order-state.service");
 const websockets_module_1 = require("../websockets/websockets.module");
 const notifications_module_1 = require("../notifications/notifications.module");
 const payments_module_1 = require("../payments/payments.module");
+const promos_module_1 = require("../promos/promos.module");
+const delivery_module_1 = require("../delivery/delivery.module");
 let OrdersModule = class OrdersModule {
 };
 exports.OrdersModule = OrdersModule;
@@ -22,7 +24,9 @@ exports.OrdersModule = OrdersModule = __decorate([
         imports: [
             websockets_module_1.WebsocketsModule,
             notifications_module_1.NotificationsModule,
-            payments_module_1.PaymentsModule
+            payments_module_1.PaymentsModule,
+            promos_module_1.PromosModule,
+            (0, common_1.forwardRef)(() => delivery_module_1.DeliveryModule)
         ],
         controllers: [orders_controller_1.OrdersController],
         providers: [orders_service_1.OrdersService, order_state_service_1.OrderStateService],

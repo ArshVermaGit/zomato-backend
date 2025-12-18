@@ -46,26 +46,26 @@ let OrdersController = class OrdersController {
     async rateOrder(req, id, dto) {
         return this.ordersService.rateOrder(req.user.userId, id, dto);
     }
-    async acceptOrder(req, id) {
-        return this.orderStateService.transition(id, client_1.OrderStatus.ACCEPTED, req.user.userId, req.user.role);
+    async acceptOrder(id, req, dto) {
+        return this.ordersService.acceptOrder(id, req.user.userId, dto.estimatedPrepTime);
     }
     async prepareOrder(req, id) {
         return this.orderStateService.transition(id, client_1.OrderStatus.PREPARING, req.user.userId, req.user.role);
     }
     async readyOrder(req, id) {
-        return this.orderStateService.transition(id, client_1.OrderStatus.READY, req.user.userId, req.user.role);
+        return this.ordersService.markOrderReady(id, req.user.userId);
     }
     async assignOrder(id, dto) {
         return this.orderStateService.assignPartner(id, dto.deliveryPartnerId);
     }
     async claimOrder(req, id) {
-        return this.orderStateService.assignPartner(id, req.user.userId);
+        return this.ordersService.assignDeliveryPartner(id, req.user.userId);
     }
     async pickupOrder(req, id) {
         return this.orderStateService.transition(id, client_1.OrderStatus.PICKED_UP, req.user.userId, req.user.role);
     }
-    async deliverOrder(req, id) {
-        return this.orderStateService.transition(id, client_1.OrderStatus.DELIVERED, req.user.userId, req.user.role);
+    async deliverOrder(req, id, dto) {
+        return this.ordersService.markOrderDelivered(id, req.user.userId, dto.deliveryOTP);
     }
     async findAvailableForDelivery(req, lat, lng) {
         if (!lat || !lng)
@@ -138,10 +138,11 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.UserRole.RESTAURANT_PARTNER),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Accept order' }),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(1, (0, common_1.Request)()),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "acceptOrder", null);
 __decorate([
@@ -212,8 +213,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Deliver order' }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "deliverOrder", null);
 __decorate([

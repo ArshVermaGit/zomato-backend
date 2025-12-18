@@ -16,16 +16,22 @@ const websocket_gateway_1 = require("../../websockets/websocket.gateway");
 const notifications_service_1 = require("../notifications/notifications.service");
 const payments_service_1 = require("../payments/payments.service");
 const client_1 = require("@prisma/client");
+const promos_service_1 = require("../promos/promos.service");
+const earnings_service_1 = require("../delivery/earnings.service");
 let OrdersService = class OrdersService {
     prisma;
     realtimeGateway;
     notificationsService;
     paymentsService;
-    constructor(prisma, realtimeGateway, notificationsService, paymentsService) {
+    promosService;
+    earningsService;
+    constructor(prisma, realtimeGateway, notificationsService, paymentsService, promosService, earningsService) {
         this.prisma = prisma;
         this.realtimeGateway = realtimeGateway;
         this.notificationsService = notificationsService;
         this.paymentsService = paymentsService;
+        this.promosService = promosService;
+        this.earningsService = earningsService;
     }
     async createOrder(customerId, dto) {
         const restaurant = await this.prisma.restaurant.findFirst({
@@ -82,16 +88,14 @@ let OrdersService = class OrdersService {
         const deliveryFee = Number(restaurant.deliveryFee);
         const taxes = itemsTotal * 0.05;
         let discount = 0;
+        let promoId = null;
         if (dto.promoCode) {
-            const promo = await this.validatePromo(dto.promoCode, itemsTotal);
-            if (promo) {
-                discount = promo.discountType === 'PERCENTAGE'
-                    ? (itemsTotal * Number(promo.discountValue)) / 100
-                    : Number(promo.discountValue);
-                if (promo.maxDiscount) {
-                    discount = Math.min(discount, Number(promo.maxDiscount));
-                }
+            const validation = await this.promosService.validatePromoCode(dto.promoCode, customerId, itemsTotal, dto.restaurantId);
+            if (!validation.valid) {
+                throw new common_1.BadRequestException(`Invalid promo code: ${validation.reason}`);
             }
+            discount = validation.discountAmount || 0;
+            promoId = validation.promoId || null;
         }
         const totalAmount = itemsTotal + deliveryFee + taxes - discount + (dto.tip || 0);
         const orderNumber = `ZOM${Date.now().toString().slice(-8)}`;
@@ -144,11 +148,8 @@ let OrdersService = class OrdersService {
             },
         });
         const order = orderRaw;
-        if (dto.promoCode) {
-            await this.prisma.promo.update({
-                where: { code: dto.promoCode },
-                data: { usedCount: { increment: 1 } },
-            });
+        if (promoId) {
+            await this.promosService.recordPromoUsage(promoId, customerId, order.id);
         }
         this.realtimeGateway.notifyNewOrder(order);
         if (order.restaurant.partner?.userId) {
@@ -163,12 +164,17 @@ let OrdersService = class OrdersService {
         });
         return order;
     }
-    async acceptOrder(orderId, restaurantPartnerId, estimatedPrepTime) {
+    async acceptOrder(orderId, restaurantUserId, estimatedPrepTime) {
+        const partner = await this.prisma.restaurantPartner.findUnique({
+            where: { userId: restaurantUserId },
+        });
+        if (!partner)
+            throw new common_1.BadRequestException('Not a restaurant partner');
         const order = await this.prisma.order.findFirst({
             where: {
                 id: orderId,
                 restaurant: {
-                    partnerId: restaurantPartnerId,
+                    partnerId: partner.id,
                 },
             },
             include: {
@@ -201,14 +207,24 @@ let OrdersService = class OrdersService {
         await this.notificationsService.sendNotification(updatedOrder.customerId, 'Order Accepted! 👨‍🍳', `${updatedOrder.restaurant.name} is preparing your order`, 'ORDER_ACCEPTED');
         return updatedOrder;
     }
-    async markOrderReady(orderId, restaurantPartnerId) {
-        const order = await this.prisma.order.update({
+    async markOrderReady(orderId, restaurantUserId) {
+        const partner = await this.prisma.restaurantPartner.findUnique({
+            where: { userId: restaurantUserId },
+        });
+        if (!partner)
+            throw new common_1.BadRequestException('Not a restaurant partner');
+        const check = await this.prisma.order.findFirst({
             where: {
                 id: orderId,
                 restaurant: {
-                    partnerId: restaurantPartnerId,
+                    partnerId: partner.id,
                 },
             },
+        });
+        if (!check)
+            throw new common_1.BadRequestException('Order not found or already processed');
+        const order = await this.prisma.order.update({
+            where: { id: orderId },
             data: {
                 status: client_1.OrderStatus.READY,
                 readyAt: new Date(),
@@ -237,7 +253,12 @@ let OrdersService = class OrdersService {
         });
         return order;
     }
-    async assignDeliveryPartner(orderId, deliveryPartnerId) {
+    async assignDeliveryPartner(orderId, deliveryUserId) {
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId: deliveryUserId },
+        });
+        if (!partner)
+            throw new common_1.BadRequestException('Not a delivery partner');
         const order = await this.prisma.order.findFirst({
             where: {
                 id: orderId,
@@ -248,20 +269,13 @@ let OrdersService = class OrdersService {
         if (!order) {
             throw new common_1.BadRequestException('Order not available');
         }
-        const partner = await this.prisma.deliveryPartner.findFirst({
-            where: {
-                id: deliveryPartnerId,
-                isAvailable: true,
-                isOnline: true,
-            },
-        });
-        if (!partner) {
+        if (!partner.isAvailable || !partner.isOnline) {
             throw new common_1.BadRequestException('Delivery partner not available');
         }
         const updatedOrderRaw = await this.prisma.order.update({
             where: { id: orderId },
             data: {
-                deliveryPartnerId,
+                deliveryPartnerId: partner.id,
                 status: client_1.OrderStatus.PICKED_UP,
             },
             include: {
@@ -276,7 +290,7 @@ let OrdersService = class OrdersService {
         });
         const updatedOrder = updatedOrderRaw;
         await this.prisma.deliveryPartner.update({
-            where: { id: deliveryPartnerId },
+            where: { id: partner.id },
             data: { isAvailable: false },
         });
         this.realtimeGateway.notifyDeliveryPartnerAssigned(updatedOrder);
@@ -302,11 +316,16 @@ let OrdersService = class OrdersService {
         }
         return { success: true };
     }
-    async markOrderDelivered(orderId, deliveryPartnerId, deliveryOTP) {
+    async markOrderDelivered(orderId, deliveryUserId, deliveryOTP) {
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId: deliveryUserId },
+        });
+        if (!partner)
+            throw new common_1.BadRequestException('Not a delivery partner');
         const order = await this.prisma.order.findFirst({
             where: {
                 id: orderId,
-                deliveryPartnerId,
+                deliveryPartnerId: partner.id,
                 deliveryOTP: deliveryOTP,
             },
             include: {
@@ -342,40 +361,13 @@ let OrdersService = class OrdersService {
         });
         const updatedOrder = updatedOrderRaw;
         await this.prisma.deliveryPartner.update({
-            where: { id: deliveryPartnerId },
+            where: { id: partner.id },
             data: {
                 isAvailable: true,
                 totalDeliveries: { increment: 1 },
             },
         });
-        const earningAmount = Number(order.deliveryFee) * 0.8;
-        await this.prisma.earning.create({
-            data: {
-                deliveryPartnerId,
-                orderId: order.id,
-                type: 'DELIVERY_FEE',
-                amount: earningAmount,
-                description: `Delivery for order #${order.orderNumber}`,
-            },
-        });
-        if (order.tip && Number(order.tip) > 0) {
-            await this.prisma.earning.create({
-                data: {
-                    deliveryPartnerId,
-                    orderId: order.id,
-                    type: 'TIP',
-                    amount: Number(order.tip),
-                    description: `Tip from customer for order #${order.orderNumber}`,
-                },
-            });
-        }
-        await this.prisma.deliveryPartner.update({
-            where: { id: deliveryPartnerId },
-            data: {
-                totalEarnings: { increment: earningAmount + Number(order.tip || 0) },
-                availableBalance: { increment: earningAmount + Number(order.tip || 0) },
-            },
-        });
+        await this.earningsService.processOrderEarnings(partner.id, order.id, order.orderNumber, Number(order.deliveryFee), Number(order.tip || 0), 5);
         this.realtimeGateway.notifyOrderDelivered(updatedOrder);
         await this.notificationsService.sendNotification(updatedOrder.customerId, 'Order Delivered! 🎉', 'Enjoy your meal! Please rate your experience', 'ORDER_DELIVERED');
         await this.prisma.customer.update({
@@ -494,23 +486,6 @@ let OrdersService = class OrdersService {
       LIMIT 10
     `;
     }
-    async validatePromo(code, orderAmount) {
-        const promo = await this.prisma.promo.findFirst({
-            where: {
-                code,
-                isActive: true,
-                validFrom: { lte: new Date() },
-                validUntil: { gte: new Date() },
-                minOrderValue: { lte: orderAmount },
-            },
-        });
-        if (!promo)
-            return null;
-        if (promo.usageLimit && promo.usedCount >= promo.usageLimit) {
-            return null;
-        }
-        return promo;
-    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = __decorate([
@@ -518,6 +493,8 @@ exports.OrdersService = OrdersService = __decorate([
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         websocket_gateway_1.RealtimeGateway,
         notifications_service_1.NotificationsService,
-        payments_service_1.PaymentsService])
+        payments_service_1.PaymentsService,
+        promos_service_1.PromosService,
+        earnings_service_1.EarningsService])
 ], OrdersService);
 //# sourceMappingURL=orders.service.js.map
