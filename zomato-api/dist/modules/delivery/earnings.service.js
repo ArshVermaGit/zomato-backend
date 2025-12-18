@@ -39,11 +39,55 @@ let EarningsService = class EarningsService {
             return transaction;
         });
     }
-    calculateOrderEarnings(distanceKm, orderTotal) {
-        const BASE_FEE = 30;
+    async processOrderEarnings(deliveryPartnerId, orderId, orderNumber, deliveryFee, tip, distanceKm = 2) {
+        const BASE_PAY = 30;
         const PER_KM_RATE = 10;
-        const distanceFee = distanceKm * PER_KM_RATE;
-        return BASE_FEE + distanceFee;
+        const DISTANCE_PAY = distanceKm * PER_KM_RATE;
+        const CHECKOUT_EARNING = Number(deliveryFee) * 0.8;
+        let earningAmount = BASE_PAY + DISTANCE_PAY;
+        const isPeakHour = new Date().getHours() >= 19 && new Date().getHours() <= 21;
+        if (isPeakHour) {
+            earningAmount += 20;
+        }
+        return this.prisma.$transaction(async (tx) => {
+            await tx.earning.create({
+                data: {
+                    deliveryPartnerId,
+                    orderId,
+                    type: 'DELIVERY_FEE',
+                    amount: new client_1.Prisma.Decimal(earningAmount),
+                    description: `Earnings for order #${orderNumber} (${distanceKm}km)`,
+                }
+            });
+            if (tip > 0) {
+                await tx.earning.create({
+                    data: {
+                        deliveryPartnerId,
+                        orderId,
+                        type: 'TIP',
+                        amount: new client_1.Prisma.Decimal(tip),
+                        description: `Tip for order #${orderNumber}`,
+                    }
+                });
+            }
+            const totalCredit = earningAmount + tip;
+            await tx.deliveryPartner.update({
+                where: { id: deliveryPartnerId },
+                data: {
+                    totalEarnings: { increment: totalCredit },
+                    availableBalance: { increment: totalCredit },
+                }
+            });
+            await tx.walletTransaction.create({
+                data: {
+                    deliveryPartnerId,
+                    amount: new client_1.Prisma.Decimal(totalCredit),
+                    type: client_1.WalletTransactionType.CREDIT,
+                    description: `Order #${orderNumber} Earnings`
+                }
+            });
+            return { earningAmount, tip, total: totalCredit };
+        });
     }
     async getBalance(userId) {
         const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });

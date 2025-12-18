@@ -10,18 +10,20 @@ exports.DeliveryModule = void 0;
 const common_1 = require("@nestjs/common");
 const delivery_controller_1 = require("./delivery.controller");
 const delivery_service_1 = require("./delivery.service");
-const location_service_1 = require("./location.service");
-const orders_module_1 = require("../orders/orders.module");
 const earnings_service_1 = require("./earnings.service");
+const database_module_1 = require("../../database/database.module");
+const location_module_1 = require("../location/location.module");
+const orders_module_1 = require("../orders/orders.module");
+const common_2 = require("@nestjs/common");
 let DeliveryModule = class DeliveryModule {
 };
 exports.DeliveryModule = DeliveryModule;
 exports.DeliveryModule = DeliveryModule = __decorate([
     (0, common_1.Module)({
-        imports: [(0, common_1.forwardRef)(() => orders_module_1.OrdersModule)],
+        imports: [database_module_1.DatabaseModule, location_module_1.LocationModule, (0, common_2.forwardRef)(() => orders_module_1.OrdersModule)],
         controllers: [delivery_controller_1.DeliveryController],
-        providers: [delivery_service_1.DeliveryService, location_service_1.LocationService, earnings_service_1.EarningsService],
-        exports: [delivery_service_1.DeliveryService, location_service_1.LocationService, earnings_service_1.EarningsService],
+        providers: [delivery_service_1.DeliveryService, earnings_service_1.EarningsService],
+        exports: [delivery_service_1.DeliveryService, earnings_service_1.EarningsService],
     })
 ], DeliveryModule);
 //# sourceMappingURL=delivery.module.js.map
