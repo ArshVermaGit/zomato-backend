@@ -4,6 +4,6 @@ export declare class PaymentJobsProcessor {
     private paymentsService;
     private readonly logger;
     constructor(paymentsService: PaymentsService);
-    processPayouts(job: Job): any;
-    retryFailedRefunds(job: Job): any;
+    processPayouts(job: Job): Promise<void>;
+    retryFailedRefunds(job: Job): Promise<void>;
 }
