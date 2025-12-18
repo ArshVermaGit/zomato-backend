@@ -1,5 +1,6 @@
 import { Controller, Post, Body, Get, Param, UseGuards, Request, Put } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
+import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 
@@ -13,7 +14,7 @@ export class ReviewsController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create a review' })
     @ApiResponse({ status: 201, description: 'Review created successfully' })
-    async createReview(@Request() req, @Body() dto: any) {
+    async createReview(@Request() req, @Body() dto: CreateReviewDto) {
         return this.reviewsService.createReview(req.user.userId, dto);
     }
 

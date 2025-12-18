@@ -1,20 +1,22 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { RatingCalculationService } from './rating-calculation.service';
-import { CreateReviewDto } from './dto/create-review.dto'; // We will define this inline or create file
+import { CreateReviewDto } from './dto/create-review.dto';
+import { RealtimeGateway } from '../../websockets/websocket.gateway';
 
 @Injectable()
 export class ReviewsService {
     constructor(
         private prisma: PrismaService,
-        private ratingService: RatingCalculationService
+        private ratingService: RatingCalculationService,
+        private realtimeGateway: RealtimeGateway,
     ) { }
 
-    async createReview(userId: string, dto: any) {
+    async createReview(userId: string, dto: CreateReviewDto) {
         // 1. Verify Order
         const order = await this.prisma.order.findUnique({
             where: { id: dto.orderId },
-            include: { review: true }
+            include: { review: true, restaurant: true }
         });
 
         if (!order) throw new NotFoundException('Order not found');
@@ -33,7 +35,8 @@ export class ReviewsService {
                 comment: dto.comment,
                 tags: dto.tags || [],
                 images: dto.images || []
-            }
+            },
+            include: { user: { select: { name: true, avatar: true } } }
         });
 
         // 3. Trigger Async Recalculation
@@ -41,6 +44,15 @@ export class ReviewsService {
         if (order.deliveryPartnerId && dto.deliveryRating) {
             this.ratingService.updateDeliveryPartnerRating(order.deliveryPartnerId);
         }
+
+        // 4. Notify Restaurant Partner
+        this.realtimeGateway.emitToRestaurant(order.restaurantId, 'review:new', {
+            reviewId: review.id,
+            rating: review.rating,
+            comment: review.comment,
+            customerName: review.user.name,
+            createdAt: review.createdAt
+        });
 
         return review;
     }

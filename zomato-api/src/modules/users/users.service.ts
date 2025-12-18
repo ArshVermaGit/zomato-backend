@@ -58,10 +58,10 @@ export class UsersService {
 
     async getAvatarUploadUrl(userId: string) {
         const key = `avatars/${userId}-${Date.now()}.jpeg`;
-        const url = await this.s3Service.getSignedUploadUrl(key, 'image/jpeg');
-        // We can also return the public URL where it will be accessible after upload
-        const publicUrl = this.s3Service.getPublicUrl(key);
-        return { uploadUrl: url, publicUrl, key };
+        // const url = await this.s3Service.getSignedUploadUrl(key, 'image/jpeg');
+        throw new Error('Please implement direct file upload for user profile');
+        // const publicUrl = this.s3Service.getPublicUrl(key);
+        // return { uploadUrl: url, publicUrl, key };
     }
 
     async updateAvatar(userId: string, avatarUrl: string) {

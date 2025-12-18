@@ -92,12 +92,6 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     // Emit to restaurant
     emitToRestaurant(restaurantId: string, event: string, data: any) {
-        // Find all sockets for this restaurant's partner (Approximation: restaurantId usually maps to a partner or has its own room)
-        // For now, assuming restaurantId is used as a room, or we emit to the partner.
-        // Ideally, restaurant staff joins `restaurant:{id}` room.
-        // Let's ensure restaurant staff joins this room in handleConnection if we had restaurantId in payload.
-        // Since we don't know restaurantId from payload easily without DB lookup, we might rely on the client joining it explicitly.
-        // But for this implementation, we'll try to emit to the room `restaurant:{restaurantId}`
         this.server.to(`restaurant:${restaurantId}`).emit(event, data);
     }
 
@@ -229,6 +223,20 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
             restaurantId,
             timestamp: new Date(),
         });
+    }
+
+    // ============= ROOM MANAGEMENT =============
+
+    @SubscribeMessage('join_restaurant')
+    handleJoinRestaurant(@ConnectedSocket() client: Socket, @MessageBody('restaurantId') restaurantId: string) {
+        client.join(`restaurant:${restaurantId}`);
+        return { event: 'joined', room: `restaurant:${restaurantId}` };
+    }
+
+    @SubscribeMessage('leave_restaurant')
+    handleLeaveRestaurant(@ConnectedSocket() client: Socket, @MessageBody('restaurantId') restaurantId: string) {
+        client.leave(`restaurant:${restaurantId}`);
+        return { event: 'left', room: `restaurant:${restaurantId}` };
     }
 
     // ============= CHAT EVENTS =============

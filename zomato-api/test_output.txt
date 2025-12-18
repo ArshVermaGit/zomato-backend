@@ -1,0 +1,209 @@
+
+> zomato-api@0.0.1 test:e2e
+> jest --config ./test/jest-e2e.json backend/zomato-api/test/complete-flow.e2e-spec.ts
+
+  console.warn
+    Firebase init failed (likely missing env vars): FirebaseAppError: Failed to parse private key: Error: Invalid PEM formatted message.
+        at new ServiceAccount (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/firebase-admin/lib/app/credential-internal.js:182:19)
+        at new ServiceAccountCredential (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/firebase-admin/lib/app/credential-internal.js:118:15)
+        at Object.cert (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/firebase-admin/lib/app/credential-factory.js:105:54)
+        at new NotificationsService (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/backend/zomato-api/src/modules/notifications/notifications.service.ts:13:50)
+        at TestingInjector.instantiateClass (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/injector.js:418:19)
+        at callback (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/injector.js:70:45)
+        at processTicksAndRejections (node:internal/process/task_queues:103:5)
+        at TestingInjector.resolveConstructorParams (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/injector.js:170:24)
+        at TestingInjector.loadInstance (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/injector.js:75:13)
+        at TestingInjector.loadProvider (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/injector.js:103:9)
+        at /Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/instance-loader.js:56:13
+        at async Promise.all (index 3)
+        at TestingInstanceLoader.createInstancesOfProviders (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/instance-loader.js:55:9)
+        at /Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/instance-loader.js:40:13
+        at async Promise.all (index 23)
+        at TestingInstanceLoader.createInstances (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/instance-loader.js:39:9)
+        at TestingInstanceLoader.createInstancesOfDependencies (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/core/injector/instance-loader.js:22:13)
+        at TestingInstanceLoader.createInstancesOfDependencies (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
+        at TestingModuleBuilder.createInstancesOfDependencies (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/testing/testing-module.builder.js:118:9)
+        at TestingModuleBuilder.compile (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/node_modules/@nestjs/testing/testing-module.builder.js:74:9)
+        at Object.<anonymous> (/Users/arshverma/GitHub/Zomato/zomato-ecosystem/backend/zomato-api/test/complete-flow.e2e-spec.ts:59:46) {
+      errorInfo: {
+        code: 'app/invalid-credential',
+        message: 'Failed to parse private key: Error: Invalid PEM formatted message.'
+      },
+      codePrefix: 'app'
+    }
+
+      18 |                 });
+      19 |             } catch (error) {
+    > 20 |                 console.warn('Firebase init failed (likely missing env vars):', error);
+         |                         ^
+      21 |             }
+      22 |         }
+      23 |     }
+
+      at new NotificationsService (../src/modules/notifications/notifications.service.ts:20:25)
+      at TestingInjector.instantiateClass (../../../node_modules/@nestjs/core/injector/injector.js:418:19)
+      at callback (../../../node_modules/@nestjs/core/injector/injector.js:70:45)
+      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:170:24)
+      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
+      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
+      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
+          at async Promise.all (index 3)
+      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
+      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
+          at async Promise.all (index 23)
+      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
+      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
+      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
+      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
+      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
+      at Object.<anonymous> (complete-flow.e2e-spec.ts:59:46)
+
+  console.warn
+    Algolia credentials missing.
+
+      18 |             this.dishIndex = this.client.initIndex('dishes');
+      19 |         } else {
+    > 20 |             console.warn('Algolia credentials missing.');
+         |                     ^
+      21 |         }
+      22 |     }
+      23 |
+
+      at new SearchService (../src/modules/search/search.service.ts:20:21)
+      at TestingInjector.instantiateClass (../../../node_modules/@nestjs/core/injector/injector.js:418:19)
+      at callback (../../../node_modules/@nestjs/core/injector/injector.js:70:45)
+      at TestingInjector.resolveConstructorParams (../../../node_modules/@nestjs/core/injector/injector.js:170:24)
+      at TestingInjector.loadInstance (../../../node_modules/@nestjs/core/injector/injector.js:75:13)
+      at TestingInjector.loadProvider (../../../node_modules/@nestjs/core/injector/injector.js:103:9)
+      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:56:13
+          at async Promise.all (index 3)
+      at TestingInstanceLoader.createInstancesOfProviders (../../../node_modules/@nestjs/core/injector/instance-loader.js:55:9)
+      at ../../../node_modules/@nestjs/core/injector/instance-loader.js:40:13
+          at async Promise.all (index 17)
+      at TestingInstanceLoader.createInstances (../../../node_modules/@nestjs/core/injector/instance-loader.js:39:9)
+      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/core/injector/instance-loader.js:22:13)
+      at TestingInstanceLoader.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-instance-loader.js:9:9)
+      at TestingModuleBuilder.createInstancesOfDependencies (../../../node_modules/@nestjs/testing/testing-module.builder.js:118:9)
+      at TestingModuleBuilder.compile (../../../node_modules/@nestjs/testing/testing-module.builder.js:74:9)
+      at Object.<anonymous> (complete-flow.e2e-spec.ts:59:46)
+
+  console.log
+    Registered admin_1766039453235@test.com with ID: 37a58789-2b5c-43cb-80cf-5e3b008ff6e8
+
+      at registerUser (complete-flow.e2e-spec.ts:89:21)
+
+  console.log
+    Registered rest_1766039453235@test.com with ID: 484ede89-a4dc-4410-9252-21d5e3bb10c0
+
+      at registerUser (complete-flow.e2e-spec.ts:89:21)
+
+  console.log
+    Registered cust_1766039453235@test.com with ID: 3eea15df-dfc0-496a-88fe-98783c4ab4b6
+
+      at registerUser (complete-flow.e2e-spec.ts:89:21)
+
+  console.log
+    Registered del_1766039453235@test.com with ID: 5badeb31-930f-46fb-b270-7ca453295012
+
+      at registerUser (complete-flow.e2e-spec.ts:89:21)
+
+  console.log
+    ✅ User 3eea15df-dfc0-496a-88fe-98783c4ab4b6 (CUSTOMER) connected - Socket: e2gUyDCx8RXkLOkUAAAB
+
+      at RealtimeGateway.handleConnection (../src/websockets/websocket.gateway.ts:70:21)
+
+  console.log
+    📡 Emitting restaurant:approved to user:484ede89-a4dc-4410-9252-21d5e3bb10c0
+
+      at RealtimeGateway.emitToCustomer (../src/websockets/websocket.gateway.ts:90:17)
+
+  console.log
+    ✅ User 484ede89-a4dc-4410-9252-21d5e3bb10c0 (RESTAURANT_PARTNER) connected - Socket: nwAscGwuImBHks-OAAAD
+
+      at RealtimeGateway.handleConnection (../src/websockets/websocket.gateway.ts:70:21)
+
+  console.log
+    📡 Emitting order:new to restaurant:2a3d306c-2594-43d3-8c0c-963310e825ee
+
+      at RealtimeGateway.emitToRestaurant (../src/websockets/websocket.gateway.ts:96:17)
+
+  console.log
+    ❌ User 484ede89-a4dc-4410-9252-21d5e3bb10c0 (RESTAURANT_PARTNER) disconnected
+
+      at RealtimeGateway.handleDisconnect (../src/websockets/websocket.gateway.ts:81:21)
+
+  console.log
+    🔔 notifyOrderAccepted for order d8798a4d-3552-42bc-a1c7-e4203d88ba2f, customerId: 3eea15df-dfc0-496a-88fe-98783c4ab4b6
+
+      at RealtimeGateway.notifyOrderAccepted (../src/websockets/websocket.gateway.ts:142:17)
+
+  console.log
+    📡 Emitting order:accepted to user:3eea15df-dfc0-496a-88fe-98783c4ab4b6
+
+      at RealtimeGateway.emitToCustomer (../src/websockets/websocket.gateway.ts:90:17)
+
+  console.log
+    ✅ User 5badeb31-930f-46fb-b270-7ca453295012 (DELIVERY_PARTNER) connected - Socket: xpX4M_h159kUFYhpAAAF
+
+      at RealtimeGateway.handleConnection (../src/websockets/websocket.gateway.ts:70:21)
+
+  console.log
+    📡 Emitting order:ready to user:3eea15df-dfc0-496a-88fe-98783c4ab4b6
+
+      at RealtimeGateway.emitToCustomer (../src/websockets/websocket.gateway.ts:90:17)
+
+  console.log
+    ❌ User 5badeb31-930f-46fb-b270-7ca453295012 (DELIVERY_PARTNER) disconnected
+
+      at RealtimeGateway.handleDisconnect (../src/websockets/websocket.gateway.ts:81:21)
+
+  console.log
+    📡 Emitting order:delivery_partner_assigned to user:3eea15df-dfc0-496a-88fe-98783c4ab4b6
+
+      at RealtimeGateway.emitToCustomer (../src/websockets/websocket.gateway.ts:90:17)
+
+  console.log
+    📡 Emitting order:delivery_partner_assigned to restaurant:2a3d306c-2594-43d3-8c0c-963310e825ee
+
+      at RealtimeGateway.emitToRestaurant (../src/websockets/websocket.gateway.ts:96:17)
+
+  console.log
+    📡 Emitting order:delivery_partner_assigned to restaurant:2a3d306c-2594-43d3-8c0c-963310e825ee
+
+      at RealtimeGateway.emitToRestaurant (../src/websockets/websocket.gateway.ts:96:17)
+
+  console.log
+    📡 Emitting order:delivered to user:3eea15df-dfc0-496a-88fe-98783c4ab4b6
+
+      at RealtimeGateway.emitToCustomer (../src/websockets/websocket.gateway.ts:90:17)
+
+  console.log
+    📡 Emitting order:completed to restaurant:2a3d306c-2594-43d3-8c0c-963310e825ee
+
+      at RealtimeGateway.emitToRestaurant (../src/websockets/websocket.gateway.ts:96:17)
+
+  console.log
+    ❌ User 3eea15df-dfc0-496a-88fe-98783c4ab4b6 (CUSTOMER) disconnected
+
+      at RealtimeGateway.handleDisconnect (../src/websockets/websocket.gateway.ts:81:21)
+
+PASS test/complete-flow.e2e-spec.ts
+  Complete Zomato Flow (E2E)
+    ✓ 1. Setup Users (313 ms)
+    ✓ 2. WebSocket Connection (14 ms)
+    ✓ 3. Create Restaurant (Restaurant Partner) (24 ms)
+    ✓ 4. Add Menu (Restaurant Partner) (12 ms)
+    ✓ 5. Place Order (Customer) -> Verify WebSocket (27 ms)
+    ✓ 6. Accept Order (Restaurant) -> Verify Customer WS (16 ms)
+    ✓ 7. Mark Ready (Restaurant) -> Verify Delivery WS (18 ms)
+    ✓ 8. Claim Order (Delivery Partner) -> Verify Customer WS (11 ms)
+    ✓ 9. Complete Delivery (Delivery Partner) -> Verify Earnings (38 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       9 passed, 9 total
+Snapshots:   0 total
+Time:        2.49 s, estimated 3 s
+Ran all test suites matching /backend\/zomato-api\/test\/complete-flow.e2e-spec.ts/i.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.
