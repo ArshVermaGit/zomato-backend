@@ -12,12 +12,15 @@ const restaurants_service_1 = require("./restaurants.service");
 const restaurants_controller_1 = require("./restaurants.controller");
 const websockets_module_1 = require("../websockets/websockets.module");
 const maps_module_1 = require("../maps/maps.module");
+const search_module_1 = require("../search/search.module");
+const database_module_1 = require("../../database/database.module");
+const config_1 = require("@nestjs/config");
 let RestaurantsModule = class RestaurantsModule {
 };
 exports.RestaurantsModule = RestaurantsModule;
 exports.RestaurantsModule = RestaurantsModule = __decorate([
     (0, common_1.Module)({
-        imports: [websockets_module_1.WebsocketsModule, maps_module_1.MapsModule],
+        imports: [database_module_1.DatabaseModule, config_1.ConfigModule, search_module_1.SearchModule, websockets_module_1.WebsocketsModule, maps_module_1.MapsModule],
         controllers: [restaurants_controller_1.RestaurantsController],
         providers: [restaurants_service_1.RestaurantsService],
         exports: [restaurants_service_1.RestaurantsService],

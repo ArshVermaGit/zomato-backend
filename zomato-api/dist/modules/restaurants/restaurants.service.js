@@ -15,16 +15,19 @@ const prisma_service_1 = require("../../database/prisma.service");
 const websocket_gateway_1 = require("../../websockets/websocket.gateway");
 const s3_service_1 = require("../../common/services/s3.service");
 const geocoding_service_1 = require("../../common/services/geocoding.service");
+const search_service_1 = require("../search/search.service");
 let RestaurantsService = class RestaurantsService {
     prisma;
     realtimeGateway;
     s3Service;
     geocodingService;
-    constructor(prisma, realtimeGateway, s3Service, geocodingService) {
+    searchService;
+    constructor(prisma, realtimeGateway, s3Service, geocodingService, searchService) {
         this.prisma = prisma;
         this.realtimeGateway = realtimeGateway;
         this.s3Service = s3Service;
         this.geocodingService = geocodingService;
+        this.searchService = searchService;
     }
     async createRestaurant(partnerId, dto) {
         const locationInput = dto.location;
@@ -56,7 +59,7 @@ let RestaurantsService = class RestaurantsService {
                 const filename = image.originalname || `image-${Date.now()}`;
                 const contentType = image.mimetype || 'image/jpeg';
                 const key = `restaurants/${partnerId}/${Date.now()}-${filename}`;
-                const imageUrl = await this.s3Service.uploadFile(key, content, contentType);
+                const imageUrl = await this.s3Service.uploadBuffer(key, content, contentType);
                 uploadedImages.push(imageUrl);
             }
         }
@@ -116,6 +119,7 @@ let RestaurantsService = class RestaurantsService {
                 },
             });
         }
+        await this.searchService.indexRestaurant(restaurant);
         return restaurant;
     }
     async approveRestaurant(restaurantId, adminId) {
@@ -160,6 +164,7 @@ let RestaurantsService = class RestaurantsService {
             name: restaurant.name,
             approvedBy: adminId,
         });
+        await this.searchService.indexRestaurant(restaurant);
         return restaurant;
     }
     async getNearbyRestaurants(lat, lng, radius = 5) {
@@ -343,6 +348,7 @@ exports.RestaurantsService = RestaurantsService = __decorate([
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         websocket_gateway_1.RealtimeGateway,
         s3_service_1.S3Service,
-        geocoding_service_1.GeocodingService])
+        geocoding_service_1.GeocodingService,
+        search_service_1.SearchService])
 ], RestaurantsService);
 //# sourceMappingURL=restaurants.service.js.map

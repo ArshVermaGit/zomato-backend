@@ -30,6 +30,9 @@ let RestaurantsController = class RestaurantsController {
         const partnerId = dto.partnerId || req.user.userId;
         return this.restaurantsService.createRestaurant(partnerId, dto);
     }
+    async approve(id, req) {
+        return this.restaurantsService.approveRestaurant(id, req.user.userId);
+    }
     async getMyRestaurants(req) {
         return this.restaurantsService.findByPartnerUserId(req.user.userId);
     }
@@ -75,6 +78,18 @@ __decorate([
     __metadata("design:paramtypes", [restaurant_dto_1.CreateRestaurantDto, Object]),
     __metadata("design:returntype", Promise)
 ], RestaurantsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Put)(':id/approve'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.UserRole.ADMIN),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Approve a restaurant (Admin only)' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], RestaurantsController.prototype, "approve", null);
 __decorate([
     (0, common_1.Get)('partner/my-restaurants'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
