@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateModifierDto = exports.CreateModifierDto = exports.UpdateMenuItemDto = exports.CreateMenuItemDto = exports.ReorderCategoryDto = exports.UpdateCategoryDto = exports.CreateCategoryDto = void 0;
+exports.UpdateMenuItemDto = exports.CreateMenuItemDto = exports.UpdateModifierDto = exports.CreateModifierDto = exports.ReorderCategoryDto = exports.UpdateCategoryDto = exports.CreateCategoryDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
@@ -64,83 +64,6 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], ReorderCategoryDto.prototype, "newDisplayOrder", void 0);
-class CreateMenuItemDto {
-    name;
-    description;
-    price;
-    isVeg;
-    categoryId;
-}
-exports.CreateMenuItemDto = CreateMenuItemDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Classic Cheese Burger' }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateMenuItemDto.prototype, "name", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: 'With cheddar and pickles' }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateMenuItemDto.prototype, "description", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: 199 }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.Min)(0),
-    __metadata("design:type", Number)
-], CreateMenuItemDto.prototype, "price", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: false }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], CreateMenuItemDto.prototype, "isVeg", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: 'category-uuid' }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsUUID)(),
-    __metadata("design:type", String)
-], CreateMenuItemDto.prototype, "categoryId", void 0);
-class UpdateMenuItemDto {
-    name;
-    description;
-    price;
-    isVeg;
-    isAvailable;
-}
-exports.UpdateMenuItemDto = UpdateMenuItemDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], UpdateMenuItemDto.prototype, "name", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], UpdateMenuItemDto.prototype, "description", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsNumber)(),
-    __metadata("design:type", Number)
-], UpdateMenuItemDto.prototype, "price", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], UpdateMenuItemDto.prototype, "isVeg", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], UpdateMenuItemDto.prototype, "isAvailable", void 0);
 class ModifierOptionDto {
     name;
     price;
@@ -222,4 +145,98 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], UpdateModifierDto.prototype, "isRequired", void 0);
+class CreateMenuItemDto {
+    name;
+    description;
+    price;
+    isVeg;
+    categoryId;
+    images;
+    modifiers;
+}
+exports.CreateMenuItemDto = CreateMenuItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Classic Cheese Burger' }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateMenuItemDto.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'With cheddar and pickles' }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateMenuItemDto.prototype, "description", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 199 }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], CreateMenuItemDto.prototype, "price", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: false }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateMenuItemDto.prototype, "isVeg", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'category-uuid' }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateMenuItemDto.prototype, "categoryId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: ['base64string_or_url'], required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], CreateMenuItemDto.prototype, "images", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [CreateModifierDto], required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => CreateModifierDto),
+    __metadata("design:type", Array)
+], CreateMenuItemDto.prototype, "modifiers", void 0);
+class UpdateMenuItemDto {
+    name;
+    description;
+    price;
+    isVeg;
+    isAvailable;
+}
+exports.UpdateMenuItemDto = UpdateMenuItemDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateMenuItemDto.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateMenuItemDto.prototype, "description", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], UpdateMenuItemDto.prototype, "price", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], UpdateMenuItemDto.prototype, "isVeg", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], UpdateMenuItemDto.prototype, "isAvailable", void 0);
 //# sourceMappingURL=menu.dto.js.map

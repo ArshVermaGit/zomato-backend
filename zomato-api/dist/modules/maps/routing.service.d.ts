@@ -10,6 +10,17 @@ export declare class RoutingService {
     }, destination: {
         lat: number;
         lng: number;
-    }): unknown;
-    getRoute(origin: string, destination: string, waypoints?: string[]): unknown;
+    }): Promise<{
+        distance: number;
+        duration: number;
+    }>;
+    getRoute(origin: string, destination: string, waypoints?: string[]): Promise<{
+        polyline: string;
+        summary: string;
+        legs?: undefined;
+    } | {
+        polyline: string;
+        summary: string;
+        legs: import("@googlemaps/google-maps-services-js").RouteLeg[];
+    }>;
 }

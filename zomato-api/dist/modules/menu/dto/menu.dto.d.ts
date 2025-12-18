@@ -10,20 +10,6 @@ export declare class UpdateCategoryDto {
 export declare class ReorderCategoryDto {
     newDisplayOrder: number;
 }
-export declare class CreateMenuItemDto {
-    name: string;
-    description: string;
-    price: number;
-    isVeg: boolean;
-    categoryId: string;
-}
-export declare class UpdateMenuItemDto {
-    name?: string;
-    description?: string;
-    price?: number;
-    isVeg?: boolean;
-    isAvailable?: boolean;
-}
 declare class ModifierOptionDto {
     name: string;
     price: number;
@@ -39,5 +25,21 @@ export declare class UpdateModifierDto {
     name?: string;
     options?: ModifierOptionDto[];
     isRequired?: boolean;
+}
+export declare class CreateMenuItemDto {
+    name: string;
+    description: string;
+    price: number;
+    isVeg: boolean;
+    categoryId: string;
+    images?: string[];
+    modifiers?: CreateModifierDto[];
+}
+export declare class UpdateMenuItemDto {
+    name?: string;
+    description?: string;
+    price?: number;
+    isVeg?: boolean;
+    isAvailable?: boolean;
 }
 export {};

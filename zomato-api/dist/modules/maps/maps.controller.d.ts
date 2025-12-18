@@ -2,11 +2,15 @@ import { MapsService } from './maps.service';
 export declare class MapsController {
     private mapsService;
     constructor(mapsService: MapsService);
-    geocode(address: string): unknown;
+    geocode(address: string): Promise<{
+        lat: number;
+        lng: number;
+        formattedAddress: string;
+    }>;
     reverseGeocode(body: {
         lat: number;
         lng: number;
-    }): unknown;
+    }): Promise<string>;
     getDistance(body: {
         origin: {
             lat: number;
@@ -16,11 +20,22 @@ export declare class MapsController {
             lat: number;
             lng: number;
         };
-    }): unknown;
+    }): Promise<{
+        distance: number;
+        duration: number;
+    }>;
     getRoute(body: {
         origin: string;
         destination: string;
-    }): unknown;
+    }): Promise<{
+        polyline: string;
+        summary: string;
+        legs?: undefined;
+    } | {
+        polyline: string;
+        summary: string;
+        legs: import("@googlemaps/google-maps-services-js").RouteLeg[];
+    }>;
     getETA(body: {
         origin: {
             lat: number;
@@ -30,6 +45,10 @@ export declare class MapsController {
             lat: number;
             lng: number;
         };
-    }): unknown;
-    getNearbyRestaurants(lat: number, lng: number, radius: number): unknown;
+    }): Promise<{
+        etaSeconds: number;
+        etaMinutes: number;
+        distanceMeters: number;
+    }>;
+    getNearbyRestaurants(lat: number, lng: number, radius: number): Promise<never[]>;
 }

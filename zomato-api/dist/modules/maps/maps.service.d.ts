@@ -6,22 +6,41 @@ export declare class MapsService {
     private routing;
     private eta;
     constructor(geocoding: GeocodingService, routing: RoutingService, eta: ETAService);
-    geocodeAddress(address: string): unknown;
-    reverseGeocode(lat: number, lng: number): unknown;
+    geocodeAddress(address: string): Promise<{
+        lat: number;
+        lng: number;
+        formattedAddress: string;
+    }>;
+    reverseGeocode(lat: number, lng: number): Promise<string>;
     calculateDistance(origin: {
         lat: number;
         lng: number;
     }, destination: {
         lat: number;
         lng: number;
-    }): unknown;
-    getRoute(origin: string, destination: string): unknown;
+    }): Promise<{
+        distance: number;
+        duration: number;
+    }>;
+    getRoute(origin: string, destination: string): Promise<{
+        polyline: string;
+        summary: string;
+        legs?: undefined;
+    } | {
+        polyline: string;
+        summary: string;
+        legs: import("@googlemaps/google-maps-services-js").RouteLeg[];
+    }>;
     getETA(origin: {
         lat: number;
         lng: number;
     }, destination: {
         lat: number;
         lng: number;
-    }): unknown;
-    getNearbyRestaurants(lat: number, lng: number, radius?: number): unknown;
+    }): Promise<{
+        etaSeconds: number;
+        etaMinutes: number;
+        distanceMeters: number;
+    }>;
+    getNearbyRestaurants(lat: number, lng: number, radius?: number): Promise<never[]>;
 }
