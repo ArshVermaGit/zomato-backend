@@ -13,17 +13,20 @@ exports.ReviewsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
 const rating_calculation_service_1 = require("./rating-calculation.service");
+const websocket_gateway_1 = require("../../websockets/websocket.gateway");
 let ReviewsService = class ReviewsService {
     prisma;
     ratingService;
-    constructor(prisma, ratingService) {
+    realtimeGateway;
+    constructor(prisma, ratingService, realtimeGateway) {
         this.prisma = prisma;
         this.ratingService = ratingService;
+        this.realtimeGateway = realtimeGateway;
     }
     async createReview(userId, dto) {
         const order = await this.prisma.order.findUnique({
             where: { id: dto.orderId },
-            include: { review: true }
+            include: { review: true, restaurant: true }
         });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
@@ -43,12 +46,20 @@ let ReviewsService = class ReviewsService {
                 comment: dto.comment,
                 tags: dto.tags || [],
                 images: dto.images || []
-            }
+            },
+            include: { user: { select: { name: true, avatar: true } } }
         });
         this.ratingService.updateRestaurantRating(order.restaurantId);
         if (order.deliveryPartnerId && dto.deliveryRating) {
             this.ratingService.updateDeliveryPartnerRating(order.deliveryPartnerId);
         }
+        this.realtimeGateway.emitToRestaurant(order.restaurantId, 'review:new', {
+            reviewId: review.id,
+            rating: review.rating,
+            comment: review.comment,
+            customerName: review.user.name,
+            createdAt: review.createdAt
+        });
         return review;
     }
     async getRestaurantReviews(restaurantId) {
@@ -94,6 +105,7 @@ exports.ReviewsService = ReviewsService;
 exports.ReviewsService = ReviewsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        rating_calculation_service_1.RatingCalculationService])
+        rating_calculation_service_1.RatingCalculationService,
+        websocket_gateway_1.RealtimeGateway])
 ], ReviewsService);
 //# sourceMappingURL=reviews.service.js.map
