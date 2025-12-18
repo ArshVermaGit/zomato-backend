@@ -21,6 +21,7 @@ exports.AnalyticsModule = AnalyticsModule = __decorate([
     (0, common_1.Module)({
         controllers: [analytics_controller_1.AnalyticsController],
         providers: [analytics_service_1.AnalyticsService, report_generation_service_1.ReportGenerationService, prisma_service_1.PrismaService, s3_service_1.S3Service, config_1.ConfigService],
+        exports: [analytics_service_1.AnalyticsService],
     })
 ], AnalyticsModule);
 //# sourceMappingURL=analytics.module.js.map

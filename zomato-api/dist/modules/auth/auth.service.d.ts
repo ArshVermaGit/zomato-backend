@@ -9,11 +9,55 @@ export declare class AuthService {
     private jwtService;
     constructor(usersService: UsersService, jwtService: JwtService);
     private otpStore;
-    sendOtp(dto: SendOtpDto): unknown;
-    verifyOtp(dto: VerifyOtpDto): unknown;
+    sendOtp(dto: SendOtpDto): Promise<{
+        message: string;
+        otp: string | undefined;
+    }>;
+    verifyOtp(dto: VerifyOtpDto): Promise<{
+        message: string;
+    }>;
     validateUser(phone: string, pass: string): Promise<any>;
-    signup(dto: SignupDto): unknown;
-    login(user: User): unknown;
-    generateTokens(user: Partial<User>): unknown;
-    refreshTokens(refreshToken: string): unknown;
+    signup(dto: SignupDto): Promise<{
+        accessToken: string;
+        refreshToken: string;
+        user: {
+            name: string;
+            email: string | null;
+            id: string;
+            phone: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            avatar: string | null;
+            isActive: boolean;
+            isVerified: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            fcmTokens: string[];
+        };
+    }>;
+    login(user: User): Promise<{
+        accessToken: string;
+        refreshToken: string;
+        user: {
+            name: string;
+            email: string | null;
+            id: string;
+            phone: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            avatar: string | null;
+            isActive: boolean;
+            isVerified: boolean;
+            passwordHash: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            fcmTokens: string[];
+        };
+    }>;
+    generateTokens(user: Partial<User>): Promise<{
+        accessToken: string;
+        refreshToken: string;
+    }>;
+    refreshTokens(refreshToken: string): Promise<{
+        accessToken: string;
+        refreshToken: string;
+    }>;
 }
