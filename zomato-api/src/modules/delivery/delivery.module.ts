@@ -1,15 +1,16 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DeliveryController } from './delivery.controller';
 import { DeliveryService } from './delivery.service';
-import { LocationService } from './location.service';
-import { OrdersModule } from '../orders/orders.module';
-
 import { EarningsService } from './earnings.service';
+import { DatabaseModule } from '../../database/database.module';
+import { LocationModule } from '../location/location.module';
+import { OrdersModule } from '../orders/orders.module';
+import { forwardRef } from '@nestjs/common';
 
 @Module({
-    imports: [forwardRef(() => OrdersModule)],
+    imports: [DatabaseModule, LocationModule, forwardRef(() => OrdersModule)],
     controllers: [DeliveryController],
-    providers: [DeliveryService, LocationService, EarningsService],
-    exports: [DeliveryService, LocationService, EarningsService],
+    providers: [DeliveryService, EarningsService],
+    exports: [DeliveryService, EarningsService],
 })
 export class DeliveryModule { }

@@ -66,7 +66,7 @@ export class ReportGenerationService {
 
             // Upload to S3
             const key = `reports/${type.toLowerCase()}_${reportId}_${Date.now()}.csv`;
-            const url = await this.s3Service.uploadFile(key, csvContent, 'text/csv');
+            const url = await this.s3Service.uploadBuffer(key, Buffer.from(csvContent), 'text/csv');
 
             // Update Report Record
             await this.prisma.report.update({

@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException,
 import { PrismaService } from '../../database/prisma.service';
 import { OnboardDeliveryPartnerDto, UpdateVehicleDto } from './dto/delivery-onboarding.dto';
 import { S3Service } from '../../common/services/s3.service';
-import { LocationService } from './location.service';
+import { LocationService } from '../location/location.service';
 import { OrderStateService } from '../orders/order-state.service';
 import { EarningsService } from './earnings.service';
 import { OnboardingStatus, OrderStatus, UserRole, DocumentType, DocumentStatus } from '@prisma/client';

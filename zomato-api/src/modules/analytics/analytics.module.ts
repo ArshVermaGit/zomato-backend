@@ -9,5 +9,6 @@ import { ConfigService } from '@nestjs/config';
 @Module({
     controllers: [AnalyticsController],
     providers: [AnalyticsService, ReportGenerationService, PrismaService, S3Service, ConfigService],
+    exports: [AnalyticsService],
 })
 export class AnalyticsModule { }

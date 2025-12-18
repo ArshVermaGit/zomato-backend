@@ -34,18 +34,85 @@ export class EarningsService {
         });
     }
 
-    // --- EARNINGS CALCULATION ---
+    // --- EARNINGS CALCULATION & PROCESSING ---
 
-    calculateOrderEarnings(distanceKm: number, orderTotal: number) {
-        // Logic: Setup base fee + distance bonus
-        const BASE_FEE = 30; // ₹30 base
-        const PER_KM_RATE = 10; // ₹10/km
-        const distanceFee = distanceKm * PER_KM_RATE;
+    async processOrderEarnings(
+        deliveryPartnerId: string,
+        orderId: string,
+        orderNumber: string,
+        deliveryFee: number,
+        tip: number,
+        distanceKm: number = 2 // Default or passed
+    ) {
+        // 1. Calculate Earnings
+        const BASE_PAY = 30;
+        const PER_KM_RATE = 10;
+        const DISTANCE_PAY = distanceKm * PER_KM_RATE;
+        const CHECKOUT_EARNING = Number(deliveryFee) * 0.8; // Fallback or explicit
 
-        // Incentives (stubbed)
-        // e.g. if orderTotal > 1000, bonus 20?
+        // Strategy: Use calculated distance pay, but ensure at least 80% of delivery fee is given?
+        // Or just explicit formula: Base + Distance. 
+        // Let's use the explicit Hybrid model as per best practices:
+        // Earning = Max(Base + Distance, 80% Delivery Fee) ? 
+        // For simplicity reusing user's existing logic but enhancing it:
+        // We will pay them the Calculated Amount (Base + Distance) plus the Tip.
 
-        return BASE_FEE + distanceFee;
+        let earningAmount = BASE_PAY + DISTANCE_PAY;
+
+        // Incentive: Peak hour? (Mock check)
+        const isPeakHour = new Date().getHours() >= 19 && new Date().getHours() <= 21;
+        if (isPeakHour) {
+            earningAmount += 20; // Peak bonus
+        }
+
+        // 2. Transactional Update
+        return this.prisma.$transaction(async (tx) => {
+            // A. Record Delivery Fee Earning
+            await tx.earning.create({
+                data: {
+                    deliveryPartnerId,
+                    orderId,
+                    type: 'DELIVERY_FEE', // Enum EarningType.DELIVERY_FEE
+                    amount: new Prisma.Decimal(earningAmount),
+                    description: `Earnings for order #${orderNumber} (${distanceKm}km)`,
+                }
+            });
+
+            // B. Record Tip Earning
+            if (tip > 0) {
+                await tx.earning.create({
+                    data: {
+                        deliveryPartnerId,
+                        orderId,
+                        type: 'TIP', // Enum EarningType.TIP
+                        amount: new Prisma.Decimal(tip),
+                        description: `Tip for order #${orderNumber}`,
+                    }
+                });
+            }
+
+            // C. Update Wallet Balance
+            const totalCredit = earningAmount + tip;
+            await tx.deliveryPartner.update({
+                where: { id: deliveryPartnerId },
+                data: {
+                    totalEarnings: { increment: totalCredit },
+                    availableBalance: { increment: totalCredit },
+                }
+            });
+
+            // D. Ledger Entry (Summary)
+            await tx.walletTransaction.create({
+                data: {
+                    deliveryPartnerId,
+                    amount: new Prisma.Decimal(totalCredit),
+                    type: WalletTransactionType.CREDIT,
+                    description: `Order #${orderNumber} Earnings`
+                }
+            });
+
+            return { earningAmount, tip, total: totalCredit };
+        });
     }
 
     // --- PAYOUT LOGIC ---
