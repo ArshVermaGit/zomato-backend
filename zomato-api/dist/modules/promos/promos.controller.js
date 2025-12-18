@@ -25,8 +25,14 @@ let PromosController = class PromosController {
     async getAvailable(req, restaurantId) {
         return this.promosService.getAvailablePromos(req.user.userId, restaurantId);
     }
+    async validatePromo(req, body) {
+        return this.promosService.validatePromoCode(body.code, req.user.userId, body.cartValue, body.restaurantId);
+    }
     async applyPromo(req, body) {
         return this.promosService.applyPromo(body.code, req.user.userId, body.cartValue, body.restaurantId);
+    }
+    async getBestPromo(req, cartValue, restaurantId) {
+        return this.promosService.getBestPromo(req.user.userId, parseFloat(cartValue), restaurantId);
     }
     async createPromo(body) {
         return this.promosService.createPromo(body);
@@ -46,6 +52,18 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PromosController.prototype, "getAvailable", null);
 __decorate([
+    (0, common_1.Post)('validate'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Validate promo code (real-time)' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Validation result' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], PromosController.prototype, "validatePromo", null);
+__decorate([
     (0, common_1.Post)('apply'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
@@ -57,6 +75,19 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], PromosController.prototype, "applyPromo", null);
+__decorate([
+    (0, common_1.Get)('best'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get best applicable promo automatically' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Best promo or null' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('cartValue')),
+    __param(2, (0, common_1.Query)('restaurantId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], PromosController.prototype, "getBestPromo", null);
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create promo (Admin)' }),

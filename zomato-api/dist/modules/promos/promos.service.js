@@ -39,32 +39,80 @@ let PromosService = class PromosService {
             return true;
         });
     }
-    async applyPromo(code, userId, cartValue, restaurantId) {
-        const promo = await this.prisma.promo.findUnique({ where: { code } });
+    async validatePromoCode(code, userId, cartValue, restaurantId) {
+        const promo = await this.prisma.promo.findUnique({ where: { code: code.toUpperCase() } });
         if (!promo)
-            throw new common_1.NotFoundException('Invalid promo code');
-        await this.validationService.validatePromo(promo, userId, cartValue, restaurantId);
-        let discountAmount = 0;
-        if (promo.discountType === client_1.DiscountType.PERCENTAGE) {
-            discountAmount = (cartValue * Number(promo.discountValue)) / 100;
-            if (promo.maxDiscount && discountAmount > Number(promo.maxDiscount)) {
-                discountAmount = Number(promo.maxDiscount);
-            }
-        }
-        else if (promo.discountType === client_1.DiscountType.FIXED) {
-            discountAmount = Number(promo.discountValue);
-        }
-        else if (promo.discountType === client_1.DiscountType.FREE_DELIVERY) {
-            discountAmount = 0;
-        }
+            return { valid: false, reason: 'Invalid promo code' };
+        const validation = await this.validationService.validatePromo(promo, userId, cartValue, restaurantId);
+        if (!validation.valid)
+            return validation;
+        const discountAmount = this.calculateDiscount(promo, cartValue);
         return {
             valid: true,
             promoId: promo.id,
             code: promo.code,
             discountType: promo.discountType,
-            discountAmount: discountAmount,
+            discountAmount,
+            description: promo.description
+        };
+    }
+    async applyPromo(code, userId, cartValue, restaurantId) {
+        const promo = await this.prisma.promo.findUnique({ where: { code: code.toUpperCase() } });
+        if (!promo)
+            throw new common_1.NotFoundException('Invalid promo code');
+        const validation = await this.validationService.validatePromo(promo, userId, cartValue, restaurantId);
+        if (!validation.valid)
+            throw new common_1.BadRequestException(validation.reason);
+        const discountAmount = this.calculateDiscount(promo, cartValue);
+        return {
+            valid: true,
+            promoId: promo.id,
+            code: promo.code,
+            discountType: promo.discountType,
+            discountAmount,
             message: 'Promo applied successfully'
         };
+    }
+    async getBestPromo(userId, cartValue, restaurantId) {
+        const availablePromos = await this.getAvailablePromos(userId, restaurantId);
+        let bestPromo = null;
+        for (const promo of availablePromos) {
+            const validation = await this.validationService.validatePromo(promo, userId, cartValue, restaurantId);
+            if (!validation.valid)
+                continue;
+            const discount = this.calculateDiscount(promo, cartValue);
+            if (!bestPromo || discount > bestPromo.discount) {
+                bestPromo = { promo, discount };
+            }
+        }
+        if (!bestPromo)
+            return null;
+        return {
+            promoId: bestPromo.promo.id,
+            code: bestPromo.promo.code,
+            discountType: bestPromo.promo.discountType,
+            discountAmount: bestPromo.discount,
+            description: bestPromo.promo.description
+        };
+    }
+    calculateDiscount(promo, cartValue) {
+        if (promo.discountType === client_1.DiscountType.PERCENTAGE) {
+            let discount = (cartValue * Number(promo.discountValue)) / 100;
+            if (promo.maxDiscount && discount > Number(promo.maxDiscount)) {
+                discount = Number(promo.maxDiscount);
+            }
+            return discount;
+        }
+        else if (promo.discountType === client_1.DiscountType.FIXED) {
+            return Number(promo.discountValue);
+        }
+        else if (promo.discountType === client_1.DiscountType.FREE_DELIVERY) {
+            return 0;
+        }
+        return 0;
+    }
+    async recordPromoUsage(promoId, userId, orderId) {
+        await this.validationService.recordUsage(promoId, userId, orderId);
     }
 };
 exports.PromosService = PromosService;

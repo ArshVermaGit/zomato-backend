@@ -20,24 +20,39 @@ let PromoValidationService = class PromoValidationService {
     async validatePromo(promo, userId, cartValue, restaurantId) {
         const now = new Date();
         if (!promo.isActive)
-            throw new common_1.BadRequestException('Promo code is inactive');
+            return { valid: false, reason: 'Promo code is inactive' };
         if (now < promo.validFrom || now > promo.validUntil)
-            throw new common_1.BadRequestException('Promo code has expired');
+            return { valid: false, reason: 'Promo code has expired' };
         if (promo.usageLimit && promo.usedCount >= promo.usageLimit)
-            throw new common_1.BadRequestException('Promo usage limit reached');
+            return { valid: false, reason: 'Promo usage limit reached' };
         if (cartValue < Number(promo.minOrderValue))
-            throw new common_1.BadRequestException(`Minimum order value of ${promo.minOrderValue} required`);
+            return { valid: false, reason: `Minimum order value of ₹${promo.minOrderValue} required` };
         if (promo.applicableRestaurantIds.length > 0 && !promo.applicableRestaurantIds.includes(restaurantId)) {
-            throw new common_1.BadRequestException('Promo code not applicable for this restaurant');
+            return { valid: false, reason: 'Promo code not applicable for this restaurant' };
         }
         if (promo.isNewUserOnly) {
             const orderCount = await this.prisma.order.count({ where: { customerId: userId } });
             if (orderCount > 0)
-                throw new common_1.BadRequestException('Promo code valid for new users only');
+                return { valid: false, reason: 'Promo code valid for new users only' };
         }
         if (promo.maxUsagePerUser) {
+            const userUsageCount = await this.prisma.promoUsage.count({
+                where: { promoId: promo.id, userId }
+            });
+            if (userUsageCount >= promo.maxUsagePerUser) {
+                return { valid: false, reason: `You have already used this promo ${promo.maxUsagePerUser} time(s)` };
+            }
         }
-        return true;
+        return { valid: true };
+    }
+    async recordUsage(promoId, userId, orderId) {
+        await this.prisma.promoUsage.create({
+            data: { promoId, userId, orderId }
+        });
+        await this.prisma.promo.update({
+            where: { id: promoId },
+            data: { usedCount: { increment: 1 } }
+        });
     }
 };
 exports.PromoValidationService = PromoValidationService;
