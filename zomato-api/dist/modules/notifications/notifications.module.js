@@ -12,6 +12,7 @@ const notifications_controller_1 = require("./notifications.controller");
 const notifications_service_1 = require("./notifications.service");
 const bull_1 = require("@nestjs/bull");
 const notification_processor_1 = require("./notification.processor");
+const database_module_1 = require("../../database/database.module");
 const firebase_service_1 = require("./firebase.service");
 const twilio_service_1 = require("./twilio.service");
 const sendgrid_service_1 = require("./sendgrid.service");
@@ -21,6 +22,7 @@ exports.NotificationsModule = NotificationsModule;
 exports.NotificationsModule = NotificationsModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            database_module_1.DatabaseModule,
             bull_1.BullModule.registerQueue({
                 name: 'notifications',
             }),
@@ -31,7 +33,7 @@ exports.NotificationsModule = NotificationsModule = __decorate([
             notification_processor_1.NotificationProcessor,
             firebase_service_1.FirebaseService,
             twilio_service_1.TwilioService,
-            sendgrid_service_1.SendGridService,
+            sendgrid_service_1.SendGridService
         ],
         exports: [notifications_service_1.NotificationsService],
     })
