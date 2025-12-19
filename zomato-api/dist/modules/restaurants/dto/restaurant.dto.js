@@ -22,6 +22,7 @@ class CreateRestaurantDto {
     location;
     preparationTime;
     deliveryFee;
+    costForTwo;
     minimumOrder;
     partnerId;
 }
@@ -71,6 +72,11 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], CreateRestaurantDto.prototype, "deliveryFee", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 500 }),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], CreateRestaurantDto.prototype, "costForTwo", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 100, required: false }),
     (0, class_validator_1.IsOptional)(),
