@@ -40,6 +40,10 @@ export class CreateRestaurantDto {
     @IsNumber()
     deliveryFee: number;
 
+    @ApiProperty({ example: 500 })
+    @IsNumber()
+    costForTwo: number;
+
     @ApiProperty({ example: 100, required: false })
     @IsOptional()
     @IsNumber()
