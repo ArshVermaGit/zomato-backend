@@ -7,6 +7,7 @@ export declare class CreateRestaurantDto {
     location: any;
     preparationTime: number;
     deliveryFee: number;
+    costForTwo: number;
     minimumOrder?: number;
     partnerId: string;
 }
