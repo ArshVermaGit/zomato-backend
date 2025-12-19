@@ -168,6 +168,7 @@ model Restaurant {
   rating          Decimal             @default(0) @db.Decimal(3, 2)
   totalRatings    Int                 @default(0)
   preparationTime Int                 @default(30) // minutes
+  costForTwo      Decimal             @default(500) @db.Decimal(10, 2)
   minimumOrder    Decimal             @default(0) @db.Decimal(10, 2)
   deliveryFee     Decimal             @db.Decimal(10, 2)
   deliveryRadius  Decimal             @default(5) @db.Decimal(5, 2) // km
