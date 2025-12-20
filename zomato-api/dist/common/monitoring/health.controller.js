@@ -13,7 +13,7 @@ exports.HealthController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 let HealthController = class HealthController {
-    async check() {
+    check() {
         return {
             status: 'ok',
             timestamp: new Date().toISOString(),
@@ -38,7 +38,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Service is healthy' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", Object)
 ], HealthController.prototype, "check", null);
 __decorate([
     (0, common_1.Get)('live'),
