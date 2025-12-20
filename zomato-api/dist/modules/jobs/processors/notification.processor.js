@@ -20,10 +20,10 @@ let NotificationJobsProcessor = NotificationJobsProcessor_1 = class Notification
     constructor(notificationsService) {
         this.notificationsService = notificationsService;
     }
-    async sendDailySummary(job) {
+    sendDailySummary(_job) {
         this.logger.log('Sending daily summary to partners...');
     }
-    async retryFailed(job) {
+    retryFailed(_job) {
     }
 };
 exports.NotificationJobsProcessor = NotificationJobsProcessor;
@@ -31,13 +31,13 @@ __decorate([
     (0, bull_1.Process)('sendDailySummary'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], NotificationJobsProcessor.prototype, "sendDailySummary", null);
 __decorate([
     (0, bull_1.Process)('retryFailed'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], NotificationJobsProcessor.prototype, "retryFailed", null);
 exports.NotificationJobsProcessor = NotificationJobsProcessor = NotificationJobsProcessor_1 = __decorate([
     (0, bull_1.Processor)('notifications'),

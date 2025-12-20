@@ -67,7 +67,9 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Request payout' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Payout requested' }),
-    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { amount: { type: 'number' } } } }),
+    (0, swagger_1.ApiBody)({
+        schema: { type: 'object', properties: { amount: { type: 'number' } } },
+    }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)('amount')),
     __metadata("design:type", Function),
@@ -119,7 +121,12 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get S3 presigned URL for document upload' }),
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Presigned URL returned' }),
-    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { docType: { type: 'string', example: 'license_front' } } } }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            properties: { docType: { type: 'string', example: 'license_front' } },
+        },
+    }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)('docType')),
     __metadata("design:type", Function),
@@ -132,7 +139,12 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Confirm document upload' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Document status updated' }),
-    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { docType: { type: 'string' }, url: { type: 'string' } } } }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            properties: { docType: { type: 'string' }, url: { type: 'string' } },
+        },
+    }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -169,7 +181,14 @@ __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Verify or Reject Partner (Admin)' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Partner status updated' }),
-    (0, swagger_1.ApiBody)({ schema: { type: 'object', properties: { status: { type: 'string', enum: ['VERIFIED', 'REJECTED'] } } } }),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            properties: {
+                status: { type: 'string', enum: ['VERIFIED', 'REJECTED'] },
+            },
+        },
+    }),
     __param(0, (0, common_1.Param)('partnerId')),
     __param(1, (0, common_1.Body)('status')),
     __metadata("design:type", Function),

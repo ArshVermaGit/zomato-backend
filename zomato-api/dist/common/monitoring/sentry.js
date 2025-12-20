@@ -42,7 +42,7 @@ exports.setUser = setUser;
 const Sentry = __importStar(require("@sentry/node"));
 exports.Sentry = Sentry;
 const profiling_node_1 = require("@sentry/profiling-node");
-function initSentry(app) {
+function initSentry(_app) {
     if (!process.env.SENTRY_DSN) {
         console.warn('SENTRY_DSN not set, Sentry will not be initialized');
         return;
@@ -52,12 +52,10 @@ function initSentry(app) {
         environment: process.env.NODE_ENV || 'development',
         tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
         profilesSampleRate: 0.1,
-        integrations: [
-            (0, profiling_node_1.nodeProfilingIntegration)(),
-        ],
+        integrations: [(0, profiling_node_1.nodeProfilingIntegration)()],
     });
 }
-function initSentryErrorHandler(app) {
+function initSentryErrorHandler(_app) {
 }
 function captureException(error, context) {
     Sentry.captureException(error, { extra: context });

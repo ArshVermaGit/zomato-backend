@@ -30,41 +30,59 @@ let ReportGenerationService = ReportGenerationService_1 = class ReportGeneration
                 period: criteria.period || 'custom',
                 status: client_1.ReportStatus.PENDING,
                 generatedBy: userId,
-                data: criteria
-            }
+                data: criteria,
+            },
         });
-        this.generateReport(report.id, type, criteria).catch(err => {
+        this.generateReport(report.id, type, criteria).catch((err) => {
             this.logger.error(`Report generation failed for ${report.id}`, err);
             this.prisma.report.update({
                 where: { id: report.id },
-                data: { status: client_1.ReportStatus.FAILED }
+                data: { status: client_1.ReportStatus.FAILED },
             });
         });
         return report;
     }
-    async generateReport(reportId, type, criteria) {
+    async generateReport(reportId, type, _criteria) {
         let data = [];
         let headers = [];
         try {
             if (type === client_1.ReportType.SALES) {
                 const orders = await this.prisma.order.findMany({
                     where: { status: client_1.OrderStatus.DELIVERED },
-                    take: 1000
+                    take: 1000,
                 });
                 headers = ['Order ID', 'Date', 'Amount', 'Restaurant', 'Customer'];
-                data = orders.map(o => [o.orderNumber, o.createdAt.toISOString(), o.totalAmount, o.restaurantId, o.customerId]);
+                data = orders.map((o) => [
+                    o.orderNumber,
+                    o.createdAt.toISOString(),
+                    o.totalAmount,
+                    o.restaurantId,
+                    o.customerId,
+                ]);
             }
             else if (type === client_1.ReportType.USERS) {
                 const users = await this.prisma.user.findMany({
-                    select: { id: true, name: true, email: true, role: true, createdAt: true },
-                    take: 1000
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        role: true,
+                        createdAt: true,
+                    },
+                    take: 1000,
                 });
                 headers = ['User ID', 'Name', 'Email', 'Role', 'Joined Date'];
-                data = users.map(u => [u.id, u.name, u.email, u.role, u.createdAt.toISOString()]);
+                data = users.map((u) => [
+                    u.id,
+                    u.name,
+                    u.email,
+                    u.role,
+                    u.createdAt.toISOString(),
+                ]);
             }
             const csvContent = [
                 headers.join(','),
-                ...data.map(row => row.join(','))
+                ...data.map((row) => row.join(',')),
             ].join('\n');
             const key = `reports/${type.toLowerCase()}_${reportId}_${Date.now()}.csv`;
             const url = await this.s3Service.uploadBuffer(key, Buffer.from(csvContent), 'text/csv');
@@ -72,15 +90,15 @@ let ReportGenerationService = ReportGenerationService_1 = class ReportGeneration
                 where: { id: reportId },
                 data: {
                     status: client_1.ReportStatus.COMPLETED,
-                    url: url
-                }
+                    url: url,
+                },
             });
         }
         catch (error) {
             this.logger.error(`Error processing report ${reportId}`, error);
             await this.prisma.report.update({
                 where: { id: reportId },
-                data: { status: client_1.ReportStatus.FAILED }
+                data: { status: client_1.ReportStatus.FAILED },
             });
         }
     }

@@ -4,7 +4,7 @@ import { GeocodingService } from './services/geocoding.service';
 
 @Global()
 @Module({
-    providers: [S3Service, GeocodingService],
-    exports: [S3Service, GeocodingService],
+  providers: [S3Service, GeocodingService],
+  exports: [S3Service, GeocodingService],
 })
-export class CommonModule { }
+export class CommonModule {}

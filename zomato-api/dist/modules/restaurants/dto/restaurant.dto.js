@@ -58,7 +58,9 @@ __decorate([
     __metadata("design:type", String)
 ], CreateRestaurantDto.prototype, "email", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: { lat: 28.6304, lng: 77.2177, address: 'Connaught Place' } }),
+    (0, swagger_1.ApiProperty)({
+        example: { lat: 28.6304, lng: 77.2177, address: 'Connaught Place' },
+    }),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Object)
 ], CreateRestaurantDto.prototype, "location", void 0);

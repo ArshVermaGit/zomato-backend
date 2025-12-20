@@ -4,12 +4,12 @@ export declare class EarningsService {
     private prisma;
     constructor(prisma: PrismaService);
     addTransaction(partnerId: string, amount: number, type: WalletTransactionType, description: string): Promise<{
+        id: string;
+        amount: Prisma.Decimal;
         type: import(".prisma/client").$Enums.WalletTransactionType;
         description: string | null;
-        id: string;
         createdAt: Date;
         deliveryPartnerId: string;
-        amount: Prisma.Decimal;
     }>;
     processOrderEarnings(deliveryPartnerId: string, orderId: string, orderNumber: string, deliveryFee: number, tip: number, distanceKm?: number): Promise<{
         earningAmount: number;
@@ -22,39 +22,39 @@ export declare class EarningsService {
     }>;
     requestPayout(userId: string, amount: number): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import(".prisma/client").$Enums.PayoutStatus;
-        deliveryPartnerId: string;
         amount: Prisma.Decimal;
+        createdAt: Date;
+        deliveryPartnerId: string;
+        status: import(".prisma/client").$Enums.PayoutStatus;
         processedAt: Date | null;
         referenceId: string | null;
+        updatedAt: Date;
     }>;
     createWalletTransaction(deliveryPartnerId: string, amount: number, type: 'CREDIT' | 'DEBIT', description?: string): Promise<{
+        id: string;
+        amount: Prisma.Decimal;
         type: import(".prisma/client").$Enums.WalletTransactionType;
         description: string | null;
-        id: string;
         createdAt: Date;
         deliveryPartnerId: string;
-        amount: Prisma.Decimal;
     }>;
     getHistory(userId: string): Promise<{
+        id: string;
+        amount: Prisma.Decimal;
         type: import(".prisma/client").$Enums.WalletTransactionType;
         description: string | null;
-        id: string;
         createdAt: Date;
         deliveryPartnerId: string;
-        amount: Prisma.Decimal;
     }[]>;
     getPayoutRequests(userId: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import(".prisma/client").$Enums.PayoutStatus;
-        deliveryPartnerId: string;
         amount: Prisma.Decimal;
+        createdAt: Date;
+        deliveryPartnerId: string;
+        status: import(".prisma/client").$Enums.PayoutStatus;
         processedAt: Date | null;
         referenceId: string | null;
+        updatedAt: Date;
     }[]>;
     getStats(userId: string): Promise<{
         totalDeliveries: number;

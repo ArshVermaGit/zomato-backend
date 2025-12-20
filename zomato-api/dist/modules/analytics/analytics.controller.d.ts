@@ -50,23 +50,23 @@ export declare class AnalyticsController {
         type: ReportType;
         criteria?: any;
     }): Promise<{
-        url: string | null;
-        data: import("@prisma/client/runtime/library").JsonValue;
-        type: import(".prisma/client").$Enums.ReportType;
         id: string;
         createdAt: Date;
         status: import(".prisma/client").$Enums.ReportStatus;
+        data: import("@prisma/client/runtime/library").JsonValue;
+        type: import(".prisma/client").$Enums.ReportType;
         period: string;
         generatedBy: string | null;
+        url: string | null;
     }>;
     getReport(id: string): Promise<{
-        url: string | null;
-        data: import("@prisma/client/runtime/library").JsonValue;
-        type: import(".prisma/client").$Enums.ReportType;
         id: string;
         createdAt: Date;
         status: import(".prisma/client").$Enums.ReportStatus;
+        data: import("@prisma/client/runtime/library").JsonValue;
+        type: import(".prisma/client").$Enums.ReportType;
         period: string;
         generatedBy: string | null;
+        url: string | null;
     } | null>;
 }

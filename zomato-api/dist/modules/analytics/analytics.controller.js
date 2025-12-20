@@ -56,7 +56,11 @@ __decorate([
 __decorate([
     (0, common_1.Get)('orders'),
     (0, swagger_1.ApiOperation)({ summary: 'Get Order Analytics' }),
-    (0, swagger_1.ApiQuery)({ name: 'range', required: false, enum: ['daily', 'weekly', 'monthly'] }),
+    (0, swagger_1.ApiQuery)({
+        name: 'range',
+        required: false,
+        enum: ['daily', 'weekly', 'monthly'],
+    }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Order analytics metrics' }),
     __param(0, (0, common_1.Query)('range')),
     __metadata("design:type", Function),
@@ -66,7 +70,11 @@ __decorate([
 __decorate([
     (0, common_1.Get)('revenue'),
     (0, swagger_1.ApiOperation)({ summary: 'Get Revenue Analytics' }),
-    (0, swagger_1.ApiQuery)({ name: 'range', required: false, enum: ['daily', 'weekly', 'monthly'] }),
+    (0, swagger_1.ApiQuery)({
+        name: 'range',
+        required: false,
+        enum: ['daily', 'weekly', 'monthly'],
+    }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Revenue analytics metrics' }),
     __param(0, (0, common_1.Query)('range')),
     __metadata("design:type", Function),

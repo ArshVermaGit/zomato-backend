@@ -60,7 +60,7 @@ let RazorpayService = class RazorpayService {
         try {
             return await this.razorpay.payments.refund(paymentId, {
                 amount: Math.round(amount * 100),
-                notes
+                notes,
             });
         }
         catch (error) {

@@ -9,22 +9,22 @@ export declare class AuthService {
     private jwtService;
     constructor(usersService: UsersService, jwtService: JwtService);
     private otpStore;
-    sendOtp(dto: SendOtpDto): Promise<{
+    sendOtp(dto: SendOtpDto): {
         message: string;
         otp: string | undefined;
-    }>;
-    verifyOtp(dto: VerifyOtpDto): Promise<{
+    };
+    verifyOtp(dto: VerifyOtpDto): {
         message: string;
-    }>;
+    };
     validateUser(phone: string, pass: string): Promise<any>;
     signup(dto: SignupDto): Promise<{
         accessToken: string;
         refreshToken: string;
         user: {
             name: string;
-            email: string | null;
             id: string;
             phone: string;
+            email: string | null;
             role: import(".prisma/client").$Enums.UserRole;
             avatar: string | null;
             isActive: boolean;
@@ -34,14 +34,14 @@ export declare class AuthService {
             fcmTokens: string[];
         };
     }>;
-    login(user: User): Promise<{
+    login(user: User): {
         accessToken: string;
         refreshToken: string;
         user: {
             name: string;
-            email: string | null;
             id: string;
             phone: string;
+            email: string | null;
             role: import(".prisma/client").$Enums.UserRole;
             avatar: string | null;
             isActive: boolean;
@@ -51,11 +51,11 @@ export declare class AuthService {
             updatedAt: Date;
             fcmTokens: string[];
         };
-    }>;
-    generateTokens(user: Partial<User>): Promise<{
+    };
+    generateTokens(user: Partial<User>): {
         accessToken: string;
         refreshToken: string;
-    }>;
+    };
     refreshTokens(refreshToken: string): Promise<{
         accessToken: string;
         refreshToken: string;

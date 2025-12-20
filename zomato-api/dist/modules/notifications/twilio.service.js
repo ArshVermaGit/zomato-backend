@@ -14,7 +14,7 @@ const common_1 = require("@nestjs/common");
 let TwilioService = class TwilioService {
     constructor() {
     }
-    async sendSms(to, body) {
+    sendSms(to, body) {
         return console.log(`[Twilio] Sending SMS to ${to}: ${body}`);
     }
 };

@@ -55,13 +55,16 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
     }
     otpStore = new Map();
-    async sendOtp(dto) {
+    sendOtp(dto) {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         this.otpStore.set(dto.phone, otp);
         console.log(`OTP for ${dto.phone}: ${otp}`);
-        return { message: 'OTP sent successfully', otp: process.env.NODE_ENV === 'development' ? otp : undefined };
+        return {
+            message: 'OTP sent successfully',
+            otp: process.env.NODE_ENV === 'development' ? otp : undefined,
+        };
     }
-    async verifyOtp(dto) {
+    verifyOtp(dto) {
         const storedOtp = this.otpStore.get(dto.phone);
         if (!storedOtp || storedOtp !== dto.otp) {
             throw new common_1.BadRequestException('Invalid or expired OTP');
@@ -73,8 +76,8 @@ let AuthService = class AuthService {
         const user = await this.usersService.findOneByPhone(phone);
         if (!user)
             return null;
-        if (user.passwordHash && await bcrypt.compare(pass, user.passwordHash)) {
-            const { passwordHash, ...result } = user;
+        if (user.passwordHash && (await bcrypt.compare(pass, user.passwordHash))) {
+            const { passwordHash: _passwordHash, ...result } = user;
             return result;
         }
         return null;
@@ -96,15 +99,15 @@ let AuthService = class AuthService {
             passwordHash: hashedPassword,
             isActive: true,
         });
-        const tokens = await this.generateTokens(user);
-        const { passwordHash, ...result } = user;
+        const tokens = this.generateTokens(user);
+        const { passwordHash: _passwordHash, ...result } = user;
         return { user: result, ...tokens };
     }
-    async login(user) {
-        const tokens = await this.generateTokens(user);
+    login(user) {
+        const tokens = this.generateTokens(user);
         return { user, ...tokens };
     }
-    async generateTokens(user) {
+    generateTokens(user) {
         const payload = { sub: user.id, phone: user.phone, role: user.role };
         return {
             accessToken: this.jwtService.sign(payload, { expiresIn: '1h' }),
@@ -119,7 +122,7 @@ let AuthService = class AuthService {
                 throw new common_1.UnauthorizedException();
             return this.generateTokens(user);
         }
-        catch (e) {
+        catch (_e) {
             throw new common_1.UnauthorizedException('Invalid Refresh Token');
         }
     }

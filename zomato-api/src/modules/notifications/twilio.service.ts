@@ -3,17 +3,17 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class TwilioService {
-    // private client: Twilio;
+  // private client: Twilio;
 
-    constructor() {
-        // if (process.env.TWILIO_SID) this.client = new Twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
-    }
+  constructor() {
+    // if (process.env.TWILIO_SID) this.client = new Twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+  }
 
-    async sendSms(to: string, body: string) {
-        // if (process.env.NODE_ENV !== 'production') 
-        return console.log(`[Twilio] Sending SMS to ${to}: ${body}`);
+  sendSms(to: string, body: string) {
+    // if (process.env.NODE_ENV !== 'production')
+    return console.log(`[Twilio] Sending SMS to ${to}: ${body}`);
 
-        /*
+    /*
         try {
             await this.client.messages.create({
                 body,
@@ -24,5 +24,5 @@ export class TwilioService {
              console.error('Twilio Error:', error);
         }
         */
-    }
+  }
 }

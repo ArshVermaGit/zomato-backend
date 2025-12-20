@@ -20,7 +20,12 @@ exports.PaymentsModule = PaymentsModule;
 exports.PaymentsModule = PaymentsModule = __decorate([
     (0, common_1.Module)({
         controllers: [payments_controller_1.PaymentsController, refunds_controller_1.RefundsController],
-        providers: [payments_service_1.PaymentsService, razorpay_service_1.RazorpayService, payment_webhook_service_1.PaymentWebhookService, refunds_service_1.RefundsService],
+        providers: [
+            payments_service_1.PaymentsService,
+            razorpay_service_1.RazorpayService,
+            payment_webhook_service_1.PaymentWebhookService,
+            refunds_service_1.RefundsService,
+        ],
         exports: [payments_service_1.PaymentsService, refunds_service_1.RefundsService],
     })
 ], PaymentsModule);

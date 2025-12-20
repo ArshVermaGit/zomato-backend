@@ -7,12 +7,12 @@ export declare class DeliveryGateway implements OnGatewayConnection, OnGatewayDi
     private configService;
     server: Server;
     constructor(jwtService: JwtService, configService: ConfigService);
-    handleConnection(client: Socket): Socket<import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, any> | undefined;
-    handleDisconnect(client: Socket): void;
+    handleConnection(client: Socket): void;
+    handleDisconnect(_client: Socket): void;
     handleLocationUpdate(data: {
         lat: number;
         lng: number;
         orderId?: string;
-    }, client: Socket): void;
-    handleJoinRoom(orderId: string, client: Socket): void;
+    }, _client: Socket): void;
+    handleJoinRoom(orderId: string, client: Socket): Promise<void>;
 }

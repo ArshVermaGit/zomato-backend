@@ -26,7 +26,7 @@ exports.OrdersModule = OrdersModule = __decorate([
             notifications_module_1.NotificationsModule,
             payments_module_1.PaymentsModule,
             promos_module_1.PromosModule,
-            (0, common_1.forwardRef)(() => delivery_module_1.DeliveryModule)
+            (0, common_1.forwardRef)(() => delivery_module_1.DeliveryModule),
         ],
         controllers: [orders_controller_1.OrdersController],
         providers: [orders_service_1.OrdersService, order_state_service_1.OrderStateService],

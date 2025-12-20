@@ -37,10 +37,10 @@ export declare class DeliveryService {
         key: string;
     }>;
     updateDocumentStatus(userId: string, docTypeKey: string, url: string): Promise<{
-        type: import(".prisma/client").$Enums.DocumentType;
         id: string;
-        status: import(".prisma/client").$Enums.DocumentStatus;
+        type: import(".prisma/client").$Enums.DocumentType;
         deliveryPartnerId: string;
+        status: import(".prisma/client").$Enums.DocumentStatus;
         fileUrl: string;
         rejectionReason: string | null;
         uploadedAt: Date;

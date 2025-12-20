@@ -1,62 +1,83 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect, MessageBody, ConnectedSocket } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  MessageBody,
+  ConnectedSocket,
+} from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { WsAuthMiddleware } from './ws-auth.middleware';
 
 @WebSocketGateway({
-    cors: {
-        origin: '*',
-    },
-    namespace: 'orders'
+  cors: {
+    origin: '*',
+  },
+  namespace: 'orders',
 })
 export class OrdersGateway implements OnGatewayConnection, OnGatewayDisconnect {
-    @WebSocketServer()
-    server: Server;
+  @WebSocketServer()
+  server: Server;
 
-    constructor(
-        private jwtService: JwtService,
-        private configService: ConfigService
-    ) { }
+  constructor(
+    private jwtService: JwtService,
+    private configService: ConfigService,
+  ) {}
 
-    handleConnection(client: Socket) {
-        const auth = new WsAuthMiddleware(this.jwtService, this.configService);
-        const user = auth.validate(client);
+  handleConnection(client: Socket) {
+    const auth = new WsAuthMiddleware(this.jwtService, this.configService);
+    const user = auth.validate(client);
 
-        if (!user) {
-            client.disconnect();
-            return;
-        }
-
-        // Store user info in socket data
-        client.data.user = user;
-        console.log(`Client connected to Orders: ${client.id}, User: ${user.userId}`);
+    if (!user) {
+      client.disconnect();
+      return;
     }
 
-    handleDisconnect(client: Socket) {
-        console.log(`Client disconnected from Orders: ${client.id}`);
-    }
+    // Store user info in socket data
+    client.data.user = user;
+    console.log(
+      `Client connected to Orders: ${client.id}, User: ${user.userId as string}`,
+    );
+  }
 
-    @SubscribeMessage('join_order_room')
-    handleJoinRoom(@MessageBody('orderId') orderId: string, @ConnectedSocket() client: Socket) {
-        // Validation: Verify user belongs to this order (skipped for brevity, ideally check DB)
-        client.join(`order_${orderId}`);
-        console.log(`User ${client.data.user.userId} joined order_${orderId}`);
-        return { event: 'joined_room', data: { orderId } };
-    }
+  handleDisconnect(client: Socket) {
+    console.log(`Client disconnected from Orders: ${client.id}`);
+  }
 
-    @SubscribeMessage('leave_order_room')
-    handleLeaveRoom(@MessageBody('orderId') orderId: string, @ConnectedSocket() client: Socket) {
-        client.leave(`order_${orderId}`);
-        return { event: 'left_room', data: { orderId } };
-    }
+  @SubscribeMessage('join_order_room')
+  async handleJoinRoom(
+    @MessageBody('orderId') orderId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    // Validation: Verify user belongs to this order (skipped for brevity, ideally check DB)
+    await client.join(`order_${orderId}`);
+    const user = client.data.user as { userId: string };
+    console.log(`User ${user.userId} joined order_${orderId}`);
+    return { event: 'joined_room', data: { orderId } };
+  }
 
-    // Emitters (Called by Services)
-    emitOrderStatusUpdate(orderId: string, status: string, data?: any) {
-        this.server.to(`order_${orderId}`).emit('order.status_changed', { orderId, status, ...data });
-    }
+  @SubscribeMessage('leave_order_room')
+  async handleLeaveRoom(
+    @MessageBody('orderId') orderId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    await client.leave(`order_${orderId}`);
+    return { event: 'left_room', data: { orderId } };
+  }
 
-    emitOrderAssigned(orderId: string, partnerId: string) {
-        this.server.to(`order_${orderId}`).emit('order.assigned', { orderId, partnerId });
-    }
+  // Emitters (Called by Services)
+  emitOrderStatusUpdate(orderId: string, status: string, data?: any) {
+    this.server
+      .to(`order_${orderId}`)
+      .emit('order.status_changed', { orderId, status, ...data });
+  }
+
+  emitOrderAssigned(orderId: string, partnerId: string) {
+    this.server
+      .to(`order_${orderId}`)
+      .emit('order.assigned', { orderId, partnerId });
+  }
 }

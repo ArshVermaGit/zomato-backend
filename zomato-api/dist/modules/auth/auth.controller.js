@@ -25,22 +25,22 @@ let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
-    async sendOtp(dto) {
+    sendOtp(dto) {
         return this.authService.sendOtp(dto);
     }
-    async verifyOtp(dto) {
+    verifyOtp(dto) {
         return this.authService.verifyOtp(dto);
     }
     async signup(dto) {
         return this.authService.signup(dto);
     }
-    async login(req, loginDto) {
+    login(req, _loginDto) {
         return this.authService.login(req.user);
     }
     async refresh(dto) {
         return this.authService.refreshTokens(dto.refreshToken);
     }
-    async logout(req) {
+    logout(_req) {
         return { message: 'Logged out successfully' };
     }
 };
@@ -52,7 +52,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [auth_dto_1.SendOtpDto]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], AuthController.prototype, "sendOtp", null);
 __decorate([
     (0, common_1.UseGuards)(throttler_1.ThrottlerGuard),
@@ -61,7 +61,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [auth_dto_1.VerifyOtpDto]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], AuthController.prototype, "verifyOtp", null);
 __decorate([
     (0, common_1.Post)('signup'),
@@ -80,7 +80,7 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, auth_dto_1.LoginDto]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], AuthController.prototype, "login", null);
 __decorate([
     (0, common_1.Post)('refresh'),
@@ -98,7 +98,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], AuthController.prototype, "logout", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Auth'),

@@ -13,10 +13,10 @@ export declare class UsersService {
     create(data: Prisma.UserCreateInput): Promise<User>;
     update(id: string, data: Prisma.UserUpdateInput): Promise<User>;
     getProfile(userId: string): Promise<{
-        name: string;
-        email: string | null;
         id: string;
         phone: string;
+        email: string | null;
+        name: string;
         role: import(".prisma/client").$Enums.UserRole;
         avatar: string | null;
         isActive: boolean;
@@ -27,10 +27,10 @@ export declare class UsersService {
         fcmTokens: string[];
     }>;
     updateProfile(userId: string, dto: UpdateProfileDto): Promise<{
-        name: string;
-        email: string | null;
         id: string;
         phone: string;
+        email: string | null;
+        name: string;
         role: import(".prisma/client").$Enums.UserRole;
         avatar: string | null;
         isActive: boolean;
@@ -40,12 +40,12 @@ export declare class UsersService {
         updatedAt: Date;
         fcmTokens: string[];
     }>;
-    getAvatarUploadUrl(userId: string): Promise<void>;
+    getAvatarUploadUrl(userId: string): void;
     updateAvatar(userId: string, avatarUrl: string): Promise<{
-        name: string;
-        email: string | null;
         id: string;
         phone: string;
+        email: string | null;
+        name: string;
         role: import(".prisma/client").$Enums.UserRole;
         avatar: string | null;
         isActive: boolean;
@@ -59,13 +59,13 @@ export declare class UsersService {
     getAddresses(userId: string): Promise<Address[]>;
     updateAddress(userId: string, addressId: string, dto: UpdateAddressDto): Promise<Address>;
     deleteAddress(userId: string, addressId: string): Promise<{
-        label: string;
-        fullAddress: string;
-        landmark: string | null;
-        location: Prisma.JsonValue;
         id: string;
         createdAt: Date;
         userId: string;
+        label: string;
+        fullAddress: string;
+        location: Prisma.JsonValue;
+        landmark: string | null;
         isDefault: boolean;
     }>;
     setDefaultAddress(userId: string, addressId: string): Promise<{

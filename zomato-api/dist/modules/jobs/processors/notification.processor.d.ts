@@ -4,6 +4,6 @@ export declare class NotificationJobsProcessor {
     private notificationsService;
     private readonly logger;
     constructor(notificationsService: NotificationsService);
-    sendDailySummary(job: Job): Promise<void>;
-    retryFailed(job: Job): Promise<void>;
+    sendDailySummary(_job: Job): void;
+    retryFailed(_job: Job): void;
 }

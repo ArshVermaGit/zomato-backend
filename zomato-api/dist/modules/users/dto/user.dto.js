@@ -57,7 +57,11 @@ __decorate([
     __metadata("design:type", String)
 ], CreateAddressDto.prototype, "landmark", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: { lat: 28.6304, lng: 77.2177 }, required: false, description: 'Will be auto-filled if not provided' }),
+    (0, swagger_1.ApiProperty)({
+        example: { lat: 28.6304, lng: 77.2177 },
+        required: false,
+        description: 'Will be auto-filled if not provided',
+    }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Object)
 ], CreateAddressDto.prototype, "location", void 0);

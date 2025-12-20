@@ -5,9 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 
 @Global()
 @Module({
-    imports: [ConfigModule],
-    controllers: [SearchController],
-    providers: [SearchService],
-    exports: [SearchService],
+  imports: [ConfigModule],
+  controllers: [SearchController],
+  providers: [SearchService],
+  exports: [SearchService],
 })
-export class SearchModule { }
+export class SearchModule {}

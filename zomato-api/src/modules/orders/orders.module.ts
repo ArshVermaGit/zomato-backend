@@ -9,15 +9,15 @@ import { PromosModule } from '../promos/promos.module';
 import { DeliveryModule } from '../delivery/delivery.module';
 
 @Module({
-    imports: [
-        WebsocketsModule,
-        NotificationsModule,
-        PaymentsModule,
-        PromosModule,
-        forwardRef(() => DeliveryModule)
-    ],
-    controllers: [OrdersController],
-    providers: [OrdersService, OrderStateService],
-    exports: [OrdersService, OrderStateService],
+  imports: [
+    WebsocketsModule,
+    NotificationsModule,
+    PaymentsModule,
+    PromosModule,
+    forwardRef(() => DeliveryModule),
+  ],
+  controllers: [OrdersController],
+  providers: [OrdersService, OrderStateService],
+  exports: [OrdersService, OrderStateService],
 })
-export class OrdersModule { }
+export class OrdersModule {}

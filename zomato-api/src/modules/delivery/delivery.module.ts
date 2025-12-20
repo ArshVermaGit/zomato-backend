@@ -8,9 +8,9 @@ import { OrdersModule } from '../orders/orders.module';
 import { forwardRef } from '@nestjs/common';
 
 @Module({
-    imports: [DatabaseModule, LocationModule, forwardRef(() => OrdersModule)],
-    controllers: [DeliveryController],
-    providers: [DeliveryService, EarningsService],
-    exports: [DeliveryService, EarningsService],
+  imports: [DatabaseModule, LocationModule, forwardRef(() => OrdersModule)],
+  controllers: [DeliveryController],
+  providers: [DeliveryService, EarningsService],
+  exports: [DeliveryService, EarningsService],
 })
-export class DeliveryModule { }
+export class DeliveryModule {}

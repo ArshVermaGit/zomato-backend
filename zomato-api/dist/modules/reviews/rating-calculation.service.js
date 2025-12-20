@@ -26,7 +26,7 @@ let RatingCalculationService = class RatingCalculationService {
     async updateRestaurantRating(restaurantId) {
         const reviews = await this.prisma.review.findMany({
             where: { restaurantId },
-            select: { rating: true, createdAt: true }
+            select: { rating: true, createdAt: true },
         });
         if (reviews.length === 0)
             return;
@@ -39,25 +39,36 @@ let RatingCalculationService = class RatingCalculationService {
             totalWeightedRating += review.rating * weight;
             totalWeight += weight;
         }
-        const newRating = totalWeight > 0 ? Number((totalWeightedRating / totalWeight).toFixed(1)) : 0;
+        const newRating = totalWeight > 0
+            ? Number((totalWeightedRating / totalWeight).toFixed(1))
+            : 0;
         await this.prisma.restaurant.update({
             where: { id: restaurantId },
             data: {
                 rating: newRating,
-                totalRatings: reviews.length
-            }
+                totalRatings: reviews.length,
+            },
         });
-        await this.searchService.indexRestaurant({ id: restaurantId, rating: newRating });
-        this.realtimeGateway.server.to('role:CUSTOMER').emit('restaurant:rating_updated', {
+        await this.searchService.indexRestaurant({
+            id: restaurantId,
+            rating: newRating,
+        });
+        this.realtimeGateway.server
+            .to('role:CUSTOMER')
+            .emit('restaurant:rating_updated', {
             restaurantId,
             rating: newRating,
-            totalRatings: reviews.length
+            totalRatings: reviews.length,
         });
     }
     async updateDeliveryPartnerRating(partnerId) {
         const orders = await this.prisma.order.findMany({
-            where: { deliveryPartnerId: partnerId, status: 'DELIVERED', review: { isNot: null } },
-            include: { review: true }
+            where: {
+                deliveryPartnerId: partnerId,
+                status: 'DELIVERED',
+                review: { isNot: null },
+            },
+            include: { review: true },
         });
         if (orders.length === 0)
             return;
@@ -73,8 +84,8 @@ let RatingCalculationService = class RatingCalculationService {
         await this.prisma.deliveryPartner.update({
             where: { id: partnerId },
             data: {
-                rating: Number(newRating.toFixed(1))
-            }
+                rating: Number(newRating.toFixed(1)),
+            },
         });
     }
 };

@@ -1,15 +1,15 @@
 import { RestaurantsService } from './restaurants.service';
-import { CreateRestaurantDto, UpdateRestaurantDto, RestaurantFilterDto, SearchRestaurantDto, NearbyRestaurantDto } from './dto/restaurant.dto';
+import { CreateRestaurantDto, UpdateRestaurantDto, RestaurantFilterDto, NearbyRestaurantDto } from './dto/restaurant.dto';
 export declare class RestaurantsController {
     private restaurantsService;
     constructor(restaurantsService: RestaurantsService);
     create(dto: CreateRestaurantDto, req: any): Promise<{
         partner: {
             user: {
-                name: string;
-                email: string | null;
                 id: string;
                 phone: string;
+                email: string | null;
+                name: string;
                 role: import(".prisma/client").$Enums.UserRole;
                 avatar: string | null;
                 isActive: boolean;
@@ -24,18 +24,18 @@ export declare class RestaurantsController {
             userId: string;
         };
     } & {
-        name: string;
-        description: string | null;
-        email: string;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         phone: string;
+        email: string;
+        name: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        location: import("@prisma/client/runtime/library").JsonValue;
         rating: import("@prisma/client/runtime/library").Decimal;
         deliveryFee: import("@prisma/client/runtime/library").Decimal;
         images: string[];
+        description: string | null;
         cuisineTypes: string[];
         isOpen: boolean;
         totalRatings: number;
@@ -48,10 +48,10 @@ export declare class RestaurantsController {
     approve(id: string, req: any): Promise<{
         partner: {
             user: {
-                name: string;
-                email: string | null;
                 id: string;
                 phone: string;
+                email: string | null;
+                name: string;
                 role: import(".prisma/client").$Enums.UserRole;
                 avatar: string | null;
                 isActive: boolean;
@@ -66,18 +66,18 @@ export declare class RestaurantsController {
             userId: string;
         };
     } & {
-        name: string;
-        description: string | null;
-        email: string;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         phone: string;
+        email: string;
+        name: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        location: import("@prisma/client/runtime/library").JsonValue;
         rating: import("@prisma/client/runtime/library").Decimal;
         deliveryFee: import("@prisma/client/runtime/library").Decimal;
         images: string[];
+        description: string | null;
         cuisineTypes: string[];
         isOpen: boolean;
         totalRatings: number;
@@ -88,18 +88,18 @@ export declare class RestaurantsController {
         partnerId: string;
     }>;
     getMyRestaurants(req: any): Promise<{
-        name: string;
-        description: string | null;
-        email: string;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         phone: string;
+        email: string;
+        name: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        location: import("@prisma/client/runtime/library").JsonValue;
         rating: import("@prisma/client/runtime/library").Decimal;
         deliveryFee: import("@prisma/client/runtime/library").Decimal;
         images: string[];
+        description: string | null;
         cuisineTypes: string[];
         isOpen: boolean;
         totalRatings: number;
@@ -114,27 +114,27 @@ export declare class RestaurantsController {
         totalRevenue: number | import("@prisma/client/runtime/library").Decimal;
         averageRating: number;
     }>;
-    getAnalytics(req: any, restaurantId: string, range: string): Promise<{
+    getAnalytics(req: any, restaurantId: string, range: string): {
         range: string;
         data: {
             date: string;
             orders: number;
             revenue: number;
         }[];
-    }>;
+    };
     update(id: string, dto: UpdateRestaurantDto): Promise<{
-        name: string;
-        description: string | null;
-        email: string;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         phone: string;
+        email: string;
+        name: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        location: import("@prisma/client/runtime/library").JsonValue;
         rating: import("@prisma/client/runtime/library").Decimal;
         deliveryFee: import("@prisma/client/runtime/library").Decimal;
         images: string[];
+        description: string | null;
         cuisineTypes: string[];
         isOpen: boolean;
         totalRatings: number;
@@ -145,18 +145,18 @@ export declare class RestaurantsController {
         partnerId: string;
     }>;
     search(dto: SearchRestaurantDto): Promise<{
-        name: string;
-        description: string | null;
-        email: string;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         phone: string;
+        email: string;
+        name: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        location: import("@prisma/client/runtime/library").JsonValue;
         rating: import("@prisma/client/runtime/library").Decimal;
         deliveryFee: import("@prisma/client/runtime/library").Decimal;
         images: string[];
+        description: string | null;
         cuisineTypes: string[];
         isOpen: boolean;
         totalRatings: number;
@@ -170,26 +170,26 @@ export declare class RestaurantsController {
     findAll(filter: RestaurantFilterDto): Promise<{
         items: ({
             menuCategories: {
-                name: string;
-                description: string | null;
                 id: string;
+                name: string;
                 isActive: boolean;
                 restaurantId: string;
+                description: string | null;
                 displayOrder: number;
             }[];
         } & {
-            name: string;
-            description: string | null;
-            email: string;
-            location: import("@prisma/client/runtime/library").JsonValue;
             id: string;
             phone: string;
+            email: string;
+            name: string;
             isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
+            location: import("@prisma/client/runtime/library").JsonValue;
             rating: import("@prisma/client/runtime/library").Decimal;
             deliveryFee: import("@prisma/client/runtime/library").Decimal;
             images: string[];
+            description: string | null;
             cuisineTypes: string[];
             isOpen: boolean;
             totalRatings: number;
@@ -208,7 +208,6 @@ export declare class RestaurantsController {
     }>;
     findOne(id: string): Promise<{
         reviews: {
-            tags: string[];
             id: string;
             createdAt: Date;
             userId: string;
@@ -217,6 +216,7 @@ export declare class RestaurantsController {
             deliveryRating: number | null;
             comment: string | null;
             images: string[];
+            tags: string[];
             response: string | null;
             respondedAt: Date | null;
             helpfulCount: number;
@@ -225,37 +225,37 @@ export declare class RestaurantsController {
         }[];
         menuCategories: ({
             items: {
-                name: string;
-                description: string;
                 id: string;
+                name: string;
                 isAvailable: boolean;
                 images: string[];
+                description: string;
                 price: import("@prisma/client/runtime/library").Decimal;
                 isVeg: boolean;
-                categoryId: string;
                 isBestseller: boolean;
+                categoryId: string;
             }[];
         } & {
-            name: string;
-            description: string | null;
             id: string;
+            name: string;
             isActive: boolean;
             restaurantId: string;
+            description: string | null;
             displayOrder: number;
         })[];
     } & {
-        name: string;
-        description: string | null;
-        email: string;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         phone: string;
+        email: string;
+        name: string;
         isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
+        location: import("@prisma/client/runtime/library").JsonValue;
         rating: import("@prisma/client/runtime/library").Decimal;
         deliveryFee: import("@prisma/client/runtime/library").Decimal;
         images: string[];
+        description: string | null;
         cuisineTypes: string[];
         isOpen: boolean;
         totalRatings: number;
@@ -267,22 +267,22 @@ export declare class RestaurantsController {
     }>;
     getMenu(id: string): Promise<({
         items: {
-            name: string;
-            description: string;
             id: string;
+            name: string;
             isAvailable: boolean;
             images: string[];
+            description: string;
             price: import("@prisma/client/runtime/library").Decimal;
             isVeg: boolean;
-            categoryId: string;
             isBestseller: boolean;
+            categoryId: string;
         }[];
     } & {
-        name: string;
-        description: string | null;
         id: string;
+        name: string;
         isActive: boolean;
         restaurantId: string;
+        description: string | null;
         displayOrder: number;
     })[]>;
 }

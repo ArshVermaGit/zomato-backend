@@ -14,7 +14,7 @@ const common_1 = require("@nestjs/common");
 let SendGridService = class SendGridService {
     constructor() {
     }
-    async sendEmail(to, subject, text, html) {
+    sendEmail(to, subject, _text, _html) {
         return console.log(`[SendGrid] Sending Email to ${to}: ${subject}`);
     }
 };

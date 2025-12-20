@@ -7,9 +7,9 @@ import { SearchModule } from '../search/search.module';
 import { WebsocketsModule } from '../websockets/websockets.module';
 
 @Module({
-    imports: [DatabaseModule, SearchModule, WebsocketsModule],
-    controllers: [ReviewsController],
-    providers: [ReviewsService, RatingCalculationService],
-    exports: [ReviewsService],
+  imports: [DatabaseModule, SearchModule, WebsocketsModule],
+  controllers: [ReviewsController],
+  providers: [ReviewsService, RatingCalculationService],
+  exports: [ReviewsService],
 })
-export class ReviewsModule { }
+export class ReviewsModule {}

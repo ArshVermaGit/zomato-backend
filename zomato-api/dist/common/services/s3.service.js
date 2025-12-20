@@ -31,7 +31,10 @@ let S3Service = class S3Service {
                 secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY') || '',
             },
         });
-        this.bucketName = this.configService.get('AWS_S3_BUCKET_NAME') || this.configService.get('AWS_S3_BUCKET') || '';
+        this.bucketName =
+            this.configService.get('AWS_S3_BUCKET_NAME') ||
+                this.configService.get('AWS_S3_BUCKET') ||
+                '';
     }
     async uploadFile(file, path) {
         let buffer = file.buffer;
@@ -75,7 +78,7 @@ let S3Service = class S3Service {
         return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION')}.amazonaws.com/${key}`;
     }
     async uploadMultipleFiles(files, path) {
-        const uploadPromises = files.map(file => this.uploadFile(file, path));
+        const uploadPromises = files.map((file) => this.uploadFile(file, path));
         return Promise.all(uploadPromises);
     }
     async deleteFile(fileUrl) {

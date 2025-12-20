@@ -32,23 +32,27 @@ let ChatGateway = class ChatGateway {
         if (!user)
             return client.disconnect();
         client.data.user = user;
+        console.log(`Client connected to Chat: ${client.id}, User: ${user.userId}`);
     }
-    handleDisconnect(client) { }
-    handleJoinRoom(roomId, client) {
-        client.join(roomId);
+    handleDisconnect(_client) { }
+    async handleJoinRoom(roomId, client) {
+        await client.join(roomId);
     }
-    handleMessage(data, client) {
+    handleMessage(data, _client) {
+        const user = _client.data.user;
         this.server.to(data.roomId).emit('message.received', {
-            senderId: client.data.user.userId,
+            senderId: user.userId,
             message: data.message,
-            timestamp: new Date()
+            timestamp: new Date(),
         });
     }
-    handleTypingStart(data, client) {
-        client.to(data.roomId).emit('typing.start', { userId: client.data.user.userId });
+    handleTypingStart(data, _client) {
+        const user = _client.data.user;
+        this.server.to(data.roomId).emit('typing.start', { userId: user.userId });
     }
-    handleTypingStop(data, client) {
-        client.to(data.roomId).emit('typing.stop', { userId: client.data.user.userId });
+    handleTypingStop(data, _client) {
+        const user = _client.data.user;
+        this.server.to(data.roomId).emit('typing.stop', { userId: user.userId });
     }
 };
 exports.ChatGateway = ChatGateway;
@@ -62,7 +66,7 @@ __decorate([
     __param(1, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, socket_io_1.Socket]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], ChatGateway.prototype, "handleJoinRoom", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('message.send'),
@@ -91,7 +95,7 @@ __decorate([
 exports.ChatGateway = ChatGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: { origin: '*' },
-        namespace: 'chat'
+        namespace: 'chat',
     }),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         config_1.ConfigService])

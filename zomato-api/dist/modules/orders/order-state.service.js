@@ -20,7 +20,7 @@ let OrderStateService = class OrderStateService {
     }
     async transition(orderId, toStatus, userId, role, reason, deliveryPartnerId) {
         const order = await this.prisma.order.findUnique({
-            where: { id: orderId }
+            where: { id: orderId },
         });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
@@ -56,16 +56,18 @@ let OrderStateService = class OrderStateService {
         }
         return this.prisma.order.update({
             where: { id: orderId },
-            data
+            data,
         });
     }
     async assignPartner(orderId, deliveryPartnerId) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { id: deliveryPartnerId } });
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { id: deliveryPartnerId },
+        });
         if (!partner)
             throw new common_1.NotFoundException('Delivery Partner not found');
         return this.prisma.order.update({
             where: { id: orderId },
-            data: { deliveryPartnerId }
+            data: { deliveryPartnerId },
         });
     }
     authorizeTransition(role, toStatus, order, userId) {
@@ -73,11 +75,16 @@ let OrderStateService = class OrderStateService {
             return;
         switch (role) {
             case client_1.UserRole.RESTAURANT_PARTNER:
-                if ([client_1.OrderStatus.ACCEPTED, client_1.OrderStatus.PREPARING, client_1.OrderStatus.READY].includes(toStatus)) {
+                if ([
+                    client_1.OrderStatus.ACCEPTED,
+                    client_1.OrderStatus.PREPARING,
+                    client_1.OrderStatus.READY,
+                ].includes(toStatus)) {
                     return;
                 }
                 if (toStatus === client_1.OrderStatus.CANCELLED) {
-                    if (order.status === client_1.OrderStatus.PICKED_UP || order.status === client_1.OrderStatus.DELIVERED) {
+                    if (order.status === client_1.OrderStatus.PICKED_UP ||
+                        order.status === client_1.OrderStatus.DELIVERED) {
                         throw new common_1.ForbiddenException('Cannot cancel after pickup');
                     }
                     return;
@@ -85,14 +92,16 @@ let OrderStateService = class OrderStateService {
                 break;
             case client_1.UserRole.DELIVERY_PARTNER:
                 if ([client_1.OrderStatus.PICKED_UP, client_1.OrderStatus.DELIVERED].includes(toStatus)) {
-                    if (order.deliveryPartnerId !== userId && order.deliveryPartnerId !== null) {
+                    if (order.deliveryPartnerId !== userId &&
+                        order.deliveryPartnerId !== null) {
                     }
                     return;
                 }
                 break;
             case client_1.UserRole.CUSTOMER:
                 if (toStatus === client_1.OrderStatus.CANCELLED) {
-                    if (order.status !== client_1.OrderStatus.PENDING && order.status !== client_1.OrderStatus.ACCEPTED) {
+                    if (order.status !== client_1.OrderStatus.PENDING &&
+                        order.status !== client_1.OrderStatus.ACCEPTED) {
                         throw new common_1.ForbiddenException('Cannot cancel after preparation started');
                     }
                     if (order.customerId !== userId)
@@ -106,7 +115,8 @@ let OrderStateService = class OrderStateService {
     validateTransition(current, next) {
         if (current === next)
             return;
-        if (current === client_1.OrderStatus.CANCELLED || current === client_1.OrderStatus.DELIVERED) {
+        if (current === client_1.OrderStatus.CANCELLED ||
+            current === client_1.OrderStatus.DELIVERED) {
             throw new common_1.BadRequestException(`Order is already ${current}`);
         }
         const map = {
@@ -114,8 +124,11 @@ let OrderStateService = class OrderStateService {
             [client_1.OrderStatus.ACCEPTED]: [client_1.OrderStatus.PREPARING, client_1.OrderStatus.CANCELLED],
             [client_1.OrderStatus.PREPARING]: [client_1.OrderStatus.READY, client_1.OrderStatus.CANCELLED],
             [client_1.OrderStatus.READY]: [client_1.OrderStatus.PICKED_UP, client_1.OrderStatus.CANCELLED],
-            [client_1.OrderStatus.PICKED_UP]: [client_1.OrderStatus.OUT_FOR_DELIVERY, client_1.OrderStatus.DELIVERED],
-            [client_1.OrderStatus.OUT_FOR_DELIVERY]: [client_1.OrderStatus.DELIVERED]
+            [client_1.OrderStatus.PICKED_UP]: [
+                client_1.OrderStatus.OUT_FOR_DELIVERY,
+                client_1.OrderStatus.DELIVERED,
+            ],
+            [client_1.OrderStatus.OUT_FOR_DELIVERY]: [client_1.OrderStatus.DELIVERED],
         };
         const allowed = map[current] || [];
         if (!allowed.includes(next)) {

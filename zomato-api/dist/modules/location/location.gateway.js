@@ -44,7 +44,7 @@ let LocationGateway = class LocationGateway {
                 driverId,
                 lat: data.lat,
                 lng: data.lng,
-                timestamp: Date.now()
+                timestamp: Date.now(),
             });
         }
     }
@@ -77,7 +77,7 @@ __decorate([
 exports.LocationGateway = LocationGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: { origin: '*' },
-        namespace: 'location'
+        namespace: 'location',
     }),
     __metadata("design:paramtypes", [location_service_1.LocationService,
         jwt_1.JwtService,

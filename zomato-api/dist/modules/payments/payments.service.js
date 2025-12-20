@@ -73,11 +73,13 @@ let PaymentsService = class PaymentsService {
             amount: razorpayOrder.amount,
             currency: razorpayOrder.currency,
             status: 'PENDING',
-            key: process.env.RAZORPAY_KEY_ID
+            key: process.env.RAZORPAY_KEY_ID,
         };
     }
     async createPaymentOrder(userId, orderId) {
-        const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+        const order = await this.prisma.order.findUnique({
+            where: { id: orderId },
+        });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
         if (order.customerId !== userId)
@@ -86,7 +88,7 @@ let PaymentsService = class PaymentsService {
             amount: Number(order.totalAmount),
             method: 'ONLINE',
             orderId: order.id,
-            customerId: userId
+            customerId: userId,
         });
     }
     async createAdHocPayment(userId, amount, purpose) {
@@ -97,14 +99,14 @@ let PaymentsService = class PaymentsService {
                 method: client_1.PaymentMethod.UPI,
                 status: client_1.PaymentStatus.PENDING,
                 gatewayTransactionId: razorpayOrder.id,
-                gatewayResponse: { ...razorpayOrder, purpose, userId }
-            }
+                gatewayResponse: { ...razorpayOrder, purpose, userId },
+            },
         });
         return {
             id: razorpayOrder.id,
             amount: razorpayOrder.amount,
             currency: razorpayOrder.currency,
-            key: process.env.RAZORPAY_KEY_ID
+            key: process.env.RAZORPAY_KEY_ID,
         };
     }
     async verifyPayment(orderId, paymentId, razorpayOrderId, signature) {
@@ -119,20 +121,20 @@ let PaymentsService = class PaymentsService {
             throw new common_1.BadRequestException('Invalid Payment Signature');
         }
         const transaction = await this.prisma.paymentTransaction.findFirst({
-            where: { gatewayTransactionId: razorpayOrderId }
+            where: { gatewayTransactionId: razorpayOrderId },
         });
         if (transaction) {
             await this.prisma.paymentTransaction.update({
                 where: { id: transaction.id },
                 data: {
                     status: client_1.PaymentStatus.COMPLETED,
-                    gatewayResponse: { razorpayPaymentId: paymentId, signature }
-                }
+                    gatewayResponse: { razorpayPaymentId: paymentId, signature },
+                },
             });
             if (transaction.orderId) {
                 await this.prisma.order.update({
                     where: { id: transaction.orderId },
-                    data: { paymentStatus: 'COMPLETED' }
+                    data: { paymentStatus: 'COMPLETED' },
                 });
             }
         }
@@ -169,7 +171,7 @@ let PaymentsService = class PaymentsService {
             },
         });
         const transaction = await this.prisma.paymentTransaction.findFirst({
-            where: { gatewayTransactionId: gatewayOrderId }
+            where: { gatewayTransactionId: gatewayOrderId },
         });
         if (transaction && transaction.orderId) {
             await this.prisma.order.update({
@@ -188,7 +190,7 @@ let PaymentsService = class PaymentsService {
             },
         });
         const transaction = await this.prisma.paymentTransaction.findFirst({
-            where: { gatewayTransactionId: gatewayOrderId }
+            where: { gatewayTransactionId: gatewayOrderId },
         });
         if (transaction && transaction.orderId) {
             await this.prisma.order.update({

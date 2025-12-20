@@ -4,10 +4,10 @@ export declare class UsersController {
     private usersService;
     constructor(usersService: UsersService);
     getProfile(req: any): Promise<{
-        name: string;
-        email: string | null;
         id: string;
         phone: string;
+        email: string | null;
+        name: string;
         role: import(".prisma/client").$Enums.UserRole;
         avatar: string | null;
         isActive: boolean;
@@ -18,10 +18,10 @@ export declare class UsersController {
         fcmTokens: string[];
     }>;
     updateProfile(req: any, dto: UpdateProfileDto): Promise<{
-        name: string;
-        email: string | null;
         id: string;
         phone: string;
+        email: string | null;
+        name: string;
         role: import(".prisma/client").$Enums.UserRole;
         avatar: string | null;
         isActive: boolean;
@@ -31,12 +31,12 @@ export declare class UsersController {
         updatedAt: Date;
         fcmTokens: string[];
     }>;
-    getAvatarUploadUrl(req: any): Promise<void>;
+    getAvatarUploadUrl(req: any): void;
     updateAvatar(req: any, avatarUrl: string): Promise<{
-        name: string;
-        email: string | null;
         id: string;
         phone: string;
+        email: string | null;
+        name: string;
         role: import(".prisma/client").$Enums.UserRole;
         avatar: string | null;
         isActive: boolean;
@@ -47,53 +47,53 @@ export declare class UsersController {
         fcmTokens: string[];
     }>;
     getAddresses(req: any): Promise<{
-        label: string;
-        fullAddress: string;
-        landmark: string | null;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         createdAt: Date;
         userId: string;
+        label: string;
+        fullAddress: string;
+        location: import("@prisma/client/runtime/library").JsonValue;
+        landmark: string | null;
         isDefault: boolean;
     }[]>;
     createAddress(req: any, dto: CreateAddressDto): Promise<{
-        label: string;
-        fullAddress: string;
-        landmark: string | null;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         createdAt: Date;
         userId: string;
+        label: string;
+        fullAddress: string;
+        location: import("@prisma/client/runtime/library").JsonValue;
+        landmark: string | null;
         isDefault: boolean;
     }>;
     updateAddress(req: any, id: string, dto: UpdateAddressDto): Promise<{
-        label: string;
-        fullAddress: string;
-        landmark: string | null;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         createdAt: Date;
         userId: string;
+        label: string;
+        fullAddress: string;
+        location: import("@prisma/client/runtime/library").JsonValue;
+        landmark: string | null;
         isDefault: boolean;
     }>;
     deleteAddress(req: any, id: string): Promise<{
-        label: string;
-        fullAddress: string;
-        landmark: string | null;
-        location: import("@prisma/client/runtime/library").JsonValue;
         id: string;
         createdAt: Date;
         userId: string;
+        label: string;
+        fullAddress: string;
+        location: import("@prisma/client/runtime/library").JsonValue;
+        landmark: string | null;
         isDefault: boolean;
     }>;
     setDefaultAddress(req: any, id: string): Promise<{
         message: string;
     }>;
     deactivateAccount(req: any): Promise<{
-        name: string;
-        email: string | null;
         id: string;
         phone: string;
+        email: string | null;
+        name: string;
         role: import(".prisma/client").$Enums.UserRole;
         avatar: string | null;
         isActive: boolean;

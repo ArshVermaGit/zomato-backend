@@ -38,7 +38,7 @@ let MapsService = class MapsService {
     async getETA(origin, destination) {
         return this.eta.calculateETA(origin, destination);
     }
-    async getNearbyRestaurants(lat, lng, radius = 5000) {
+    getNearbyRestaurants(_lat, _lng, _radius = 5000) {
         return [];
     }
 };

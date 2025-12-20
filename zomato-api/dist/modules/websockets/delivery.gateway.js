@@ -29,22 +29,28 @@ let DeliveryGateway = class DeliveryGateway {
     handleConnection(client) {
         const auth = new ws_auth_middleware_1.WsAuthMiddleware(this.jwtService, this.configService);
         const user = auth.validate(client);
-        if (!user)
-            return client.disconnect();
+        if (!user) {
+            client.disconnect();
+            return;
+        }
         client.data.user = user;
+        console.log(`Client connected to Delivery: ${client.id}, User: ${user.userId}`);
     }
-    handleDisconnect(client) { }
-    handleLocationUpdate(data, client) {
+    handleDisconnect(_client) { }
+    handleLocationUpdate(data, _client) {
+        const user = _client.data.user;
         if (data.orderId) {
-            this.server.to(`tracking_${data.orderId}`).emit('delivery.location_update', {
-                partnerId: client.data.user.userId,
+            this.server
+                .to(`tracking_${data.orderId}`)
+                .emit('delivery.location_update', {
+                partnerId: user.userId,
                 lat: data.lat,
-                lng: data.lng
+                lng: data.lng,
             });
         }
     }
-    handleJoinRoom(orderId, client) {
-        client.join(`tracking_${orderId}`);
+    async handleJoinRoom(orderId, client) {
+        await client.join(`tracking_${orderId}`);
     }
 };
 exports.DeliveryGateway = DeliveryGateway;
@@ -66,12 +72,12 @@ __decorate([
     __param(1, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, socket_io_1.Socket]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], DeliveryGateway.prototype, "handleJoinRoom", null);
 exports.DeliveryGateway = DeliveryGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: { origin: '*' },
-        namespace: 'delivery'
+        namespace: 'delivery',
     }),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         config_1.ConfigService])

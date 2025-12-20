@@ -7,14 +7,9 @@ import { ETAService } from './eta.service';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-    imports: [ConfigModule],
-    controllers: [MapsController],
-    providers: [
-        MapsService,
-        GeocodingService,
-        RoutingService,
-        ETAService
-    ],
-    exports: [MapsService, ETAService]
+  imports: [ConfigModule],
+  controllers: [MapsController],
+  providers: [MapsService, GeocodingService, RoutingService, ETAService],
+  exports: [MapsService, ETAService],
 })
-export class MapsModule { }
+export class MapsModule {}

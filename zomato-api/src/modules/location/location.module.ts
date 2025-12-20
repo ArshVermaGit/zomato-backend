@@ -5,15 +5,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
-    imports: [
-        JwtModule.registerAsync({
-            useFactory: async (configService: ConfigService) => ({
-                secret: configService.get<string>('JWT_SECRET'),
-            }),
-            inject: [ConfigService],
-        }),
-    ],
-    providers: [LocationService, LocationGateway],
-    exports: [LocationService]
+  imports: [
+    JwtModule.registerAsync({
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  providers: [LocationService, LocationGateway],
+  exports: [LocationService],
 })
-export class LocationModule { }
+export class LocationModule {}

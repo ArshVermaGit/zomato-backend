@@ -9,14 +9,14 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class NotificationsController {
-    constructor(private readonly notificationsService: NotificationsService) { }
+  constructor(private readonly notificationsService: NotificationsService) {}
 
-    @Post('register-token')
-    @ApiOperation({ summary: 'Register FCM token for push notifications' })
-    async registerToken(@Req() req: Request, @Body() body: { token: string }) {
-        // @ts-ignore
-        const userId = req.user.userId;
-        await this.notificationsService.registerFCMToken(userId, body.token);
-        return { success: true };
-    }
+  @Post('register-token')
+  @ApiOperation({ summary: 'Register FCM token for push notifications' })
+  async registerToken(@Req() req: Request, @Body() body: { token: string }) {
+    // @ts-expect-error: req.user is populated by JwtAuthGuard
+    const userId = req.user.userId;
+    await this.notificationsService.registerFCMToken(userId, body.token);
+    return { success: true };
+  }
 }

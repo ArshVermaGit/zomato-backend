@@ -26,7 +26,7 @@ let ReviewsService = class ReviewsService {
     async createReview(userId, dto) {
         const order = await this.prisma.order.findUnique({
             where: { id: dto.orderId },
-            include: { review: true, restaurant: true }
+            include: { review: true, restaurant: true },
         });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
@@ -45,9 +45,9 @@ let ReviewsService = class ReviewsService {
                 deliveryRating: dto.deliveryRating,
                 comment: dto.comment,
                 tags: dto.tags || [],
-                images: dto.images || []
+                images: dto.images || [],
             },
-            include: { user: { select: { name: true, avatar: true } } }
+            include: { user: { select: { name: true, avatar: true } } },
         });
         this.ratingService.updateRestaurantRating(order.restaurantId);
         if (order.deliveryPartnerId && dto.deliveryRating) {
@@ -58,7 +58,7 @@ let ReviewsService = class ReviewsService {
             rating: review.rating,
             comment: review.comment,
             customerName: review.user.name,
-            createdAt: review.createdAt
+            createdAt: review.createdAt,
         });
         return review;
     }
@@ -66,29 +66,35 @@ let ReviewsService = class ReviewsService {
         return this.prisma.review.findMany({
             where: { restaurantId, isReported: false },
             orderBy: { createdAt: 'desc' },
-            include: { user: { select: { id: true, name: true, avatar: true } } }
+            include: { user: { select: { id: true, name: true, avatar: true } } },
         });
     }
     async markHelpful(reviewId) {
         return this.prisma.review.update({
             where: { id: reviewId },
-            data: { helpfulCount: { increment: 1 } }
+            data: { helpfulCount: { increment: 1 } },
         });
     }
     async reportReview(reviewId) {
         return this.prisma.review.update({
             where: { id: reviewId },
-            data: { isReported: true }
+            data: { isReported: true },
         });
     }
     async respondToReview(userId, reviewId, response) {
-        const review = await this.prisma.review.findUnique({ where: { id: reviewId } });
+        const review = await this.prisma.review.findUnique({
+            where: { id: reviewId },
+        });
         if (!review)
             throw new common_1.NotFoundException('Review not found');
-        const restaurant = await this.prisma.restaurant.findUnique({ where: { id: review.restaurantId } });
+        const restaurant = await this.prisma.restaurant.findUnique({
+            where: { id: review.restaurantId },
+        });
         if (!restaurant)
             throw new common_1.NotFoundException('Restaurant not found');
-        const partner = await this.prisma.restaurantPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.restaurantPartner.findUnique({
+            where: { userId },
+        });
         if (!partner || partner.id !== restaurant.partnerId) {
             throw new common_1.BadRequestException('Not authorized to respond to this review');
         }
@@ -96,8 +102,8 @@ let ReviewsService = class ReviewsService {
             where: { id: reviewId },
             data: {
                 response,
-                respondedAt: new Date()
-            }
+                respondedAt: new Date(),
+            },
         });
     }
 };

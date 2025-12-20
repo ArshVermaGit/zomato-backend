@@ -24,7 +24,7 @@ let ETAService = class ETAService {
         return {
             etaSeconds: totalSeconds,
             etaMinutes: Math.round(totalSeconds / 60),
-            distanceMeters: distance
+            distanceMeters: distance,
         };
     }
 };

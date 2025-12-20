@@ -24,10 +24,14 @@ let MenuService = class MenuService {
         this.realtimeGateway = realtimeGateway;
     }
     async checkOwnership(userId, restaurantId) {
-        const partner = await this.prisma.restaurantPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.restaurantPartner.findUnique({
+            where: { userId },
+        });
         if (!partner)
             throw new common_1.ForbiddenException('User is not a restaurant partner');
-        const restaurant = await this.prisma.restaurant.findUnique({ where: { id: restaurantId } });
+        const restaurant = await this.prisma.restaurant.findUnique({
+            where: { id: restaurantId },
+        });
         if (!restaurant)
             throw new common_1.NotFoundException('Restaurant not found');
         if (restaurant.partnerId !== partner.id) {
@@ -39,56 +43,68 @@ let MenuService = class MenuService {
         return this.prisma.menuCategory.findMany({
             where: { restaurantId },
             orderBy: { displayOrder: 'asc' },
-            include: { items: true }
+            include: { items: true },
         });
     }
     async createCategory(userId, dto) {
         await this.checkOwnership(userId, dto.restaurantId);
-        const count = await this.prisma.menuCategory.count({ where: { restaurantId: dto.restaurantId } });
+        const count = await this.prisma.menuCategory.count({
+            where: { restaurantId: dto.restaurantId },
+        });
         return this.prisma.menuCategory.create({
             data: {
                 ...dto,
-                displayOrder: count + 1
-            }
+                displayOrder: count + 1,
+            },
         });
     }
     async updateCategory(userId, id, dto) {
-        const category = await this.prisma.menuCategory.findUnique({ where: { id } });
+        const category = await this.prisma.menuCategory.findUnique({
+            where: { id },
+        });
         if (!category)
             throw new common_1.NotFoundException('Category not found');
         await this.checkOwnership(userId, category.restaurantId);
         return this.prisma.menuCategory.update({
             where: { id },
-            data: dto
+            data: dto,
         });
     }
     async deleteCategory(userId, id) {
-        const category = await this.prisma.menuCategory.findUnique({ where: { id } });
+        const category = await this.prisma.menuCategory.findUnique({
+            where: { id },
+        });
         if (!category)
             throw new common_1.NotFoundException('Category not found');
         await this.checkOwnership(userId, category.restaurantId);
         return this.prisma.menuCategory.delete({ where: { id } });
     }
     async reorderCategory(userId, id, dto) {
-        const category = await this.prisma.menuCategory.findUnique({ where: { id } });
+        const category = await this.prisma.menuCategory.findUnique({
+            where: { id },
+        });
         if (!category)
             throw new common_1.NotFoundException('Category not found');
         await this.checkOwnership(userId, category.restaurantId);
         return this.prisma.menuCategory.update({
             where: { id },
-            data: { displayOrder: dto.newDisplayOrder }
+            data: { displayOrder: dto.newDisplayOrder },
         });
     }
     async getItems(categoryId) {
         return this.prisma.menuItem.findMany({
-            where: { categoryId }
+            where: { categoryId },
         });
     }
     async createItem(userId, dto) {
-        const category = await this.prisma.menuCategory.findUnique({ where: { id: dto.categoryId } });
+        const category = await this.prisma.menuCategory.findUnique({
+            where: { id: dto.categoryId },
+        });
         if (!category)
             throw new common_1.NotFoundException('Category not found');
-        const partner = await this.prisma.restaurantPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.restaurantPartner.findUnique({
+            where: { userId },
+        });
         if (!partner)
             throw new common_1.ForbiddenException('User is not a restaurant partner');
         return this.addMenuItem(category.restaurantId, partner.id, dto);
@@ -116,7 +132,7 @@ let MenuService = class MenuService {
                     try {
                         body = Buffer.from(imageBody, 'base64');
                     }
-                    catch (e) {
+                    catch (_e) {
                         body = imageBody;
                     }
                 }
@@ -146,7 +162,7 @@ let MenuService = class MenuService {
         });
         if (dto.modifiers && dto.modifiers.length > 0) {
             await this.prisma.menuModifier.createMany({
-                data: dto.modifiers.map(mod => ({
+                data: dto.modifiers.map((mod) => ({
                     name: mod.name,
                     isRequired: mod.isRequired,
                     options: JSON.parse(JSON.stringify(mod.options)),
@@ -167,17 +183,23 @@ let MenuService = class MenuService {
         return item;
     }
     async updateItem(userId, id, dto) {
-        const item = await this.prisma.menuItem.findUnique({ where: { id }, include: { category: true } });
+        const item = await this.prisma.menuItem.findUnique({
+            where: { id },
+            include: { category: true },
+        });
         if (!item)
             throw new common_1.NotFoundException('Item not found');
         await this.checkOwnership(userId, item.category.restaurantId);
         return this.prisma.menuItem.update({
             where: { id },
-            data: dto
+            data: dto,
         });
     }
     async deleteItem(userId, id) {
-        const item = await this.prisma.menuItem.findUnique({ where: { id }, include: { category: true } });
+        const item = await this.prisma.menuItem.findUnique({
+            where: { id },
+            include: { category: true },
+        });
         if (!item)
             throw new common_1.NotFoundException('Item not found');
         await this.checkOwnership(userId, item.category.restaurantId);
@@ -186,11 +208,13 @@ let MenuService = class MenuService {
     async toggleAvailability(userId, id) {
         const item = await this.prisma.menuItem.findUnique({
             where: { id },
-            include: { category: { include: { restaurant: true } } }
+            include: { category: { include: { restaurant: true } } },
         });
         if (!item)
             throw new common_1.NotFoundException('Item not found');
-        const partner = await this.prisma.restaurantPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.restaurantPartner.findUnique({
+            where: { userId },
+        });
         if (!partner)
             throw new common_1.ForbiddenException('User is not a restaurant partner');
         if (item.category.restaurant.partnerId !== partner.id) {
@@ -217,7 +241,9 @@ let MenuService = class MenuService {
             where: { id: itemId },
             data: { isAvailable: !item.isAvailable },
         });
-        this.realtimeGateway.server.to('role:CUSTOMER').emit('menu:item_availability_changed', {
+        this.realtimeGateway.server
+            .to('role:CUSTOMER')
+            .emit('menu:item_availability_changed', {
             restaurantId,
             itemId: updated.id,
             isAvailable: updated.isAvailable,
@@ -246,7 +272,10 @@ let MenuService = class MenuService {
         return { success: true, updatedCount: itemIds.length };
     }
     async addImage(userId, itemId, imageUrl) {
-        const item = await this.prisma.menuItem.findUnique({ where: { id: itemId }, include: { category: true } });
+        const item = await this.prisma.menuItem.findUnique({
+            where: { id: itemId },
+            include: { category: true },
+        });
         if (!item)
             throw new common_1.NotFoundException('Item not found');
         await this.checkOwnership(userId, item.category.restaurantId);
@@ -254,16 +283,19 @@ let MenuService = class MenuService {
         images.push(imageUrl);
         return this.prisma.menuItem.update({
             where: { id: itemId },
-            data: { images }
+            data: { images },
         });
     }
     async getModifiers(itemId) {
         return this.prisma.menuModifier.findMany({
-            where: { menuItemId: itemId }
+            where: { menuItemId: itemId },
         });
     }
     async createModifier(userId, dto) {
-        const item = await this.prisma.menuItem.findUnique({ where: { id: dto.menuItemId }, include: { category: true } });
+        const item = await this.prisma.menuItem.findUnique({
+            where: { id: dto.menuItemId },
+            include: { category: true },
+        });
         if (!item)
             throw new common_1.NotFoundException('Item not found');
         await this.checkOwnership(userId, item.category.restaurantId);
@@ -273,14 +305,14 @@ let MenuService = class MenuService {
                 name: dto.name,
                 isRequired: dto.isRequired,
                 menuItemId: dto.menuItemId,
-                options: optionsJson
-            }
+                options: optionsJson,
+            },
         });
     }
     async updateModifier(userId, id, dto) {
         const modifier = await this.prisma.menuModifier.findUnique({
             where: { id },
-            include: { menuItem: { include: { category: true } } }
+            include: { menuItem: { include: { category: true } } },
         });
         if (!modifier)
             throw new common_1.NotFoundException('Modifier not found');
@@ -291,13 +323,13 @@ let MenuService = class MenuService {
         }
         return this.prisma.menuModifier.update({
             where: { id },
-            data
+            data,
         });
     }
     async deleteModifier(userId, id) {
         const modifier = await this.prisma.menuModifier.findUnique({
             where: { id },
-            include: { menuItem: { include: { category: true } } }
+            include: { menuItem: { include: { category: true } } },
         });
         if (!modifier)
             throw new common_1.NotFoundException('Modifier not found');

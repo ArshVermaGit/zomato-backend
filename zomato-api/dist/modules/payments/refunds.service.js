@@ -40,7 +40,9 @@ let RefundsService = class RefundsService {
         }
     }
     async calculateRefund(orderId) {
-        const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+        const order = await this.prisma.order.findUnique({
+            where: { id: orderId },
+        });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
         const percentage = this.calculateRefundPercentage(order.status);
@@ -50,17 +52,17 @@ let RefundsService = class RefundsService {
             status: order.status,
             refundPercentage: percentage,
             refundAmount,
-            currency: 'INR'
+            currency: 'INR',
         };
     }
     async processRefund(orderId, type = 'GATEWAY', reason) {
         const order = await this.prisma.order.findUnique({
             where: { id: orderId },
-            include: { paymentTransactions: true }
+            include: { paymentTransactions: true },
         });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
-        const payment = order.paymentTransactions.find(p => p.status === client_1.PaymentStatus.COMPLETED);
+        const payment = order.paymentTransactions.find((p) => p.status === client_1.PaymentStatus.COMPLETED);
         if (!payment || !payment.gatewayTransactionId) {
             throw new common_1.BadRequestException('No completed payment found for this order');
         }
@@ -77,24 +79,26 @@ let RefundsService = class RefundsService {
     }
     async processGatewayRefund(paymentId, razorpayPaymentId, amount, reason) {
         const refund = await this.razorpayService.refundPayment(razorpayPaymentId, amount, {
-            reason
+            reason,
         });
         const refundRecord = await this.prisma.refund.create({
             data: {
-                orderId: (await this.prisma.paymentTransaction.findUniqueOrThrow({ where: { id: paymentId } })).orderId,
+                orderId: (await this.prisma.paymentTransaction.findUniqueOrThrow({
+                    where: { id: paymentId },
+                })).orderId,
                 amount: new client_1.Prisma.Decimal(amount),
                 status: client_1.RefundStatus.PROCESSED,
                 reason,
-                gatewayRefundId: refund.id
-            }
+                gatewayRefundId: refund.id,
+            },
         });
         await this.prisma.paymentTransaction.update({
             where: { id: paymentId },
-            data: { status: client_1.PaymentStatus.REFUNDED }
+            data: { status: client_1.PaymentStatus.REFUNDED },
         });
         return refundRecord;
     }
-    async processWalletRefund(userId, paymentId, amount, reason) {
+    processWalletRefund(_userId, _paymentId, _amount, _reason) {
         throw new common_1.BadRequestException('Customer Wallet not currently supported. Use GATEWAY.');
     }
 };

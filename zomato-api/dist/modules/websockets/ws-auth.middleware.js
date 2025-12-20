@@ -9,17 +9,18 @@ class WsAuthMiddleware {
         this.configService = configService;
     }
     validate(client) {
-        const token = client.handshake.query.token || client.handshake.headers.authorization?.split(' ')[1];
+        const token = client.handshake.query.token ||
+            client.handshake.headers.authorization?.split(' ')[1];
         if (!token) {
             return null;
         }
         try {
             const payload = this.jwtService.verify(token, {
-                secret: this.configService.get('JWT_SECRET')
+                secret: this.configService.get('JWT_SECRET'),
             });
             return payload;
         }
-        catch (err) {
+        catch (_err) {
             return null;
         }
     }

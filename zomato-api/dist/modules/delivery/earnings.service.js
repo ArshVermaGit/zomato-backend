@@ -25,16 +25,18 @@ let EarningsService = class EarningsService {
                     deliveryPartnerId: partnerId,
                     amount: new client_1.Prisma.Decimal(amount),
                     type,
-                    description
-                }
+                    description,
+                },
             });
             const increment = type === client_1.WalletTransactionType.CREDIT ? amount : -amount;
             await tx.deliveryPartner.update({
                 where: { id: partnerId },
                 data: {
                     availableBalance: { increment },
-                    totalEarnings: type === client_1.WalletTransactionType.CREDIT ? { increment: amount } : undefined
-                }
+                    totalEarnings: type === client_1.WalletTransactionType.CREDIT
+                        ? { increment: amount }
+                        : undefined,
+                },
             });
             return transaction;
         });
@@ -43,7 +45,7 @@ let EarningsService = class EarningsService {
         const BASE_PAY = 30;
         const PER_KM_RATE = 10;
         const DISTANCE_PAY = distanceKm * PER_KM_RATE;
-        const CHECKOUT_EARNING = Number(deliveryFee) * 0.8;
+        const _CHECKOUT_EARNING = Number(deliveryFee) * 0.8;
         let earningAmount = BASE_PAY + DISTANCE_PAY;
         const isPeakHour = new Date().getHours() >= 19 && new Date().getHours() <= 21;
         if (isPeakHour) {
@@ -57,7 +59,7 @@ let EarningsService = class EarningsService {
                     type: 'DELIVERY_FEE',
                     amount: new client_1.Prisma.Decimal(earningAmount),
                     description: `Earnings for order #${orderNumber} (${distanceKm}km)`,
-                }
+                },
             });
             if (tip > 0) {
                 await tx.earning.create({
@@ -67,7 +69,7 @@ let EarningsService = class EarningsService {
                         type: 'TIP',
                         amount: new client_1.Prisma.Decimal(tip),
                         description: `Tip for order #${orderNumber}`,
-                    }
+                    },
                 });
             }
             const totalCredit = earningAmount + tip;
@@ -76,30 +78,34 @@ let EarningsService = class EarningsService {
                 data: {
                     totalEarnings: { increment: totalCredit },
                     availableBalance: { increment: totalCredit },
-                }
+                },
             });
             await tx.walletTransaction.create({
                 data: {
                     deliveryPartnerId,
                     amount: new client_1.Prisma.Decimal(totalCredit),
                     type: client_1.WalletTransactionType.CREDIT,
-                    description: `Order #${orderNumber} Earnings`
-                }
+                    description: `Order #${orderNumber} Earnings`,
+                },
             });
             return { earningAmount, tip, total: totalCredit };
         });
     }
     async getBalance(userId) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId },
+        });
         if (!partner)
             throw new common_1.NotFoundException('Partner not found');
         return {
             currentBalance: partner.availableBalance,
-            totalEarnings: partner.totalEarnings
+            totalEarnings: partner.totalEarnings,
         };
     }
     async requestPayout(userId, amount) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId },
+        });
         if (!partner)
             throw new common_1.NotFoundException('Partner not found');
         const balance = Number(partner.availableBalance);
@@ -109,38 +115,42 @@ let EarningsService = class EarningsService {
         return this.prisma.$transaction(async (tx) => {
             await tx.deliveryPartner.update({
                 where: { id: partner.id },
-                data: { availableBalance: { decrement: amount } }
+                data: { availableBalance: { decrement: amount } },
             });
             const payout = await tx.payoutRequest.create({
                 data: {
                     deliveryPartnerId: partner.id,
                     amount: new client_1.Prisma.Decimal(amount),
                     status: client_1.PayoutStatus.PENDING,
-                }
+                },
             });
             await tx.walletTransaction.create({
                 data: {
                     deliveryPartnerId: partner.id,
                     amount: new client_1.Prisma.Decimal(amount),
                     type: client_1.WalletTransactionType.DEBIT,
-                    description: `Payout Request ${payout.id}`
-                }
+                    description: `Payout Request ${payout.id}`,
+                },
             });
             return payout;
         });
     }
     async createWalletTransaction(deliveryPartnerId, amount, type, description) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { id: deliveryPartnerId } });
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { id: deliveryPartnerId },
+        });
         if (!partner)
             throw new common_1.NotFoundException('Delivery partner not found');
-        const txnType = type === 'CREDIT' ? client_1.WalletTransactionType.CREDIT : client_1.WalletTransactionType.DEBIT;
+        const txnType = type === 'CREDIT'
+            ? client_1.WalletTransactionType.CREDIT
+            : client_1.WalletTransactionType.DEBIT;
         return this.prisma.walletTransaction.create({
             data: {
                 deliveryPartnerId: partner.id,
                 amount: new client_1.Prisma.Decimal(amount),
                 type: txnType,
                 description,
-            }
+            },
         });
     }
     async getHistory(userId) {
@@ -151,16 +161,18 @@ let EarningsService = class EarningsService {
             throw new common_1.NotFoundException('Delivery partner not found');
         return this.prisma.walletTransaction.findMany({
             where: { deliveryPartnerId: partner.id },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
     async getPayoutRequests(userId) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId },
+        });
         if (!partner)
             throw new common_1.NotFoundException('Delivery partner not found');
         return this.prisma.payoutRequest.findMany({
             where: { deliveryPartnerId: partner.id },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
     async getStats(userId) {
@@ -169,9 +181,9 @@ let EarningsService = class EarningsService {
             include: {
                 orders: {
                     where: { status: 'DELIVERED' },
-                    select: { deliveredAt: true }
-                }
-            }
+                    select: { deliveredAt: true },
+                },
+            },
         });
         if (!partner)
             throw new common_1.NotFoundException('Partner not found');
@@ -182,7 +194,7 @@ let EarningsService = class EarningsService {
             averageRating: rating,
             acceptanceRate: 95,
             onTimeRate: 98,
-            lifetimeEarnings: partner.totalEarnings
+            lifetimeEarnings: partner.totalEarnings,
         };
     }
 };

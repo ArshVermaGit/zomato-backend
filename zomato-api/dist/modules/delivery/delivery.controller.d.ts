@@ -8,31 +8,31 @@ export declare class DeliveryController {
     constructor(deliveryService: DeliveryService, earningsService: EarningsService);
     requestPayout(req: any, amount: number): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import(".prisma/client").$Enums.PayoutStatus;
-        deliveryPartnerId: string;
         amount: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.PayoutStatus;
         processedAt: Date | null;
         referenceId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        deliveryPartnerId: string;
     }>;
     getTransactions(req: any): Promise<{
-        type: import(".prisma/client").$Enums.WalletTransactionType;
-        description: string | null;
         id: string;
+        amount: import("@prisma/client/runtime/library").Decimal;
         createdAt: Date;
         deliveryPartnerId: string;
-        amount: import("@prisma/client/runtime/library").Decimal;
+        type: import(".prisma/client").$Enums.WalletTransactionType;
+        description: string | null;
     }[]>;
     getPayoutHistory(req: any): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import(".prisma/client").$Enums.PayoutStatus;
-        deliveryPartnerId: string;
         amount: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.PayoutStatus;
         processedAt: Date | null;
         referenceId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        deliveryPartnerId: string;
     }[]>;
     getPerformanceMetrics(req: any): Promise<{
         totalDeliveries: number;
@@ -68,10 +68,10 @@ export declare class DeliveryController {
         docType: string;
         url: string;
     }): Promise<{
-        type: import(".prisma/client").$Enums.DocumentType;
         id: string;
         status: import(".prisma/client").$Enums.DocumentStatus;
         deliveryPartnerId: string;
+        type: import(".prisma/client").$Enums.DocumentType;
         fileUrl: string;
         rejectionReason: string | null;
         uploadedAt: Date;

@@ -18,7 +18,7 @@ exports.PromosModule = PromosModule = __decorate([
     (0, common_1.Module)({
         controllers: [promos_controller_1.PromosController],
         providers: [promos_service_1.PromosService, promo_validation_service_1.PromoValidationService],
-        exports: [promos_service_1.PromosService]
+        exports: [promos_service_1.PromosService],
     })
 ], PromosModule);
 //# sourceMappingURL=promos.module.js.map

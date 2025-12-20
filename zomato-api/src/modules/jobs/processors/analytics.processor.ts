@@ -5,15 +5,15 @@ import { AnalyticsService } from '../../analytics/analytics.service';
 
 @Processor('analytics')
 export class AnalyticsJobsProcessor {
-    private readonly logger = new Logger(AnalyticsJobsProcessor.name);
+  private readonly logger = new Logger(AnalyticsJobsProcessor.name);
 
-    constructor(private analyticsService: AnalyticsService) { }
+  constructor(private analyticsService: AnalyticsService) {}
 
-    @Process('calculateDailyMetrics')
-    async calculateDailyMetrics(job: Job) {
-        this.logger.log('Calculating Daily Analytics Metrics...');
-        // Logic to pre-calculate and cache daily metrics to speed up dashboard loading
-        // For example, store result in Redis
-        // await this.analyticsService.cacheDailyMetrics();
-    }
+  @Process('calculateDailyMetrics')
+  calculateDailyMetrics(_job: Job) {
+    this.logger.log('Calculating Daily Analytics Metrics...');
+    // Logic to pre-calculate and cache daily metrics to speed up dashboard loading
+    // For example, store result in Redis
+    // await this.analyticsService.cacheDailyMetrics();
+  }
 }

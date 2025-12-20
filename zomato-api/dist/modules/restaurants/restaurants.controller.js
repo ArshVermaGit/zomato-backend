@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RestaurantsController = void 0;
 const common_1 = require("@nestjs/common");
@@ -39,7 +40,7 @@ let RestaurantsController = class RestaurantsController {
     async getStats(req, restaurantId) {
         return this.restaurantsService.getStats(restaurantId);
     }
-    async getAnalytics(req, restaurantId, range) {
+    getAnalytics(req, restaurantId, range) {
         return this.restaurantsService.getAnalytics(restaurantId, range);
     }
     async update(id, dto) {
@@ -124,7 +125,7 @@ __decorate([
     __param(2, (0, common_1.Query)('range')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String, String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], RestaurantsController.prototype, "getAnalytics", null);
 __decorate([
     (0, common_1.Put)(':id'),
@@ -144,7 +145,7 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'query', required: true }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [restaurant_dto_1.SearchRestaurantDto]),
+    __metadata("design:paramtypes", [typeof (_a = typeof SearchRestaurantDto !== "undefined" && SearchRestaurantDto) === "function" ? _a : Object]),
     __metadata("design:returntype", Promise)
 ], RestaurantsController.prototype, "search", null);
 __decorate([

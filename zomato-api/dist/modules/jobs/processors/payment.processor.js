@@ -20,10 +20,10 @@ let PaymentJobsProcessor = PaymentJobsProcessor_1 = class PaymentJobsProcessor {
     constructor(paymentsService) {
         this.paymentsService = paymentsService;
     }
-    async processPayouts(job) {
+    processPayouts(_job) {
         this.logger.log('Processing Daily Payouts...');
     }
-    async retryFailedRefunds(job) {
+    retryFailedRefunds(_job) {
         this.logger.log('Retrying Failed Refunds...');
     }
 };
@@ -32,13 +32,13 @@ __decorate([
     (0, bull_1.Process)('processPayouts'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], PaymentJobsProcessor.prototype, "processPayouts", null);
 __decorate([
     (0, bull_1.Process)('retryFailedRefunds'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], PaymentJobsProcessor.prototype, "retryFailedRefunds", null);
 exports.PaymentJobsProcessor = PaymentJobsProcessor = PaymentJobsProcessor_1 = __decorate([
     (0, bull_1.Processor)('payments'),

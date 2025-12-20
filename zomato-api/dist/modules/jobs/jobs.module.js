@@ -31,7 +31,7 @@ exports.JobsModule = JobsModule = __decorate([
             orders_module_1.OrdersModule,
             notifications_module_1.NotificationsModule,
             analytics_module_1.AnalyticsModule,
-            payments_module_1.PaymentsModule
+            payments_module_1.PaymentsModule,
         ],
         providers: [
             jobs_service_1.JobsService,
@@ -39,7 +39,7 @@ exports.JobsModule = JobsModule = __decorate([
             notification_processor_1.NotificationJobsProcessor,
             analytics_processor_1.AnalyticsJobsProcessor,
             payment_processor_1.PaymentJobsProcessor,
-            prisma_service_1.PrismaService
+            prisma_service_1.PrismaService,
         ],
     })
 ], JobsModule);

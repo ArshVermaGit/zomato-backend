@@ -26,32 +26,44 @@ let PromoValidationService = class PromoValidationService {
         if (promo.usageLimit && promo.usedCount >= promo.usageLimit)
             return { valid: false, reason: 'Promo usage limit reached' };
         if (cartValue < Number(promo.minOrderValue))
-            return { valid: false, reason: `Minimum order value of ₹${promo.minOrderValue} required` };
-        if (promo.applicableRestaurantIds.length > 0 && !promo.applicableRestaurantIds.includes(restaurantId)) {
-            return { valid: false, reason: 'Promo code not applicable for this restaurant' };
+            return {
+                valid: false,
+                reason: `Minimum order value of ₹${promo.minOrderValue.toString()} required`,
+            };
+        if (promo.applicableRestaurantIds.length > 0 &&
+            !promo.applicableRestaurantIds.includes(restaurantId)) {
+            return {
+                valid: false,
+                reason: 'Promo code not applicable for this restaurant',
+            };
         }
         if (promo.isNewUserOnly) {
-            const orderCount = await this.prisma.order.count({ where: { customerId: userId } });
+            const orderCount = await this.prisma.order.count({
+                where: { customerId: userId },
+            });
             if (orderCount > 0)
                 return { valid: false, reason: 'Promo code valid for new users only' };
         }
         if (promo.maxUsagePerUser) {
             const userUsageCount = await this.prisma.promoUsage.count({
-                where: { promoId: promo.id, userId }
+                where: { promoId: promo.id, userId },
             });
             if (userUsageCount >= promo.maxUsagePerUser) {
-                return { valid: false, reason: `You have already used this promo ${promo.maxUsagePerUser} time(s)` };
+                return {
+                    valid: false,
+                    reason: `You have already used this promo ${promo.maxUsagePerUser} time(s)`,
+                };
             }
         }
         return { valid: true };
     }
     async recordUsage(promoId, userId, orderId) {
         await this.prisma.promoUsage.create({
-            data: { promoId, userId, orderId }
+            data: { promoId, userId, orderId },
         });
         await this.prisma.promo.update({
             where: { id: promoId },
-            data: { usedCount: { increment: 1 } }
+            data: { usedCount: { increment: 1 } },
         });
     }
 };

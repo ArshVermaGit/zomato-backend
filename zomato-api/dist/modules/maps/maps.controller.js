@@ -36,7 +36,7 @@ let MapsController = class MapsController {
     async getETA(body) {
         return this.mapsService.getETA(body.origin, body.destination);
     }
-    async getNearbyRestaurants(lat, lng, radius) {
+    getNearbyRestaurants(lat, lng, radius) {
         return this.mapsService.getNearbyRestaurants(Number(lat), Number(lng), Number(radius || 5000));
     }
 };
@@ -95,7 +95,7 @@ __decorate([
     __param(2, (0, common_1.Query)('radius')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Number, Number]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], MapsController.prototype, "getNearbyRestaurants", null);
 exports.MapsController = MapsController = __decorate([
     (0, swagger_1.ApiTags)('Maps'),

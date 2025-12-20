@@ -39,20 +39,25 @@ let OrdersGateway = class OrdersGateway {
     handleDisconnect(client) {
         console.log(`Client disconnected from Orders: ${client.id}`);
     }
-    handleJoinRoom(orderId, client) {
-        client.join(`order_${orderId}`);
-        console.log(`User ${client.data.user.userId} joined order_${orderId}`);
+    async handleJoinRoom(orderId, client) {
+        await client.join(`order_${orderId}`);
+        const user = client.data.user;
+        console.log(`User ${user.userId} joined order_${orderId}`);
         return { event: 'joined_room', data: { orderId } };
     }
-    handleLeaveRoom(orderId, client) {
-        client.leave(`order_${orderId}`);
+    async handleLeaveRoom(orderId, client) {
+        await client.leave(`order_${orderId}`);
         return { event: 'left_room', data: { orderId } };
     }
     emitOrderStatusUpdate(orderId, status, data) {
-        this.server.to(`order_${orderId}`).emit('order.status_changed', { orderId, status, ...data });
+        this.server
+            .to(`order_${orderId}`)
+            .emit('order.status_changed', { orderId, status, ...data });
     }
     emitOrderAssigned(orderId, partnerId) {
-        this.server.to(`order_${orderId}`).emit('order.assigned', { orderId, partnerId });
+        this.server
+            .to(`order_${orderId}`)
+            .emit('order.assigned', { orderId, partnerId });
     }
 };
 exports.OrdersGateway = OrdersGateway;
@@ -66,7 +71,7 @@ __decorate([
     __param(1, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, socket_io_1.Socket]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], OrdersGateway.prototype, "handleJoinRoom", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('leave_order_room'),
@@ -74,14 +79,14 @@ __decorate([
     __param(1, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, socket_io_1.Socket]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], OrdersGateway.prototype, "handleLeaveRoom", null);
 exports.OrdersGateway = OrdersGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: {
             origin: '*',
         },
-        namespace: 'orders'
+        namespace: 'orders',
     }),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         config_1.ConfigService])

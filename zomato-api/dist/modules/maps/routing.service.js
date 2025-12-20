@@ -31,13 +31,13 @@ let RoutingService = class RoutingService {
                     origins: [{ lat: origin.lat, lng: origin.lng }],
                     destinations: [{ lat: destination.lat, lng: destination.lng }],
                     key: this.apiKey,
-                    mode: google_maps_services_js_1.TravelMode.driving
-                }
+                    mode: google_maps_services_js_1.TravelMode.driving,
+                },
             });
             const element = response.data.rows[0].elements[0];
             return {
                 distance: element.distance.value,
-                duration: element.duration.value
+                duration: element.duration.value,
             };
         }
         catch (error) {
@@ -55,14 +55,14 @@ let RoutingService = class RoutingService {
                     destination,
                     waypoints,
                     mode: google_maps_services_js_1.TravelMode.driving,
-                    key: this.apiKey
-                }
+                    key: this.apiKey,
+                },
             });
             const route = response.data.routes[0];
             return {
                 polyline: route.overview_polyline.points,
                 summary: route.summary,
-                legs: route.legs
+                legs: route.legs,
             };
         }
         catch (error) {

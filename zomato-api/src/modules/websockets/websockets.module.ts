@@ -6,19 +6,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Global()
 @Module({
-    imports: [
-        AuthModule,
-        ConfigModule,
-        JwtModule.registerAsync({
-            imports: [ConfigModule],
-            inject: [ConfigService],
-            useFactory: async (configService: ConfigService) => ({
-                secret: configService.get('JWT_SECRET'),
-                signOptions: { expiresIn: '1d' },
-            }),
-        }),
-    ],
-    providers: [RealtimeGateway],
-    exports: [RealtimeGateway],
+  imports: [
+    AuthModule,
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('JWT_SECRET'),
+        signOptions: { expiresIn: '1d' },
+      }),
+    }),
+  ],
+  providers: [RealtimeGateway],
+  exports: [RealtimeGateway],
 })
-export class WebsocketsModule { }
+export class WebsocketsModule {}

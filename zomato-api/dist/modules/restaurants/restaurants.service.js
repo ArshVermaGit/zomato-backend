@@ -150,7 +150,9 @@ let RestaurantsService = class RestaurantsService {
             restaurantId: restaurant.id,
             name: restaurant.name,
         });
-        this.realtimeGateway.server.to('role:CUSTOMER').emit('restaurant:new_available', {
+        this.realtimeGateway.server
+            .to('role:CUSTOMER')
+            .emit('restaurant:new_available', {
             restaurantId: restaurant.id,
             name: restaurant.name,
             cuisineTypes: restaurant.cuisineTypes,
@@ -215,13 +217,17 @@ let RestaurantsService = class RestaurantsService {
             },
         });
         if (!updated.isOpen) {
-            this.realtimeGateway.server.to('role:CUSTOMER').emit('restaurant:closed', {
+            this.realtimeGateway.server
+                .to('role:CUSTOMER')
+                .emit('restaurant:closed', {
                 restaurantId: updated.id,
                 name: updated.name,
             });
         }
         else {
-            this.realtimeGateway.server.to('role:CUSTOMER').emit('restaurant:opened', {
+            this.realtimeGateway.server
+                .to('role:CUSTOMER')
+                .emit('restaurant:opened', {
                 restaurantId: updated.id,
                 name: updated.name,
             });
@@ -263,7 +269,7 @@ let RestaurantsService = class RestaurantsService {
                 skip,
                 take: limit,
                 orderBy: { rating: 'desc' },
-                include: { menuCategories: { take: 1 } }
+                include: { menuCategories: { take: 1 } },
             }),
             this.prisma.restaurant.count({ where }),
         ]);
@@ -274,7 +280,7 @@ let RestaurantsService = class RestaurantsService {
                 page,
                 limit,
                 totalPages: Math.ceil(total / limit),
-            }
+            },
         };
     }
     async findOne(id) {
@@ -283,10 +289,10 @@ let RestaurantsService = class RestaurantsService {
             include: {
                 menuCategories: {
                     include: { items: true },
-                    orderBy: { displayOrder: 'asc' }
+                    orderBy: { displayOrder: 'asc' },
                 },
-                reviews: { take: 5, orderBy: { createdAt: 'desc' } }
-            }
+                reviews: { take: 5, orderBy: { createdAt: 'desc' } },
+            },
         });
         if (!restaurant)
             throw new common_1.NotFoundException('Restaurant not found');
@@ -299,46 +305,46 @@ let RestaurantsService = class RestaurantsService {
                     { name: { contains: query, mode: 'insensitive' } },
                     { cuisineTypes: { has: query } },
                 ],
-                isActive: true
+                isActive: true,
             },
-            take: 20
+            take: 20,
         });
     }
     async update(id, data) {
         return this.prisma.restaurant.update({
             where: { id },
-            data
+            data,
         });
     }
     async findByPartnerUserId(userId) {
         const partner = await this.prisma.restaurantPartner.findUnique({
-            where: { userId }
+            where: { userId },
         });
         if (!partner)
             return [];
         return this.prisma.restaurant.findMany({
-            where: { partnerId: partner.id }
+            where: { partnerId: partner.id },
         });
     }
     async getStats(restaurantId) {
         const orders = await this.prisma.order.count({ where: { restaurantId } });
         const revenue = await this.prisma.order.aggregate({
             where: { restaurantId, status: 'DELIVERED' },
-            _sum: { totalAmount: true }
+            _sum: { totalAmount: true },
         });
         return {
             totalOrders: orders,
             totalRevenue: revenue._sum.totalAmount || 0,
-            averageRating: 4.5
+            averageRating: 4.5,
         };
     }
-    async getAnalytics(restaurantId, range) {
+    getAnalytics(restaurantId, range) {
         return {
             range,
             data: [
                 { date: '2023-12-01', orders: 12, revenue: 5000 },
                 { date: '2023-12-02', orders: 15, revenue: 7000 },
-            ]
+            ],
         };
     }
 };

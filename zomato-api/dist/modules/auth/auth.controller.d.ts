@@ -3,21 +3,21 @@ import { SendOtpDto, VerifyOtpDto, SignupDto, RefreshTokenDto, LoginDto } from '
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
-    sendOtp(dto: SendOtpDto): Promise<{
+    sendOtp(dto: SendOtpDto): {
         message: string;
         otp: string | undefined;
-    }>;
-    verifyOtp(dto: VerifyOtpDto): Promise<{
+    };
+    verifyOtp(dto: VerifyOtpDto): {
         message: string;
-    }>;
+    };
     signup(dto: SignupDto): Promise<{
         accessToken: string;
         refreshToken: string;
         user: {
             name: string;
-            email: string | null;
             id: string;
             phone: string;
+            email: string | null;
             role: import(".prisma/client").$Enums.UserRole;
             avatar: string | null;
             isActive: boolean;
@@ -27,14 +27,14 @@ export declare class AuthController {
             fcmTokens: string[];
         };
     }>;
-    login(req: any, loginDto: LoginDto): Promise<{
+    login(req: any, _loginDto: LoginDto): {
         accessToken: string;
         refreshToken: string;
         user: {
             name: string;
-            email: string | null;
             id: string;
             phone: string;
+            email: string | null;
             role: import(".prisma/client").$Enums.UserRole;
             avatar: string | null;
             isActive: boolean;
@@ -44,12 +44,12 @@ export declare class AuthController {
             updatedAt: Date;
             fcmTokens: string[];
         };
-    }>;
+    };
     refresh(dto: RefreshTokenDto): Promise<{
         accessToken: string;
         refreshToken: string;
     }>;
-    logout(req: any): Promise<{
+    logout(_req: any): {
         message: string;
-    }>;
+    };
 }

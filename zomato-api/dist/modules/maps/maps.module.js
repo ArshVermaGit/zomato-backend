@@ -21,13 +21,8 @@ exports.MapsModule = MapsModule = __decorate([
     (0, common_1.Module)({
         imports: [config_1.ConfigModule],
         controllers: [maps_controller_1.MapsController],
-        providers: [
-            maps_service_1.MapsService,
-            geocoding_service_1.GeocodingService,
-            routing_service_1.RoutingService,
-            eta_service_1.ETAService
-        ],
-        exports: [maps_service_1.MapsService, eta_service_1.ETAService]
+        providers: [maps_service_1.MapsService, geocoding_service_1.GeocodingService, routing_service_1.RoutingService, eta_service_1.ETAService],
+        exports: [maps_service_1.MapsService, eta_service_1.ETAService],
     })
 ], MapsModule);
 //# sourceMappingURL=maps.module.js.map

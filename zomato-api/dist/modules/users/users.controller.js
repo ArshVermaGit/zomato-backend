@@ -29,7 +29,7 @@ let UsersController = class UsersController {
     async updateProfile(req, dto) {
         return this.usersService.updateProfile(req.user.userId, dto);
     }
-    async getAvatarUploadUrl(req) {
+    getAvatarUploadUrl(req) {
         return this.usersService.getAvatarUploadUrl(req.user.userId);
     }
     async updateAvatar(req, avatarUrl) {
@@ -78,7 +78,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getAvatarUploadUrl", null);
 __decorate([
     (0, common_1.Put)('me/avatar'),

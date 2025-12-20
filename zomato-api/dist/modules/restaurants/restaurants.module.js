@@ -20,7 +20,13 @@ let RestaurantsModule = class RestaurantsModule {
 exports.RestaurantsModule = RestaurantsModule;
 exports.RestaurantsModule = RestaurantsModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule, config_1.ConfigModule, search_module_1.SearchModule, websockets_module_1.WebsocketsModule, maps_module_1.MapsModule],
+        imports: [
+            database_module_1.DatabaseModule,
+            config_1.ConfigModule,
+            search_module_1.SearchModule,
+            websockets_module_1.WebsocketsModule,
+            maps_module_1.MapsModule,
+        ],
         controllers: [restaurants_controller_1.RestaurantsController],
         providers: [restaurants_service_1.RestaurantsService],
         exports: [restaurants_service_1.RestaurantsService],

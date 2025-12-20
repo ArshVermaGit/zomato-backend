@@ -21,29 +21,37 @@ let AnalyticsService = class AnalyticsService {
     }
     async getDashboardMetrics() {
         const today = (0, date_fns_1.startOfDay)(new Date());
-        const startOfCurWeek = (0, date_fns_1.startOfWeek)(new Date());
-        const startOfCurMonth = (0, date_fns_1.startOfMonth)(new Date());
-        const [totalOrders, totalOrdersToday, totalRevenue, totalRevenueToday, activeUsers, activePartners] = await Promise.all([
+        const _startOfCurWeek = (0, date_fns_1.startOfWeek)(new Date());
+        const _startOfCurMonth = (0, date_fns_1.startOfMonth)(new Date());
+        const [totalOrders, totalOrdersToday, totalRevenue, totalRevenueToday, activeUsers, activePartners,] = await Promise.all([
             this.prisma.order.count(),
             this.prisma.order.count({ where: { createdAt: { gte: today } } }),
-            this.prisma.order.aggregate({ _sum: { totalAmount: true }, where: { status: client_1.OrderStatus.DELIVERED } }),
-            this.prisma.order.aggregate({ _sum: { totalAmount: true }, where: { status: client_1.OrderStatus.DELIVERED, createdAt: { gte: today } } }),
+            this.prisma.order.aggregate({
+                _sum: { totalAmount: true },
+                where: { status: client_1.OrderStatus.DELIVERED },
+            }),
+            this.prisma.order.aggregate({
+                _sum: { totalAmount: true },
+                where: { status: client_1.OrderStatus.DELIVERED, createdAt: { gte: today } },
+            }),
             this.prisma.user.count({ where: { role: 'CUSTOMER', isActive: true } }),
-            this.prisma.user.count({ where: { role: 'DELIVERY_PARTNER', isActive: true } })
+            this.prisma.user.count({
+                where: { role: 'DELIVERY_PARTNER', isActive: true },
+            }),
         ]);
         return {
             orders: {
                 total: totalOrders,
-                today: totalOrdersToday
+                today: totalOrdersToday,
             },
             revenue: {
                 total: totalRevenue._sum.totalAmount || 0,
-                today: totalRevenueToday._sum.totalAmount || 0
+                today: totalRevenueToday._sum.totalAmount || 0,
             },
             users: {
                 activeCustomers: activeUsers,
-                activePartners: activePartners
-            }
+                activePartners: activePartners,
+            },
         };
     }
     async getOrderAnalytics(range = 'daily') {
@@ -51,21 +59,21 @@ let AnalyticsService = class AnalyticsService {
         const byStatus = await this.prisma.order.groupBy({
             by: ['status'],
             _count: { id: true },
-            where: { createdAt: { gte: startDate } }
+            where: { createdAt: { gte: startDate } },
         });
         const orders = await this.prisma.order.findMany({
             where: { createdAt: { gte: startDate } },
-            select: { createdAt: true, status: true }
+            select: { createdAt: true, status: true },
         });
         const hourlyDistribution = new Array(24).fill(0);
-        orders.forEach(o => {
+        orders.forEach((o) => {
             hourlyDistribution[o.createdAt.getHours()]++;
         });
         return {
             range,
             total: orders.length,
-            byStatus: byStatus.map(s => ({ status: s.status, count: s._count.id })),
-            peakHours: hourlyDistribution.map((count, hour) => ({ hour, count }))
+            byStatus: byStatus.map((s) => ({ status: s.status, count: s._count.id })),
+            peakHours: hourlyDistribution.map((count, hour) => ({ hour, count })),
         };
     }
     async getRevenueAnalytics(range = 'monthly') {
@@ -76,27 +84,27 @@ let AnalyticsService = class AnalyticsService {
                 deliveryFee: true,
                 platformFee: true,
                 taxes: true,
-                tip: true
+                tip: true,
             },
             where: {
                 status: client_1.OrderStatus.DELIVERED,
-                createdAt: { gte: startDate }
-            }
+                createdAt: { gte: startDate },
+            },
         });
         const byRestaurant = await this.prisma.order.groupBy({
             by: ['restaurantId'],
             _sum: { totalAmount: true },
             where: { status: client_1.OrderStatus.DELIVERED, createdAt: { gte: startDate } },
             take: 10,
-            orderBy: { _sum: { totalAmount: 'desc' } }
+            orderBy: { _sum: { totalAmount: 'desc' } },
         });
-        const restaurantIds = byRestaurant.map(r => r.restaurantId);
+        const restaurantIds = byRestaurant.map((r) => r.restaurantId);
         const restaurants = await this.prisma.restaurant.findMany({
             where: { id: { in: restaurantIds } },
-            select: { id: true, name: true }
+            select: { id: true, name: true },
         });
-        const topRestaurants = byRestaurant.map(r => {
-            const name = restaurants.find(res => res.id === r.restaurantId)?.name || 'Unknown';
+        const topRestaurants = byRestaurant.map((r) => {
+            const name = restaurants.find((res) => res.id === r.restaurantId)?.name || 'Unknown';
             return { restaurant: name, revenue: r._sum.totalAmount };
         });
         return {
@@ -107,9 +115,9 @@ let AnalyticsService = class AnalyticsService {
                 platformFees: revenue._sum?.platformFee || 0,
                 taxes: revenue._sum?.taxes || 0,
                 tips: revenue._sum?.tip || 0,
-                netRevenue: (Number(revenue._sum?.platformFee) || 0)
+                netRevenue: Number(revenue._sum?.platformFee) || 0,
             },
-            topRestaurants
+            topRestaurants,
         };
     }
     getStartDate(range) {

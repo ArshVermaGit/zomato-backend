@@ -18,7 +18,8 @@ exports.corsOptions = {
         if (!origin) {
             return callback(null, true);
         }
-        if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+        if (allowedOrigins.includes(origin) ||
+            process.env.NODE_ENV === 'development') {
             callback(null, true);
         }
         else {
@@ -27,7 +28,12 @@ exports.corsOptions = {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'X-CSRF-Token',
+    ],
     exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
     maxAge: 86400,
 };

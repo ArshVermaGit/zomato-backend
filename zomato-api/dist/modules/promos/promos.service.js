@@ -30,17 +30,20 @@ let PromosService = class PromosService {
             where: {
                 isActive: true,
                 validFrom: { lte: now },
-                validUntil: { gte: now }
-            }
+                validUntil: { gte: now },
+            },
         });
-        return promos.filter(p => {
-            if (p.applicableRestaurantIds.length > 0 && !p.applicableRestaurantIds.includes(restaurantId))
+        return promos.filter((p) => {
+            if (p.applicableRestaurantIds.length > 0 &&
+                !p.applicableRestaurantIds.includes(restaurantId))
                 return false;
             return true;
         });
     }
     async validatePromoCode(code, userId, cartValue, restaurantId) {
-        const promo = await this.prisma.promo.findUnique({ where: { code: code.toUpperCase() } });
+        const promo = await this.prisma.promo.findUnique({
+            where: { code: code.toUpperCase() },
+        });
         if (!promo)
             return { valid: false, reason: 'Invalid promo code' };
         const validation = await this.validationService.validatePromo(promo, userId, cartValue, restaurantId);
@@ -53,11 +56,13 @@ let PromosService = class PromosService {
             code: promo.code,
             discountType: promo.discountType,
             discountAmount,
-            description: promo.description
+            description: promo.description,
         };
     }
     async applyPromo(code, userId, cartValue, restaurantId) {
-        const promo = await this.prisma.promo.findUnique({ where: { code: code.toUpperCase() } });
+        const promo = await this.prisma.promo.findUnique({
+            where: { code: code.toUpperCase() },
+        });
         if (!promo)
             throw new common_1.NotFoundException('Invalid promo code');
         const validation = await this.validationService.validatePromo(promo, userId, cartValue, restaurantId);
@@ -70,7 +75,7 @@ let PromosService = class PromosService {
             code: promo.code,
             discountType: promo.discountType,
             discountAmount,
-            message: 'Promo applied successfully'
+            message: 'Promo applied successfully',
         };
     }
     async getBestPromo(userId, cartValue, restaurantId) {
@@ -92,7 +97,7 @@ let PromosService = class PromosService {
             code: bestPromo.promo.code,
             discountType: bestPromo.promo.discountType,
             discountAmount: bestPromo.discount,
-            description: bestPromo.promo.description
+            description: bestPromo.promo.description,
         };
     }
     calculateDiscount(promo, cartValue) {

@@ -22,39 +22,39 @@ let OrderJobsProcessor = OrderJobsProcessor_1 = class OrderJobsProcessor {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async handleAutoCancel(job) {
+    async handleAutoCancel(_job) {
         this.logger.debug('Checking for unpaid orders to auto-cancel...');
         const tenMinutesAgo = (0, date_fns_1.subMinutes)(new Date(), 10);
         const unpaidOrders = await this.prisma.order.findMany({
             where: {
                 status: client_1.OrderStatus.PENDING,
                 paymentStatus: client_1.PaymentStatus.PENDING,
-                createdAt: { lt: tenMinutesAgo }
-            }
+                createdAt: { lt: tenMinutesAgo },
+            },
         });
         for (const order of unpaidOrders) {
             await this.prisma.order.update({
                 where: { id: order.id },
                 data: {
                     status: client_1.OrderStatus.CANCELLED,
-                }
+                },
             });
             this.logger.log(`Auto-cancelled order ${order.orderNumber}`);
         }
     }
-    async monitorStuckOrders(job) {
+    async monitorStuckOrders(_job) {
         const twoHoursAgo = (0, date_fns_1.subHours)(new Date(), 2);
         const stuckOrders = await this.prisma.order.findMany({
             where: {
                 status: client_1.OrderStatus.OUT_FOR_DELIVERY,
-                updatedAt: { lt: twoHoursAgo }
-            }
+                updatedAt: { lt: twoHoursAgo },
+            },
         });
         if (stuckOrders.length > 0) {
-            this.logger.warn(`Found ${stuckOrders.length} stuck orders! IDs: ${stuckOrders.map(o => o.id).join(', ')}`);
+            this.logger.warn(`Found ${stuckOrders.length} stuck orders! IDs: ${stuckOrders.map((o) => o.id).join(', ')}`);
         }
     }
-    async handleAssignment(job) {
+    handleAssignment(job) {
         this.logger.log(`Processing assignment for order ${job.data.orderId}`);
     }
 };
@@ -75,7 +75,7 @@ __decorate([
     (0, bull_1.Process)('assignDeliveryPartner'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], OrderJobsProcessor.prototype, "handleAssignment", null);
 exports.OrderJobsProcessor = OrderJobsProcessor = OrderJobsProcessor_1 = __decorate([
     (0, bull_1.Processor)('orders'),

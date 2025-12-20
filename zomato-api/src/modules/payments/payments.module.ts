@@ -7,8 +7,13 @@ import { RefundsService } from './refunds.service';
 import { RefundsController } from './refunds.controller';
 
 @Module({
-    controllers: [PaymentsController, RefundsController],
-    providers: [PaymentsService, RazorpayService, PaymentWebhookService, RefundsService],
-    exports: [PaymentsService, RefundsService],
+  controllers: [PaymentsController, RefundsController],
+  providers: [
+    PaymentsService,
+    RazorpayService,
+    PaymentWebhookService,
+    RefundsService,
+  ],
+  exports: [PaymentsService, RefundsService],
 })
-export class PaymentsModule { }
+export class PaymentsModule {}

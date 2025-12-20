@@ -34,15 +34,17 @@ let DeliveryService = class DeliveryService {
         this.earningsService = earningsService;
     }
     docTypeMap = {
-        'license_front': client_1.DocumentType.DRIVERS_LICENSE_FRONT,
-        'license_back': client_1.DocumentType.DRIVERS_LICENSE_BACK,
-        'aadhaar_front': client_1.DocumentType.AADHAAR_FRONT,
-        'aadhaar_back': client_1.DocumentType.AADHAAR_BACK,
-        'rc': client_1.DocumentType.VEHICLE_RC,
-        'profile_photo': client_1.DocumentType.PROFILE_PHOTO
+        license_front: client_1.DocumentType.DRIVERS_LICENSE_FRONT,
+        license_back: client_1.DocumentType.DRIVERS_LICENSE_BACK,
+        aadhaar_front: client_1.DocumentType.AADHAAR_FRONT,
+        aadhaar_back: client_1.DocumentType.AADHAAR_BACK,
+        rc: client_1.DocumentType.VEHICLE_RC,
+        profile_photo: client_1.DocumentType.PROFILE_PHOTO,
     };
     async onboard(userId, dto) {
-        const existing = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
+        const existing = await this.prisma.deliveryPartner.findUnique({
+            where: { userId },
+        });
         if (existing && existing.onboardingStatus === client_1.OnboardingStatus.VERIFIED) {
             throw new common_1.BadRequestException('Already onboarded and verified');
         }
@@ -63,8 +65,8 @@ let DeliveryService = class DeliveryService {
                 licenseNumber: dto.licenseNumber,
                 bankDetails: dto.bankDetails,
                 emergencyContact: dto.emergencyContact,
-                onboardingStatus: client_1.OnboardingStatus.PENDING
-            }
+                onboardingStatus: client_1.OnboardingStatus.PENDING,
+            },
         });
     }
     async getUploadUrl(userId, docType) {
@@ -77,19 +79,25 @@ let DeliveryService = class DeliveryService {
         return { uploadUrl, publicUrl, key };
     }
     async updateDocumentStatus(userId, docTypeKey, url) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId },
+        });
         if (!partner)
             throw new common_1.NotFoundException('Partner record not found. Please onboard first.');
         const docType = this.docTypeMap[docTypeKey];
         if (!docType)
             throw new common_1.BadRequestException('Invalid document type key');
         const existingDoc = await this.prisma.document.findFirst({
-            where: { deliveryPartnerId: partner.id, type: docType }
+            where: { deliveryPartnerId: partner.id, type: docType },
         });
         if (existingDoc) {
             return this.prisma.document.update({
                 where: { id: existingDoc.id },
-                data: { fileUrl: url, status: client_1.DocumentStatus.PENDING, uploadedAt: new Date() }
+                data: {
+                    fileUrl: url,
+                    status: client_1.DocumentStatus.PENDING,
+                    uploadedAt: new Date(),
+                },
             });
         }
         else {
@@ -99,44 +107,49 @@ let DeliveryService = class DeliveryService {
                     type: docType,
                     fileUrl: url,
                     status: client_1.DocumentStatus.PENDING,
-                    uploadedAt: new Date()
-                }
+                    uploadedAt: new Date(),
+                },
             });
         }
     }
     async getStatus(userId) {
         const partner = await this.prisma.deliveryPartner.findUnique({
             where: { userId },
-            include: { documents: true }
+            include: { documents: true },
         });
         if (!partner)
             return { status: 'NOT_STARTED' };
         const docsStatus = {};
-        partner.documents.forEach(doc => {
-            const key = Object.keys(this.docTypeMap).find(k => this.docTypeMap[k] === doc.type);
+        partner.documents.forEach((doc) => {
+            const key = Object.keys(this.docTypeMap).find((k) => this.docTypeMap[k] === doc.type);
             if (key)
                 docsStatus[key] = doc.status;
         });
         return {
             status: partner.onboardingStatus,
             documents: docsStatus,
-            documentsVerified: partner.documentsVerified
+            documentsVerified: partner.documentsVerified,
         };
     }
     async updateVehicle(userId, dto) {
-        const partner = await this.prisma.deliveryPartner.findUnique({ where: { userId } });
+        const partner = await this.prisma.deliveryPartner.findUnique({
+            where: { userId },
+        });
         if (!partner)
             throw new common_1.NotFoundException('Partner not found');
         return this.prisma.deliveryPartner.update({
             where: { userId },
             data: {
                 vehicleType: dto.vehicleType,
-                vehicleNumber: dto.vehicleNumber
-            }
+                vehicleNumber: dto.vehicleNumber,
+            },
         });
     }
     async verifyPartner(partnerId, status) {
-        if (![client_1.OnboardingStatus.VERIFIED, client_1.OnboardingStatus.REJECTED].includes(status)) {
+        if (![
+            client_1.OnboardingStatus.VERIFIED,
+            client_1.OnboardingStatus.REJECTED,
+        ].includes(status)) {
             throw new common_1.BadRequestException('Invalid status for verification');
         }
         return this.prisma.deliveryPartner.update({
@@ -144,8 +157,8 @@ let DeliveryService = class DeliveryService {
             data: {
                 onboardingStatus: status,
                 documentsVerified: status === client_1.OnboardingStatus.VERIFIED,
-                isAvailable: status === client_1.OnboardingStatus.VERIFIED
-            }
+                isAvailable: status === client_1.OnboardingStatus.VERIFIED,
+            },
         });
     }
 };

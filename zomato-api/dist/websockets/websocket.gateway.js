@@ -23,8 +23,10 @@ function calculateDistance(loc1, loc2) {
     const dLat = deg2rad(loc2.lat - loc1.lat);
     const dLon = deg2rad(loc2.lng - loc1.lng);
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(loc1.lat)) * Math.cos(deg2rad(loc2.lat)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        Math.cos(deg2rad(loc1.lat)) *
+            Math.cos(deg2rad(loc2.lat)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c;
     return Number(d.toFixed(2));
@@ -41,7 +43,8 @@ let RealtimeGateway = class RealtimeGateway {
     }
     async handleConnection(client) {
         try {
-            const token = client.handshake.auth.token || client.handshake.headers.authorization?.split(' ')[1];
+            const token = client.handshake.auth.token ||
+                client.handshake.headers.authorization?.split(' ')[1];
             if (!token) {
                 client.disconnect();
                 return;

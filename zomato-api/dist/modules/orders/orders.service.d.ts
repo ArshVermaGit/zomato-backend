@@ -19,69 +19,73 @@ export declare class OrdersService {
     acceptOrder(orderId: string, restaurantUserId: string, estimatedPrepTime: number): Promise<any>;
     markOrderReady(orderId: string, restaurantUserId: string): Promise<{
         customer: {
-            name: string;
-            email: string | null;
             id: string;
+            createdAt: Date;
+            name: string;
+            updatedAt: Date;
             phone: string;
+            email: string | null;
+            isActive: boolean;
             role: import(".prisma/client").$Enums.UserRole;
             avatar: string | null;
-            isActive: boolean;
             isVerified: boolean;
             passwordHash: string | null;
-            createdAt: Date;
-            updatedAt: Date;
             fcmTokens: string[];
         };
         restaurant: {
-            name: string;
+            id: string;
             description: string | null;
+            createdAt: Date;
+            name: string;
+            rating: Prisma.Decimal;
+            updatedAt: Date;
+            deliveryFee: Prisma.Decimal;
+            cuisineTypes: string[];
+            phone: string;
             email: string;
             location: Prisma.JsonValue;
-            id: string;
-            phone: string;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-            rating: Prisma.Decimal;
-            deliveryFee: Prisma.Decimal;
-            images: string[];
-            cuisineTypes: string[];
             isOpen: boolean;
             totalRatings: number;
             preparationTime: number;
             minimumOrder: Prisma.Decimal;
             deliveryRadius: Prisma.Decimal;
+            images: string[];
             coverImage: string | null;
             partnerId: string;
         };
         items: ({
             menuItem: {
-                name: string;
-                description: string;
                 id: string;
+                description: string;
+                name: string;
                 isAvailable: boolean;
                 images: string[];
                 price: Prisma.Decimal;
                 isVeg: boolean;
-                categoryId: string;
                 isBestseller: boolean;
+                categoryId: string;
             };
         } & {
             id: string;
             orderId: string;
             price: Prisma.Decimal;
-            menuItemId: string;
             quantity: number;
             selectedModifiers: Prisma.JsonValue | null;
             specialInstructions: string | null;
+            menuItemId: string;
         })[];
     } & {
         id: string;
         createdAt: Date;
-        updatedAt: Date;
+        deliveryPartnerId: string | null;
+        tip: Prisma.Decimal;
         rating: number | null;
-        orderNumber: string;
         status: import(".prisma/client").$Enums.OrderStatus;
+        updatedAt: Date;
+        orderNumber: string;
+        customerId: string;
+        restaurantId: string;
         deliveryAddress: Prisma.JsonValue;
         customerInstructions: string | null;
         itemsTotal: Prisma.Decimal;
@@ -89,7 +93,6 @@ export declare class OrdersService {
         taxes: Prisma.Decimal;
         platformFee: Prisma.Decimal;
         discount: Prisma.Decimal;
-        tip: Prisma.Decimal;
         totalAmount: Prisma.Decimal;
         paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
@@ -106,9 +109,6 @@ export declare class OrdersService {
         estimatedDeliveryTime: number | null;
         actualDeliveryTime: number | null;
         promoCode: string | null;
-        restaurantId: string;
-        deliveryPartnerId: string | null;
-        customerId: string;
     }>;
     assignDeliveryPartner(orderId: string, deliveryUserId: string): Promise<any>;
     updateDeliveryLocation(orderId: string, deliveryPartnerId: string, location: {
@@ -121,55 +121,59 @@ export declare class OrdersService {
     markOrderDelivered(orderId: string, deliveryUserId: string, deliveryOTP: string): Promise<any>;
     findAll(customerId: string, filters: OrderFilterDto): Promise<({
         restaurant: {
-            name: string;
+            id: string;
             description: string | null;
+            createdAt: Date;
+            name: string;
+            rating: Prisma.Decimal;
+            updatedAt: Date;
+            deliveryFee: Prisma.Decimal;
+            cuisineTypes: string[];
+            phone: string;
             email: string;
             location: Prisma.JsonValue;
-            id: string;
-            phone: string;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-            rating: Prisma.Decimal;
-            deliveryFee: Prisma.Decimal;
-            images: string[];
-            cuisineTypes: string[];
             isOpen: boolean;
             totalRatings: number;
             preparationTime: number;
             minimumOrder: Prisma.Decimal;
             deliveryRadius: Prisma.Decimal;
+            images: string[];
             coverImage: string | null;
             partnerId: string;
         };
         items: ({
             menuItem: {
-                name: string;
-                description: string;
                 id: string;
+                description: string;
+                name: string;
                 isAvailable: boolean;
                 images: string[];
                 price: Prisma.Decimal;
                 isVeg: boolean;
-                categoryId: string;
                 isBestseller: boolean;
+                categoryId: string;
             };
         } & {
             id: string;
             orderId: string;
             price: Prisma.Decimal;
-            menuItemId: string;
             quantity: number;
             selectedModifiers: Prisma.JsonValue | null;
             specialInstructions: string | null;
+            menuItemId: string;
         })[];
     } & {
         id: string;
         createdAt: Date;
-        updatedAt: Date;
+        deliveryPartnerId: string | null;
+        tip: Prisma.Decimal;
         rating: number | null;
-        orderNumber: string;
         status: import(".prisma/client").$Enums.OrderStatus;
+        updatedAt: Date;
+        orderNumber: string;
+        customerId: string;
+        restaurantId: string;
         deliveryAddress: Prisma.JsonValue;
         customerInstructions: string | null;
         itemsTotal: Prisma.Decimal;
@@ -177,7 +181,6 @@ export declare class OrdersService {
         taxes: Prisma.Decimal;
         platformFee: Prisma.Decimal;
         discount: Prisma.Decimal;
-        tip: Prisma.Decimal;
         totalAmount: Prisma.Decimal;
         paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
@@ -194,24 +197,21 @@ export declare class OrdersService {
         estimatedDeliveryTime: number | null;
         actualDeliveryTime: number | null;
         promoCode: string | null;
-        restaurantId: string;
-        deliveryPartnerId: string | null;
-        customerId: string;
     })[]>;
     findActive(customerId: string): Promise<({
         deliveryPartner: ({
             user: {
-                name: string;
-                email: string | null;
                 id: string;
+                createdAt: Date;
+                name: string;
+                updatedAt: Date;
                 phone: string;
+                email: string | null;
+                isActive: boolean;
                 role: import(".prisma/client").$Enums.UserRole;
                 avatar: string | null;
-                isActive: boolean;
                 isVerified: boolean;
                 passwordHash: string | null;
-                createdAt: Date;
-                updatedAt: Date;
                 fcmTokens: string[];
             };
         } & {
@@ -233,55 +233,59 @@ export declare class OrdersService {
             availableBalance: Prisma.Decimal;
         }) | null;
         restaurant: {
-            name: string;
+            id: string;
             description: string | null;
+            createdAt: Date;
+            name: string;
+            rating: Prisma.Decimal;
+            updatedAt: Date;
+            deliveryFee: Prisma.Decimal;
+            cuisineTypes: string[];
+            phone: string;
             email: string;
             location: Prisma.JsonValue;
-            id: string;
-            phone: string;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-            rating: Prisma.Decimal;
-            deliveryFee: Prisma.Decimal;
-            images: string[];
-            cuisineTypes: string[];
             isOpen: boolean;
             totalRatings: number;
             preparationTime: number;
             minimumOrder: Prisma.Decimal;
             deliveryRadius: Prisma.Decimal;
+            images: string[];
             coverImage: string | null;
             partnerId: string;
         };
         items: ({
             menuItem: {
-                name: string;
-                description: string;
                 id: string;
+                description: string;
+                name: string;
                 isAvailable: boolean;
                 images: string[];
                 price: Prisma.Decimal;
                 isVeg: boolean;
-                categoryId: string;
                 isBestseller: boolean;
+                categoryId: string;
             };
         } & {
             id: string;
             orderId: string;
             price: Prisma.Decimal;
-            menuItemId: string;
             quantity: number;
             selectedModifiers: Prisma.JsonValue | null;
             specialInstructions: string | null;
+            menuItemId: string;
         })[];
     } & {
         id: string;
         createdAt: Date;
-        updatedAt: Date;
+        deliveryPartnerId: string | null;
+        tip: Prisma.Decimal;
         rating: number | null;
-        orderNumber: string;
         status: import(".prisma/client").$Enums.OrderStatus;
+        updatedAt: Date;
+        orderNumber: string;
+        customerId: string;
+        restaurantId: string;
         deliveryAddress: Prisma.JsonValue;
         customerInstructions: string | null;
         itemsTotal: Prisma.Decimal;
@@ -289,7 +293,6 @@ export declare class OrdersService {
         taxes: Prisma.Decimal;
         platformFee: Prisma.Decimal;
         discount: Prisma.Decimal;
-        tip: Prisma.Decimal;
         totalAmount: Prisma.Decimal;
         paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
@@ -306,24 +309,21 @@ export declare class OrdersService {
         estimatedDeliveryTime: number | null;
         actualDeliveryTime: number | null;
         promoCode: string | null;
-        restaurantId: string;
-        deliveryPartnerId: string | null;
-        customerId: string;
     }) | null>;
     findOne(customerId: string, orderId: string): Promise<{
         deliveryPartner: ({
             user: {
-                name: string;
-                email: string | null;
                 id: string;
+                createdAt: Date;
+                name: string;
+                updatedAt: Date;
                 phone: string;
+                email: string | null;
+                isActive: boolean;
                 role: import(".prisma/client").$Enums.UserRole;
                 avatar: string | null;
-                isActive: boolean;
                 isVerified: boolean;
                 passwordHash: string | null;
-                createdAt: Date;
-                updatedAt: Date;
                 fcmTokens: string[];
             };
         } & {
@@ -345,71 +345,75 @@ export declare class OrdersService {
             availableBalance: Prisma.Decimal;
         }) | null;
         restaurant: {
-            name: string;
+            id: string;
             description: string | null;
+            createdAt: Date;
+            name: string;
+            rating: Prisma.Decimal;
+            updatedAt: Date;
+            deliveryFee: Prisma.Decimal;
+            cuisineTypes: string[];
+            phone: string;
             email: string;
             location: Prisma.JsonValue;
-            id: string;
-            phone: string;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-            rating: Prisma.Decimal;
-            deliveryFee: Prisma.Decimal;
-            images: string[];
-            cuisineTypes: string[];
             isOpen: boolean;
             totalRatings: number;
             preparationTime: number;
             minimumOrder: Prisma.Decimal;
             deliveryRadius: Prisma.Decimal;
+            images: string[];
             coverImage: string | null;
             partnerId: string;
         };
         review: {
-            tags: string[];
             id: string;
             createdAt: Date;
             userId: string;
             rating: number;
             restaurantId: string;
+            orderId: string;
+            images: string[];
             deliveryRating: number | null;
             comment: string | null;
-            images: string[];
+            tags: string[];
             response: string | null;
             respondedAt: Date | null;
             helpfulCount: number;
             isReported: boolean;
-            orderId: string;
         } | null;
         items: ({
             menuItem: {
-                name: string;
-                description: string;
                 id: string;
+                description: string;
+                name: string;
                 isAvailable: boolean;
                 images: string[];
                 price: Prisma.Decimal;
                 isVeg: boolean;
-                categoryId: string;
                 isBestseller: boolean;
+                categoryId: string;
             };
         } & {
             id: string;
             orderId: string;
             price: Prisma.Decimal;
-            menuItemId: string;
             quantity: number;
             selectedModifiers: Prisma.JsonValue | null;
             specialInstructions: string | null;
+            menuItemId: string;
         })[];
     } & {
         id: string;
         createdAt: Date;
-        updatedAt: Date;
+        deliveryPartnerId: string | null;
+        tip: Prisma.Decimal;
         rating: number | null;
-        orderNumber: string;
         status: import(".prisma/client").$Enums.OrderStatus;
+        updatedAt: Date;
+        orderNumber: string;
+        customerId: string;
+        restaurantId: string;
         deliveryAddress: Prisma.JsonValue;
         customerInstructions: string | null;
         itemsTotal: Prisma.Decimal;
@@ -417,7 +421,6 @@ export declare class OrdersService {
         taxes: Prisma.Decimal;
         platformFee: Prisma.Decimal;
         discount: Prisma.Decimal;
-        tip: Prisma.Decimal;
         totalAmount: Prisma.Decimal;
         paymentMethod: import(".prisma/client").$Enums.PaymentMethod;
         paymentStatus: import(".prisma/client").$Enums.PaymentStatus;
@@ -434,25 +437,22 @@ export declare class OrdersService {
         estimatedDeliveryTime: number | null;
         actualDeliveryTime: number | null;
         promoCode: string | null;
-        restaurantId: string;
-        deliveryPartnerId: string | null;
-        customerId: string;
     }>;
     rateOrder(customerId: string, orderId: string, dto: CreateRatingDto): Promise<{
-        tags: string[];
         id: string;
         createdAt: Date;
         userId: string;
         rating: number;
         restaurantId: string;
+        orderId: string;
+        images: string[];
         deliveryRating: number | null;
         comment: string | null;
-        images: string[];
+        tags: string[];
         response: string | null;
         respondedAt: Date | null;
         helpfulCount: number;
         isReported: boolean;
-        orderId: string;
     }>;
     findAvailableForDelivery(lat: number, lng: number): Promise<unknown>;
     findNearbyDeliveryPartners(location: any, radiusKm: number): Promise<unknown>;

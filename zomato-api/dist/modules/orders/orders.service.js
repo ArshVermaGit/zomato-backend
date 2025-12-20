@@ -90,7 +90,7 @@ let OrdersService = class OrdersService {
         let discount = 0;
         let promoId = null;
         if (dto.promoCode) {
-            const validation = await this.promosService.validatePromoCode(dto.promoCode, customerId, itemsTotal, dto.restaurantId);
+            const validation = (await this.promosService.validatePromoCode(dto.promoCode, customerId, itemsTotal, dto.restaurantId));
             if (!validation.valid) {
                 throw new common_1.BadRequestException(`Invalid promo code: ${validation.reason}`);
             }
@@ -101,8 +101,8 @@ let OrdersService = class OrdersService {
         const orderNumber = `ZOM${Date.now().toString().slice(-8)}`;
         const pickupOTP = Math.floor(100000 + Math.random() * 900000).toString();
         const deliveryOTP = Math.floor(100000 + Math.random() * 900000).toString();
-        let paymentStatus = client_1.PaymentStatus.PENDING;
-        let paymentTransactionId = null;
+        const paymentStatus = client_1.PaymentStatus.PENDING;
+        const paymentTransactionId = null;
         if (dto.paymentMethod !== 'COD') {
         }
         const orderRaw = await this.prisma.order.create({
@@ -121,7 +121,9 @@ let OrdersService = class OrdersService {
                 discount,
                 tip: dto.tip || 0,
                 totalAmount,
-                paymentMethod: dto.paymentMethod === 'COD' ? client_1.PaymentMethod.CASH_ON_DELIVERY : client_1.PaymentMethod.UPI,
+                paymentMethod: dto.paymentMethod === 'COD'
+                    ? client_1.PaymentMethod.CASH_ON_DELIVERY
+                    : client_1.PaymentMethod.UPI,
                 paymentStatus,
                 paymentTransactionId,
                 pickupOTP,
@@ -341,7 +343,9 @@ let OrdersService = class OrdersService {
         if (!order) {
             throw new common_1.BadRequestException('Invalid OTP or order not found');
         }
-        const actualDeliveryTime = Math.floor((new Date().getTime() - new Date(order.placedAt || order.createdAt).getTime()) / 60000);
+        const actualDeliveryTime = Math.floor((new Date().getTime() -
+            new Date(order.placedAt || order.createdAt).getTime()) /
+            60000);
         const updatedOrderRaw = await this.prisma.order.update({
             where: { id: orderId },
             data: {
@@ -386,21 +390,21 @@ let OrdersService = class OrdersService {
         return this.prisma.order.findMany({
             where,
             orderBy: { createdAt: 'desc' },
-            include: { restaurant: true, items: { include: { menuItem: true } } }
+            include: { restaurant: true, items: { include: { menuItem: true } } },
         });
     }
     async findActive(customerId) {
         return this.prisma.order.findFirst({
             where: {
                 customerId,
-                status: { notIn: [client_1.OrderStatus.DELIVERED, client_1.OrderStatus.CANCELLED] }
+                status: { notIn: [client_1.OrderStatus.DELIVERED, client_1.OrderStatus.CANCELLED] },
             },
             include: {
                 restaurant: true,
                 items: { include: { menuItem: true } },
-                deliveryPartner: { include: { user: true } }
+                deliveryPartner: { include: { user: true } },
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
         });
     }
     async findOne(customerId, orderId) {
@@ -410,8 +414,8 @@ let OrdersService = class OrdersService {
                 restaurant: true,
                 deliveryPartner: { include: { user: true } },
                 items: { include: { menuItem: true } },
-                review: true
-            }
+                review: true,
+            },
         });
         if (!order || order.customerId !== customerId) {
             throw new common_1.NotFoundException('Order not found');
@@ -420,7 +424,7 @@ let OrdersService = class OrdersService {
     }
     async rateOrder(customerId, orderId, dto) {
         const order = await this.prisma.order.findFirst({
-            where: { id: orderId, customerId, status: client_1.OrderStatus.DELIVERED }
+            where: { id: orderId, customerId, status: client_1.OrderStatus.DELIVERED },
         });
         if (!order)
             throw new common_1.BadRequestException('Order cannot be rated');
@@ -432,8 +436,8 @@ let OrdersService = class OrdersService {
                 rating: dto.rating,
                 comment: dto.comment,
                 deliveryRating: dto.deliveryRating,
-                tags: dto.tags || []
-            }
+                tags: dto.tags || [],
+            },
         });
         return review;
     }

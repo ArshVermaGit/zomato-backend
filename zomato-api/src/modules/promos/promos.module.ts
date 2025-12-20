@@ -4,8 +4,8 @@ import { PromosService } from './promos.service';
 import { PromoValidationService } from './promo-validation.service';
 
 @Module({
-    controllers: [PromosController],
-    providers: [PromosService, PromoValidationService],
-    exports: [PromosService]
+  controllers: [PromosController],
+  providers: [PromosService, PromoValidationService],
+  exports: [PromosService],
 })
-export class PromosModule { }
+export class PromosModule {}

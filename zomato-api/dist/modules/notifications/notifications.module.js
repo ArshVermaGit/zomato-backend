@@ -33,7 +33,7 @@ exports.NotificationsModule = NotificationsModule = __decorate([
             notification_processor_1.NotificationProcessor,
             firebase_service_1.FirebaseService,
             twilio_service_1.TwilioService,
-            sendgrid_service_1.SendGridService
+            sendgrid_service_1.SendGridService,
         ],
         exports: [notifications_service_1.NotificationsService],
     })

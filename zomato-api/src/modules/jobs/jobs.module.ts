@@ -13,26 +13,26 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 import { PaymentsModule } from '../payments/payments.module';
 
 @Module({
-    imports: [
-        ScheduleModule.forRoot(),
-        BullModule.registerQueue(
-            { name: 'orders' },
-            { name: 'notifications' },
-            { name: 'analytics' },
-            { name: 'payments' },
-        ),
-        OrdersModule,
-        NotificationsModule,
-        AnalyticsModule,
-        PaymentsModule
-    ],
-    providers: [
-        JobsService,
-        OrderJobsProcessor,
-        NotificationJobsProcessor,
-        AnalyticsJobsProcessor,
-        PaymentJobsProcessor,
-        PrismaService
-    ],
+  imports: [
+    ScheduleModule.forRoot(),
+    BullModule.registerQueue(
+      { name: 'orders' },
+      { name: 'notifications' },
+      { name: 'analytics' },
+      { name: 'payments' },
+    ),
+    OrdersModule,
+    NotificationsModule,
+    AnalyticsModule,
+    PaymentsModule,
+  ],
+  providers: [
+    JobsService,
+    OrderJobsProcessor,
+    NotificationJobsProcessor,
+    AnalyticsJobsProcessor,
+    PaymentJobsProcessor,
+    PrismaService,
+  ],
 })
-export class JobsModule { }
+export class JobsModule {}

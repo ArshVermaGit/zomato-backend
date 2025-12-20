@@ -50,7 +50,7 @@ let FirebaseService = class FirebaseService {
         if (admin.apps.length === 0) {
         }
     }
-    async sendPushNotification(token, title, body, data) {
+    sendPushNotification(token, title, _body, _data) {
         try {
             console.log(`[Firebase] Sending Push to ${token}: ${title}`);
         }

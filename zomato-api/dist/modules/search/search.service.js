@@ -39,8 +39,18 @@ let SearchService = class SearchService {
             return;
         try {
             await this.restaurantIndex.setSettings({
-                searchableAttributes: ['name', 'cuisineTypes', 'address', 'description'],
-                attributesForFaceting: ['cuisineTypes', 'rating', 'deliveryFee', 'isActive'],
+                searchableAttributes: [
+                    'name',
+                    'cuisineTypes',
+                    'address',
+                    'description',
+                ],
+                attributesForFaceting: [
+                    'cuisineTypes',
+                    'rating',
+                    'deliveryFee',
+                    'isActive',
+                ],
                 customRanking: ['desc(rating)'],
             });
             await this.dishIndex.setSettings({
@@ -56,25 +66,27 @@ let SearchService = class SearchService {
         if (!this.client)
             return { hits: [] };
         return this.restaurantIndex.search(query, {
-            filters: filters
+            filters: filters,
         });
     }
     async searchDishes(query, filters) {
         if (!this.client)
             return { hits: [] };
         return this.dishIndex.search(query, {
-            filters: filters
+            filters: filters,
         });
     }
     async indexRestaurant(restaurant) {
         if (!this.client)
             return;
         const objectID = restaurant.id;
-        const { partner, ...rest } = restaurant;
+        const { partner: _partner, ...rest } = restaurant;
         await this.restaurantIndex.saveObject({
             objectID,
             ...rest,
-            _geoloc: restaurant.location ? { lat: restaurant.location.lat, lng: restaurant.location.lng } : undefined
+            _geoloc: restaurant.location
+                ? { lat: restaurant.location.lat, lng: restaurant.location.lng }
+                : undefined,
         });
     }
     async removeRestaurant(restaurantId) {

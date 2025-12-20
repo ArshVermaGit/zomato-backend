@@ -50,5 +50,5 @@ export declare class MapsController {
         etaMinutes: number;
         distanceMeters: number;
     }>;
-    getNearbyRestaurants(lat: number, lng: number, radius: number): Promise<never[]>;
+    getNearbyRestaurants(lat: number, lng: number, radius: number): never[];
 }

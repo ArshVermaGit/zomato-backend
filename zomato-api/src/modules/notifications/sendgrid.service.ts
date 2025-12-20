@@ -3,15 +3,15 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SendGridService {
-    constructor() {
-        // if (process.env.SENDGRID_API_KEY) sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    }
+  constructor() {
+    // if (process.env.SENDGRID_API_KEY) sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  }
 
-    async sendEmail(to: string, subject: string, text: string, html?: string) {
-        // if (process.env.NODE_ENV !== 'production') 
-        return console.log(`[SendGrid] Sending Email to ${to}: ${subject}`);
+  sendEmail(to: string, subject: string, _text: string, _html?: string) {
+    // if (process.env.NODE_ENV !== 'production')
+    return console.log(`[SendGrid] Sending Email to ${to}: ${subject}`);
 
-        /*
+    /*
         try {
             await sgMail.send({
                 to,
@@ -24,5 +24,5 @@ export class SendGridService {
             console.error('SendGrid Error:', error);
         }
         */
-    }
+  }
 }

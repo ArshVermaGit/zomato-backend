@@ -34,7 +34,10 @@ __decorate([
     __metadata("design:type", Number)
 ], OrderItemDto.prototype, "quantity", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: ['modifier-uuid-1', 'modifier-uuid-2'], required: false }),
+    (0, swagger_1.ApiProperty)({
+        example: ['modifier-uuid-1', 'modifier-uuid-2'],
+        required: false,
+    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),

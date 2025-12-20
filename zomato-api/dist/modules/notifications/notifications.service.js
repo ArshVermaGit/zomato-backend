@@ -98,13 +98,18 @@ let NotificationsService = class NotificationsService {
             },
         };
         try {
-            const response = await admin.messaging().send(message);
-            const multicastResponse = await admin.messaging().sendEachForMulticast(message);
+            const _response = await admin.messaging().send(message);
+            const multicastResponse = await admin
+                .messaging()
+                .sendEachForMulticast(message);
             console.log(`✅ Push notification sent to user ${userId}. Success user count: ${multicastResponse.successCount}`);
             if (multicastResponse.failureCount > 0) {
                 const invalidTokens = [];
                 multicastResponse.responses.forEach((resp, idx) => {
-                    if (!resp.success && (resp.error?.code === 'messaging/invalid-registration-token' || resp.error?.code === 'messaging/registration-token-not-registered')) {
+                    if (!resp.success &&
+                        (resp.error?.code === 'messaging/invalid-registration-token' ||
+                            resp.error?.code ===
+                                'messaging/registration-token-not-registered')) {
                         invalidTokens.push(user.fcmTokens[idx]);
                     }
                 });
@@ -122,9 +127,7 @@ let NotificationsService = class NotificationsService {
             where: { id: { in: userIds } },
             select: { id: true, fcmTokens: true },
         });
-        const tokens = users
-            .flatMap(u => u.fcmTokens)
-            .filter(t => t);
+        const tokens = users.flatMap((u) => u.fcmTokens).filter((t) => t);
         if (tokens.length === 0)
             return;
         const batchSize = 500;
@@ -139,7 +142,9 @@ let NotificationsService = class NotificationsService {
                 tokens: batchTokens,
             };
             try {
-                const response = await admin.messaging().sendEachForMulticast(message);
+                const response = await admin
+                    .messaging()
+                    .sendEachForMulticast(message);
                 console.log(`✅ Sent batch ${i} notifications. Success: ${response.successCount}`);
             }
             catch (error) {
@@ -148,7 +153,10 @@ let NotificationsService = class NotificationsService {
         }
     }
     async registerFCMToken(userId, token) {
-        const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { fcmTokens: true } });
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { fcmTokens: true },
+        });
         const currentTokens = user?.fcmTokens || [];
         if (!currentTokens.includes(token)) {
             await this.prisma.user.update({
@@ -158,13 +166,16 @@ let NotificationsService = class NotificationsService {
         }
     }
     async removeInvalidTokens(userId, tokensToRemove) {
-        const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { fcmTokens: true } });
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { fcmTokens: true },
+        });
         if (!user)
             return;
-        const newTokens = user.fcmTokens.filter(t => !tokensToRemove.includes(t));
+        const newTokens = user.fcmTokens.filter((t) => !tokensToRemove.includes(t));
         await this.prisma.user.update({
             where: { id: userId },
-            data: { fcmTokens: { set: newTokens } }
+            data: { fcmTokens: { set: newTokens } },
         });
     }
     async sendNotification(userId, title, message, type, channels = ['IN_APP']) {
@@ -174,14 +185,14 @@ let NotificationsService = class NotificationsService {
                 title,
                 message,
                 type,
-                data: { channels }
-            }
+                data: { channels },
+            },
         });
         if (channels.includes('PUSH')) {
             await this.sendPushNotification(userId, {
                 title,
                 body: message,
-                data: { type }
+                data: { type },
             });
         }
         return { success: true };

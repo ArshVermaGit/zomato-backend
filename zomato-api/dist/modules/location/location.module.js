@@ -19,14 +19,14 @@ exports.LocationModule = LocationModule = __decorate([
     (0, common_1.Module)({
         imports: [
             jwt_1.JwtModule.registerAsync({
-                useFactory: async (configService) => ({
+                useFactory: (configService) => ({
                     secret: configService.get('JWT_SECRET'),
                 }),
                 inject: [config_1.ConfigService],
             }),
         ],
         providers: [location_service_1.LocationService, location_gateway_1.LocationGateway],
-        exports: [location_service_1.LocationService]
+        exports: [location_service_1.LocationService],
     })
 ], LocationModule);
 //# sourceMappingURL=location.module.js.map

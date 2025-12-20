@@ -20,7 +20,7 @@ let AnalyticsJobsProcessor = AnalyticsJobsProcessor_1 = class AnalyticsJobsProce
     constructor(analyticsService) {
         this.analyticsService = analyticsService;
     }
-    async calculateDailyMetrics(job) {
+    calculateDailyMetrics(_job) {
         this.logger.log('Calculating Daily Analytics Metrics...');
     }
 };
@@ -29,7 +29,7 @@ __decorate([
     (0, bull_1.Process)('calculateDailyMetrics'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], AnalyticsJobsProcessor.prototype, "calculateDailyMetrics", null);
 exports.AnalyticsJobsProcessor = AnalyticsJobsProcessor = AnalyticsJobsProcessor_1 = __decorate([
     (0, bull_1.Processor)('analytics'),

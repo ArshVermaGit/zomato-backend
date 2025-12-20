@@ -41,7 +41,11 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a payment order' }),
-    (0, swagger_1.ApiResponse)({ status: 201, description: 'Order created', schema: { example: { id: 'order_123', amount: 500, currency: 'INR' } } }),
+    (0, swagger_1.ApiResponse)({
+        status: 201,
+        description: 'Order created',
+        schema: { example: { id: 'order_123', amount: 500, currency: 'INR' } },
+    }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -52,7 +56,9 @@ __decorate([
     (0, common_1.Post)('create-adhoc'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Create an ad-hoc payment order (e.g. for wallet load or ads)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Create an ad-hoc payment order (e.g. for wallet load or ads)',
+    }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),

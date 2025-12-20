@@ -8,16 +8,16 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
     server: Server;
     constructor(jwtService: JwtService, configService: ConfigService);
     handleConnection(client: Socket): Socket<import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, import("socket.io").DefaultEventsMap, any> | undefined;
-    handleDisconnect(client: Socket): void;
-    handleJoinRoom(roomId: string, client: Socket): void;
+    handleDisconnect(_client: Socket): void;
+    handleJoinRoom(roomId: string, client: Socket): Promise<void>;
     handleMessage(data: {
         roomId: string;
         message: string;
-    }, client: Socket): void;
+    }, _client: Socket): void;
     handleTypingStart(data: {
         roomId: string;
-    }, client: Socket): void;
+    }, _client: Socket): void;
     handleTypingStop(data: {
         roomId: string;
-    }, client: Socket): void;
+    }, _client: Socket): void;
 }

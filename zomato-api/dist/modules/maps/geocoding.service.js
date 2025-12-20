@@ -29,8 +29,8 @@ let GeocodingService = class GeocodingService {
             const response = await this.client.geocode({
                 params: {
                     address,
-                    key: this.apiKey
-                }
+                    key: this.apiKey,
+                },
             });
             const location = response.data.results[0]?.geometry.location;
             const formattedAddress = response.data.results[0]?.formatted_address;
@@ -48,8 +48,8 @@ let GeocodingService = class GeocodingService {
             const response = await this.client.reverseGeocode({
                 params: {
                     latlng: { lat, lng },
-                    key: this.apiKey
-                }
+                    key: this.apiKey,
+                },
             });
             return response.data.results[0]?.formatted_address;
         }

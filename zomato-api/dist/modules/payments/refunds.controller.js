@@ -33,7 +33,13 @@ exports.RefundsController = RefundsController;
 __decorate([
     (0, common_1.Get)(':orderId/calculate'),
     (0, swagger_1.ApiOperation)({ summary: 'Calculate Potential Refund' }),
-    (0, swagger_1.ApiResponse)({ status: 200, description: 'Refund calculation details', schema: { example: { refundableAmount: 450, policy: 'Standard: 100% refund' } } }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Refund calculation details',
+        schema: {
+            example: { refundableAmount: 450, policy: 'Standard: 100% refund' },
+        },
+    }),
     __param(0, (0, common_1.Param)('orderId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -45,11 +51,12 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 201, description: 'Refund processed successfully' }),
     (0, swagger_1.ApiBody)({
         schema: {
-            type: 'object', properties: {
+            type: 'object',
+            properties: {
                 type: { type: 'string', enum: ['GATEWAY', 'WALLET'] },
-                reason: { type: 'string' }
-            }
-        }
+                reason: { type: 'string' },
+            },
+        },
     }),
     __param(0, (0, common_1.Param)('orderId')),
     __param(1, (0, common_1.Body)('type')),

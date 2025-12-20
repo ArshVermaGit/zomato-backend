@@ -37,18 +37,18 @@ let NotificationProcessor = class NotificationProcessor {
                     case 'PUSH':
                         if (user.fcmTokens && user.fcmTokens.length > 0) {
                             for (const token of user.fcmTokens) {
-                                await this.firebase.sendPushNotification(token, title, body);
+                                this.firebase.sendPushNotification(token, title, body);
                             }
                         }
                         break;
                     case 'SMS':
                         if (user.phone) {
-                            await this.twilio.sendSms(user.phone, `${title}: ${body}`);
+                            this.twilio.sendSms(user.phone, `${title}: ${body}`);
                         }
                         break;
                     case 'EMAIL':
                         if (user.email) {
-                            await this.sendGrid.sendEmail(user.email, title, body);
+                            this.sendGrid.sendEmail(user.email, title, body);
                         }
                         break;
                 }

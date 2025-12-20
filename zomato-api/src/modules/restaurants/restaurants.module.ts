@@ -9,9 +9,15 @@ import { DatabaseModule } from '../../database/database.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-    imports: [DatabaseModule, ConfigModule, SearchModule, WebsocketsModule, MapsModule],
-    controllers: [RestaurantsController],
-    providers: [RestaurantsService],
-    exports: [RestaurantsService],
+  imports: [
+    DatabaseModule,
+    ConfigModule,
+    SearchModule,
+    WebsocketsModule,
+    MapsModule,
+  ],
+  controllers: [RestaurantsController],
+  providers: [RestaurantsService],
+  exports: [RestaurantsService],
 })
-export class RestaurantsModule { }
+export class RestaurantsModule {}

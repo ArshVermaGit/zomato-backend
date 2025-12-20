@@ -45,9 +45,9 @@ let JobsService = JobsService_1 = class JobsService {
         this.logger.debug('Triggering Midnight Analytics & Payouts');
         await this.analyticsQueue.add('calculateDailyMetrics', {});
         await this.paymentQueue.add('processPayouts', {});
-        await this.cleanupData();
+        this.cleanupData();
     }
-    async cleanupData() {
+    cleanupData() {
         this.logger.log('Running daily cleanup...');
         const oneYearAgo = new Date();
         oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);

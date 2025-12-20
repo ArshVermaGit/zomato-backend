@@ -8,20 +8,20 @@ import { FirebaseService } from './firebase.service';
 import { TwilioService } from './twilio.service';
 import { SendGridService } from './sendgrid.service';
 @Module({
-    imports: [
-        DatabaseModule,
-        BullModule.registerQueue({
-            name: 'notifications',
-        }),
-    ],
-    controllers: [NotificationsController],
-    providers: [
-        NotificationsService,
-        NotificationProcessor,
-        FirebaseService,
-        TwilioService,
-        SendGridService
-    ],
-    exports: [NotificationsService],
+  imports: [
+    DatabaseModule,
+    BullModule.registerQueue({
+      name: 'notifications',
+    }),
+  ],
+  controllers: [NotificationsController],
+  providers: [
+    NotificationsService,
+    NotificationProcessor,
+    FirebaseService,
+    TwilioService,
+    SendGridService,
+  ],
+  exports: [NotificationsService],
 })
-export class NotificationsModule { }
+export class NotificationsModule {}
