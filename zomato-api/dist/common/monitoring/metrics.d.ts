@@ -1,12 +1,12 @@
 import { register, Counter, Histogram, Gauge } from 'prom-client';
 import { Request, Response, NextFunction } from 'express';
-export declare const httpRequestDuration: Histogram<"method" | "route" | "status_code">;
-export declare const httpRequestTotal: Counter<"method" | "route" | "status_code">;
-export declare const ordersCreated: Counter<"restaurant_id">;
+export declare const httpRequestDuration: Histogram<string>;
+export declare const httpRequestTotal: Counter<string>;
+export declare const ordersCreated: Counter<string>;
 export declare const ordersCompleted: Counter<string>;
 export declare const activeDeliveryPartners: Gauge<string>;
 export declare const activeOrders: Gauge<string>;
-export declare const dbQueryDuration: Histogram<"operation" | "table">;
+export declare const dbQueryDuration: Histogram<string>;
 export declare function metricsMiddleware(req: Request, res: Response, next: NextFunction): void;
-export declare function metricsHandler(req: Request, res: Response): Promise<void>;
+export declare function metricsHandler(req: Request, res: Response): any;
 export { register };
