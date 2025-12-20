@@ -38,10 +38,12 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
-            throttler_1.ThrottlerModule.forRoot([{
+            throttler_1.ThrottlerModule.forRoot([
+                {
                     ttl: 60000,
                     limit: 10,
-                }]),
+                },
+            ]),
             redis_module_1.RedisModule,
             location_module_1.LocationModule,
             common_module_1.CommonModule,
