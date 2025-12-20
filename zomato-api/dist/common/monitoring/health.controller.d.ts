@@ -8,7 +8,7 @@ interface HealthCheckResponse {
     };
 }
 export declare class HealthController {
-    check(): Promise<HealthCheckResponse>;
+    check(): HealthCheckResponse;
     live(): {
         status: string;
     };
