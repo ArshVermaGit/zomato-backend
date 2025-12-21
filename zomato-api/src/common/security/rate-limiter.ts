@@ -42,7 +42,6 @@ export function createRedisRateLimiter(redisClient: any, options: any = {}) {
     max: options.max || 100,
     message: options.message || { error: 'Too many requests' },
     store: new RedisStore({
-      // @ts-expect-error - Redis client type
       sendCommand: (...args: string[]) => redisClient.call(...args),
     }),
   });

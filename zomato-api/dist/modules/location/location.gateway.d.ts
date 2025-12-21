@@ -13,6 +13,6 @@ export declare class LocationGateway {
         lat: number;
         lng: number;
         orderId?: string;
-    }, client: Socket): Promise<void>;
+    }, client: Socket): any;
     handleTrackOrder(orderId: string, client: Socket): void;
 }

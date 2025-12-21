@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocationGateway = void 0;
 const websockets_1 = require("@nestjs/websockets");
@@ -79,8 +80,6 @@ exports.LocationGateway = LocationGateway = __decorate([
         cors: { origin: '*' },
         namespace: 'location',
     }),
-    __metadata("design:paramtypes", [location_service_1.LocationService,
-        jwt_1.JwtService,
-        config_1.ConfigService])
+    __metadata("design:paramtypes", [location_service_1.LocationService, typeof (_a = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _a : Object, config_1.ConfigService])
 ], LocationGateway);
 //# sourceMappingURL=location.gateway.js.map

@@ -20,37 +20,12 @@ export declare class AuthService {
     signup(dto: SignupDto): Promise<{
         accessToken: string;
         refreshToken: string;
-        user: {
-            name: string;
-            id: string;
-            phone: string;
-            email: string | null;
-            role: import(".prisma/client").$Enums.UserRole;
-            avatar: string | null;
-            isActive: boolean;
-            isVerified: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-            fcmTokens: string[];
-        };
+        user: User;
     }>;
     login(user: User): {
         accessToken: string;
         refreshToken: string;
-        user: {
-            name: string;
-            id: string;
-            phone: string;
-            email: string | null;
-            role: import(".prisma/client").$Enums.UserRole;
-            avatar: string | null;
-            isActive: boolean;
-            isVerified: boolean;
-            passwordHash: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            fcmTokens: string[];
-        };
+        user: User;
     };
     generateTokens(user: Partial<User>): {
         accessToken: string;

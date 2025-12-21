@@ -13,82 +13,10 @@ export declare class DeliveryService {
     private earningsService;
     constructor(prisma: PrismaService, s3Service: S3Service, locationService: LocationService, orderStateService: OrderStateService, earningsService: EarningsService);
     private docTypeMap;
-    onboard(userId: string, dto: OnboardDeliveryPartnerDto): Promise<{
-        id: string;
-        userId: string;
-        vehicleType: import(".prisma/client").$Enums.VehicleType;
-        vehicleNumber: string;
-        licenseNumber: string;
-        isAvailable: boolean;
-        isOnline: boolean;
-        currentLocation: import("@prisma/client/runtime/library").JsonValue | null;
-        documentsVerified: boolean;
-        onboardingStatus: import(".prisma/client").$Enums.OnboardingStatus;
-        bankDetails: import("@prisma/client/runtime/library").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/library").JsonValue | null;
-        rating: import("@prisma/client/runtime/library").Decimal;
-        totalDeliveries: number;
-        totalEarnings: import("@prisma/client/runtime/library").Decimal;
-        availableBalance: import("@prisma/client/runtime/library").Decimal;
-    }>;
-    getUploadUrl(userId: string, docType: string): Promise<{
-        uploadUrl: string;
-        publicUrl: string;
-        key: string;
-    }>;
-    updateDocumentStatus(userId: string, docTypeKey: string, url: string): Promise<{
-        id: string;
-        type: import(".prisma/client").$Enums.DocumentType;
-        deliveryPartnerId: string;
-        status: import(".prisma/client").$Enums.DocumentStatus;
-        fileUrl: string;
-        rejectionReason: string | null;
-        uploadedAt: Date;
-        verifiedAt: Date | null;
-    }>;
-    getStatus(userId: string): Promise<{
-        status: string;
-        documents?: undefined;
-        documentsVerified?: undefined;
-    } | {
-        status: import(".prisma/client").$Enums.OnboardingStatus;
-        documents: {};
-        documentsVerified: boolean;
-    }>;
-    updateVehicle(userId: string, dto: UpdateVehicleDto): Promise<{
-        id: string;
-        userId: string;
-        vehicleType: import(".prisma/client").$Enums.VehicleType;
-        vehicleNumber: string;
-        licenseNumber: string;
-        isAvailable: boolean;
-        isOnline: boolean;
-        currentLocation: import("@prisma/client/runtime/library").JsonValue | null;
-        documentsVerified: boolean;
-        onboardingStatus: import(".prisma/client").$Enums.OnboardingStatus;
-        bankDetails: import("@prisma/client/runtime/library").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/library").JsonValue | null;
-        rating: import("@prisma/client/runtime/library").Decimal;
-        totalDeliveries: number;
-        totalEarnings: import("@prisma/client/runtime/library").Decimal;
-        availableBalance: import("@prisma/client/runtime/library").Decimal;
-    }>;
-    verifyPartner(partnerId: string, status: OnboardingStatus): Promise<{
-        id: string;
-        userId: string;
-        vehicleType: import(".prisma/client").$Enums.VehicleType;
-        vehicleNumber: string;
-        licenseNumber: string;
-        isAvailable: boolean;
-        isOnline: boolean;
-        currentLocation: import("@prisma/client/runtime/library").JsonValue | null;
-        documentsVerified: boolean;
-        onboardingStatus: import(".prisma/client").$Enums.OnboardingStatus;
-        bankDetails: import("@prisma/client/runtime/library").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/library").JsonValue | null;
-        rating: import("@prisma/client/runtime/library").Decimal;
-        totalDeliveries: number;
-        totalEarnings: import("@prisma/client/runtime/library").Decimal;
-        availableBalance: import("@prisma/client/runtime/library").Decimal;
-    }>;
+    onboard(userId: string, dto: OnboardDeliveryPartnerDto): unknown;
+    getUploadUrl(userId: string, docType: string): unknown;
+    updateDocumentStatus(userId: string, docTypeKey: string, url: string): unknown;
+    getStatus(userId: string): unknown;
+    updateVehicle(userId: string, dto: UpdateVehicleDto): unknown;
+    verifyPartner(partnerId: string, status: OnboardingStatus): unknown;
 }

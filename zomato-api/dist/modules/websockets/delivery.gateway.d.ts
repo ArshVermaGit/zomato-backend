@@ -14,5 +14,5 @@ export declare class DeliveryGateway implements OnGatewayConnection, OnGatewayDi
         lng: number;
         orderId?: string;
     }, _client: Socket): void;
-    handleJoinRoom(orderId: string, client: Socket): Promise<void>;
+    handleJoinRoom(orderId: string, client: Socket): any;
 }

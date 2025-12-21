@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { S3Service } from '../../common/services/s3.service';
@@ -23,7 +22,7 @@ export class MenuService {
     private prisma: PrismaService,
     private s3Service: S3Service,
     private realtimeGateway: RealtimeGateway,
-  ) {}
+  ) { }
 
   // Authorization Helper
   async checkOwnership(userId: string, restaurantId: string) {

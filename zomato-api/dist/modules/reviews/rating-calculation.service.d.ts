@@ -6,6 +6,6 @@ export declare class RatingCalculationService {
     private searchService;
     private realtimeGateway;
     constructor(prisma: PrismaService, searchService: SearchService, realtimeGateway: RealtimeGateway);
-    updateRestaurantRating(restaurantId: string): Promise<void>;
-    updateDeliveryPartnerRating(partnerId: string): Promise<void>;
+    updateRestaurantRating(restaurantId: string): any;
+    updateDeliveryPartnerRating(partnerId: string): any;
 }

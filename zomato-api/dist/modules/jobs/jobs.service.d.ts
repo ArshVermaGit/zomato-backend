@@ -8,8 +8,8 @@ export declare class JobsService {
     private prisma;
     private readonly logger;
     constructor(orderQueue: Queue, notificationQueue: Queue, analyticsQueue: Queue, paymentQueue: Queue, prisma: PrismaService);
-    triggerOrderMaintenance(): Promise<void>;
-    triggerDailyNotifications(): Promise<void>;
-    triggerMidnightJobs(): Promise<void>;
+    triggerOrderMaintenance(): any;
+    triggerDailyNotifications(): any;
+    triggerMidnightJobs(): any;
     private cleanupData;
 }

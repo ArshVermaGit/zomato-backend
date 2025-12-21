@@ -6,25 +6,7 @@ export declare class ReportGenerationService {
     private s3Service;
     private readonly logger;
     constructor(prisma: PrismaService, s3Service: S3Service);
-    createReportRequest(type: ReportType, userId: string, criteria?: any): Promise<{
-        id: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ReportStatus;
-        data: import("@prisma/client/runtime/library").JsonValue;
-        type: import(".prisma/client").$Enums.ReportType;
-        period: string;
-        generatedBy: string | null;
-        url: string | null;
-    }>;
+    createReportRequest(type: ReportType, userId: string, criteria?: any): unknown;
     private generateReport;
-    getReport(id: string): Promise<{
-        id: string;
-        createdAt: Date;
-        status: import(".prisma/client").$Enums.ReportStatus;
-        data: import("@prisma/client/runtime/library").JsonValue;
-        type: import(".prisma/client").$Enums.ReportType;
-        period: string;
-        generatedBy: string | null;
-        url: string | null;
-    } | null>;
+    getReport(id: string): unknown;
 }

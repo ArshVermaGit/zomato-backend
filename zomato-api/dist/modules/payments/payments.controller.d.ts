@@ -5,7 +5,7 @@ export declare class PaymentsController {
     createOrder(req: any, body: {
         orderId: string;
     }): Promise<{
-        transactionId: string;
+        transactionId: any;
         razorpayOrderId: string;
         amount: string | number;
         currency: string;

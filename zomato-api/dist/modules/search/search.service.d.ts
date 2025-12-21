@@ -6,15 +6,11 @@ export declare class SearchService implements OnModuleInit {
     private restaurantIndex;
     private dishIndex;
     constructor(configService: ConfigService);
-    onModuleInit(): Promise<void>;
-    searchRestaurants(query: string, filters?: string): Promise<import("@algolia/client-search").SearchResponse<unknown> | {
-        hits: never[];
-    }>;
-    searchDishes(query: string, filters?: string): Promise<import("@algolia/client-search").SearchResponse<unknown> | {
-        hits: never[];
-    }>;
-    indexRestaurant(restaurant: any): Promise<void>;
-    removeRestaurant(restaurantId: string): Promise<void>;
-    indexDish(dish: any): Promise<void>;
-    removeDish(dishId: string): Promise<void>;
+    onModuleInit(): any;
+    searchRestaurants(query: string, filters?: string): unknown;
+    searchDishes(query: string, filters?: string): unknown;
+    indexRestaurant(restaurant: any): any;
+    removeRestaurant(restaurantId: string): any;
+    indexDish(dish: any): any;
+    removeDish(dishId: string): any;
 }

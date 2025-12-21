@@ -10,25 +10,25 @@ export declare class PaymentsService {
         orderId: string;
         customerId: string;
     }): Promise<{
-        transactionId: string;
-        razorpayOrderId: string;
-        amount: string | number;
-        currency: string;
+        transactionId: any;
+        razorpayOrderId: any;
+        amount: any;
+        currency: any;
         status: string;
         key: string | undefined;
     }>;
     createPaymentOrder(userId: string, orderId: string): Promise<{
-        transactionId: string;
-        razorpayOrderId: string;
-        amount: string | number;
-        currency: string;
+        transactionId: any;
+        razorpayOrderId: any;
+        amount: any;
+        currency: any;
         status: string;
         key: string | undefined;
     }>;
     createAdHocPayment(userId: string, amount: number, purpose: string): Promise<{
-        id: string;
-        amount: string | number;
-        currency: string;
+        id: any;
+        amount: any;
+        currency: any;
         key: string | undefined;
     }>;
     verifyPayment(orderId: string | null, paymentId: string, razorpayOrderId: string, signature: string): Promise<{

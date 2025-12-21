@@ -6,120 +6,17 @@ export declare class DeliveryController {
     private deliveryService;
     private earningsService;
     constructor(deliveryService: DeliveryService, earningsService: EarningsService);
-    requestPayout(req: any, amount: number): Promise<{
-        id: string;
-        amount: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.PayoutStatus;
-        processedAt: Date | null;
-        referenceId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        deliveryPartnerId: string;
-    }>;
-    getTransactions(req: any): Promise<{
-        id: string;
-        amount: import("@prisma/client/runtime/library").Decimal;
-        createdAt: Date;
-        deliveryPartnerId: string;
-        type: import(".prisma/client").$Enums.WalletTransactionType;
-        description: string | null;
-    }[]>;
-    getPayoutHistory(req: any): Promise<{
-        id: string;
-        amount: import("@prisma/client/runtime/library").Decimal;
-        status: import(".prisma/client").$Enums.PayoutStatus;
-        processedAt: Date | null;
-        referenceId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        deliveryPartnerId: string;
-    }[]>;
-    getPerformanceMetrics(req: any): Promise<{
-        totalDeliveries: number;
-        averageRating: number;
-        acceptanceRate: number;
-        onTimeRate: number;
-        lifetimeEarnings: import("@prisma/client/runtime/library").Decimal;
-    }>;
-    onboard(req: any, dto: OnboardDeliveryPartnerDto): Promise<{
-        id: string;
-        userId: string;
-        vehicleType: import(".prisma/client").$Enums.VehicleType;
-        vehicleNumber: string;
-        licenseNumber: string;
-        isAvailable: boolean;
-        isOnline: boolean;
-        currentLocation: import("@prisma/client/runtime/library").JsonValue | null;
-        documentsVerified: boolean;
-        onboardingStatus: import(".prisma/client").$Enums.OnboardingStatus;
-        bankDetails: import("@prisma/client/runtime/library").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/library").JsonValue | null;
-        rating: import("@prisma/client/runtime/library").Decimal;
-        totalDeliveries: number;
-        totalEarnings: import("@prisma/client/runtime/library").Decimal;
-        availableBalance: import("@prisma/client/runtime/library").Decimal;
-    }>;
-    getUploadUrl(req: any, docType: string): Promise<{
-        uploadUrl: string;
-        publicUrl: string;
-        key: string;
-    }>;
+    requestPayout(req: any, amount: number): unknown;
+    getTransactions(req: any): unknown;
+    getPayoutHistory(req: any): unknown;
+    getPerformanceMetrics(req: any): unknown;
+    onboard(req: any, dto: OnboardDeliveryPartnerDto): unknown;
+    getUploadUrl(req: any, docType: string): unknown;
     confirmUpload(req: any, body: {
         docType: string;
         url: string;
-    }): Promise<{
-        id: string;
-        status: import(".prisma/client").$Enums.DocumentStatus;
-        deliveryPartnerId: string;
-        type: import(".prisma/client").$Enums.DocumentType;
-        fileUrl: string;
-        rejectionReason: string | null;
-        uploadedAt: Date;
-        verifiedAt: Date | null;
-    }>;
-    getStatus(req: any): Promise<{
-        status: string;
-        documents?: undefined;
-        documentsVerified?: undefined;
-    } | {
-        status: import(".prisma/client").$Enums.OnboardingStatus;
-        documents: {};
-        documentsVerified: boolean;
-    }>;
-    updateVehicle(req: any, dto: UpdateVehicleDto): Promise<{
-        id: string;
-        userId: string;
-        vehicleType: import(".prisma/client").$Enums.VehicleType;
-        vehicleNumber: string;
-        licenseNumber: string;
-        isAvailable: boolean;
-        isOnline: boolean;
-        currentLocation: import("@prisma/client/runtime/library").JsonValue | null;
-        documentsVerified: boolean;
-        onboardingStatus: import(".prisma/client").$Enums.OnboardingStatus;
-        bankDetails: import("@prisma/client/runtime/library").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/library").JsonValue | null;
-        rating: import("@prisma/client/runtime/library").Decimal;
-        totalDeliveries: number;
-        totalEarnings: import("@prisma/client/runtime/library").Decimal;
-        availableBalance: import("@prisma/client/runtime/library").Decimal;
-    }>;
-    verifyPartner(partnerId: string, status: OnboardingStatus): Promise<{
-        id: string;
-        userId: string;
-        vehicleType: import(".prisma/client").$Enums.VehicleType;
-        vehicleNumber: string;
-        licenseNumber: string;
-        isAvailable: boolean;
-        isOnline: boolean;
-        currentLocation: import("@prisma/client/runtime/library").JsonValue | null;
-        documentsVerified: boolean;
-        onboardingStatus: import(".prisma/client").$Enums.OnboardingStatus;
-        bankDetails: import("@prisma/client/runtime/library").JsonValue | null;
-        emergencyContact: import("@prisma/client/runtime/library").JsonValue | null;
-        rating: import("@prisma/client/runtime/library").Decimal;
-        totalDeliveries: number;
-        totalEarnings: import("@prisma/client/runtime/library").Decimal;
-        availableBalance: import("@prisma/client/runtime/library").Decimal;
-    }>;
+    }): unknown;
+    getStatus(req: any): unknown;
+    updateVehicle(req: any, dto: UpdateVehicleDto): unknown;
+    verifyPartner(partnerId: string, status: OnboardingStatus): unknown;
 }

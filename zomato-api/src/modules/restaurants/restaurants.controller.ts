@@ -16,6 +16,7 @@ import {
   UpdateRestaurantDto,
   RestaurantFilterDto,
   NearbyRestaurantDto,
+  SearchRestaurantDto,
 } from './dto/restaurant.dto';
 import {
   ApiTags,
@@ -31,7 +32,7 @@ import { UserRole } from '@prisma/client';
 @ApiTags('Restaurants')
 @Controller('restaurants')
 export class RestaurantsController {
-  constructor(private restaurantsService: RestaurantsService) {}
+  constructor(private restaurantsService: RestaurantsService) { }
 
   // PARTNER & ADMIN ROUTES
 

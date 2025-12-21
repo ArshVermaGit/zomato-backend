@@ -9,18 +9,8 @@ export declare class OrdersGateway implements OnGatewayConnection, OnGatewayDisc
     constructor(jwtService: JwtService, configService: ConfigService);
     handleConnection(client: Socket): void;
     handleDisconnect(client: Socket): void;
-    handleJoinRoom(orderId: string, client: Socket): Promise<{
-        event: string;
-        data: {
-            orderId: string;
-        };
-    }>;
-    handleLeaveRoom(orderId: string, client: Socket): Promise<{
-        event: string;
-        data: {
-            orderId: string;
-        };
-    }>;
+    handleJoinRoom(orderId: string, client: Socket): unknown;
+    handleLeaveRoom(orderId: string, client: Socket): unknown;
     emitOrderStatusUpdate(orderId: string, status: string, data?: any): void;
     emitOrderAssigned(orderId: string, partnerId: string): void;
 }
